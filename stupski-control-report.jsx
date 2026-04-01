@@ -1,0 +1,586 @@
+import { useState, useMemo } from "react";
+import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area, ComposedChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from "recharts";
+
+// ============================================================
+// REAL DATA: GA4 Daily (from Free Form Explore export)
+// ============================================================
+const DAILY = [
+  { date:"2026-03-01",d:"Mar 1",site:356,ctrl:356,pv:428,fv:335,clk:3,scr:57,form:1,vid:0,gscClk:9,gscImp:12177 },
+  { date:"2026-03-02",d:"Mar 2",site:684,ctrl:683,pv:805,fv:628,clk:5,scr:41,form:0,vid:0,gscClk:54,gscImp:19123 },
+  { date:"2026-03-03",d:"Mar 3",site:728,ctrl:726,pv:867,fv:672,clk:9,scr:38,form:3,vid:0,gscClk:140,gscImp:16428 },
+  { date:"2026-03-04",d:"Mar 4",site:906,ctrl:901,pv:1002,fv:836,clk:8,scr:36,form:3,vid:0,gscClk:122,gscImp:20483 },
+  { date:"2026-03-05",d:"Mar 5",site:311,ctrl:311,pv:373,fv:258,clk:2,scr:13,form:0,vid:0,gscClk:84,gscImp:19607 },
+  { date:"2026-03-06",d:"Mar 6",site:98,ctrl:98,pv:117,fv:71,clk:2,scr:13,form:1,vid:0,gscClk:85,gscImp:21309 },
+  { date:"2026-03-07",d:"Mar 7",site:117,ctrl:115,pv:120,fv:102,clk:1,scr:1,form:0,vid:0,gscClk:27,gscImp:10556 },
+  { date:"2026-03-08",d:"Mar 8",site:584,ctrl:584,pv:710,fv:573,clk:1,scr:35,form:0,vid:0,gscClk:22,gscImp:12460 },
+  { date:"2026-03-09",d:"Mar 9",site:111,ctrl:107,pv:156,fv:61,clk:6,scr:21,form:0,vid:0,gscClk:69,gscImp:16877 },
+  { date:"2026-03-10",d:"Mar 10",site:181,ctrl:176,pv:213,fv:147,clk:12,scr:17,form:1,vid:0,gscClk:86,gscImp:8131 },
+  { date:"2026-03-11",d:"Mar 11",site:351,ctrl:327,pv:369,fv:288,clk:14,scr:25,form:0,vid:1,gscClk:94,gscImp:7151 },
+  { date:"2026-03-12",d:"Mar 12",site:400,ctrl:393,pv:434,fv:369,clk:10,scr:25,form:2,vid:1,gscClk:83,gscImp:12767 },
+  { date:"2026-03-13",d:"Mar 13",site:350,ctrl:345,pv:381,fv:319,clk:4,scr:14,form:0,vid:1,gscClk:52,gscImp:10184 },
+  { date:"2026-03-14",d:"Mar 14",site:55,ctrl:55,pv:79,fv:44,clk:3,scr:3,form:0,vid:0,gscClk:13,gscImp:5859 },
+  { date:"2026-03-15",d:"Mar 15",site:46,ctrl:46,pv:57,fv:39,clk:1,scr:7,form:0,vid:0,gscClk:12,gscImp:7734 },
+  { date:"2026-03-16",d:"Mar 16",site:333,ctrl:330,pv:566,fv:304,clk:12,scr:62,form:0,vid:15,gscClk:69,gscImp:11915 },
+  { date:"2026-03-17",d:"Mar 17",site:2678,ctrl:2665,pv:3520,fv:2560,clk:40,scr:258,form:4,vid:15,gscClk:77,gscImp:9364 },
+  { date:"2026-03-18",d:"Mar 18",site:3103,ctrl:3097,pv:3827,fv:2813,clk:14,scr:205,form:1,vid:6,gscClk:83,gscImp:19423 },
+  { date:"2026-03-19",d:"Mar 19",site:1189,ctrl:1186,pv:1448,fv:1026,clk:11,scr:49,form:1,vid:2,gscClk:70,gscImp:18697 },
+  { date:"2026-03-20",d:"Mar 20",site:1574,ctrl:1573,pv:1966,fv:1405,clk:10,scr:59,form:0,vid:0,gscClk:69,gscImp:17702 },
+  { date:"2026-03-21",d:"Mar 21",site:235,ctrl:234,pv:270,fv:167,clk:3,scr:9,form:1,vid:0,gscClk:33,gscImp:13229 },
+  { date:"2026-03-22",d:"Mar 22",site:101,ctrl:100,pv:113,fv:60,clk:6,scr:6,form:0,vid:0,gscClk:48,gscImp:16681 },
+  { date:"2026-03-23",d:"Mar 23",site:2722,ctrl:2719,pv:3386,fv:2527,clk:16,scr:96,form:0,vid:3,gscClk:108,gscImp:22663 },
+  { date:"2026-03-24",d:"Mar 24",site:371,ctrl:364,pv:431,fv:244,clk:10,scr:28,form:2,vid:0,gscClk:93,gscImp:22762 },
+  { date:"2026-03-25",d:"Mar 25",site:263,ctrl:261,pv:359,fv:195,clk:7,scr:13,form:0,vid:0,gscClk:90,gscImp:25940 },
+  { date:"2026-03-26",d:"Mar 26",site:129,ctrl:127,pv:139,fv:85,clk:6,scr:13,form:0,vid:0,gscClk:84,gscImp:27706 },
+  { date:"2026-03-27",d:"Mar 27",site:151,ctrl:145,pv:187,fv:108,clk:12,scr:14,form:0,vid:0,gscClk:60,gscImp:26858 },
+  { date:"2026-03-28",d:"Mar 28",site:94,ctrl:94,pv:110,fv:72,clk:6,scr:10,form:0,vid:1,gscClk:38,gscImp:16797 },
+  { date:"2026-03-29",d:"Mar 29",site:201,ctrl:200,pv:242,fv:175,clk:4,scr:14,form:0,vid:0,gscClk:31,gscImp:18183 },
+  { date:"2026-03-30",d:"Mar 30",site:345,ctrl:329,pv:414,fv:279,clk:11,scr:21,form:2,vid:1,gscClk:63,gscImp:26005 },
+  { date:"2026-03-31",d:"Mar 31",site:209,ctrl:206,pv:252,fv:178,clk:10,scr:15,form:0,vid:0,gscClk:80,gscImp:21343 },
+];
+
+const C = { navy:"#1B2A4A",coral:"#E8604C",coralLt:"#F0816F",orange:"#F4A259",teal:"#3A8F8B",tealLt:"#4DB0AC",cream:"#FAF7F2",warm:"#E8E3DC",white:"#FFF",dk:"#1B2A4A",mid:"#5A6578",lt:"#8A92A0",grn:"#4CAF50",red:"#E84C4C",purp:"#7B61FF" };
+const CH = [C.coral,C.teal,C.orange,C.navy,C.purp,C.tealLt,C.coralLt,"#C4A35A"];
+
+const Tip = ({active,payload,label})=>{
+  if(!active||!payload?.length)return null;
+  return <div style={{background:C.navy,borderRadius:8,padding:"10px 14px",boxShadow:"0 4px 20px rgba(0,0,0,.2)"}}>
+    <div style={{color:C.warm,fontSize:11,fontWeight:600,marginBottom:6}}>{label}</div>
+    {payload.map((p,i)=><div key={i} style={{color:"#fff",fontSize:12,display:"flex",gap:6,alignItems:"center",marginBottom:2}}>
+      <span style={{width:7,height:7,borderRadius:4,background:p.color,display:"inline-block",flexShrink:0}}/>
+      {p.name}: <strong>{typeof p.value==="number"?p.value.toLocaleString():p.value}</strong>
+    </div>)}
+  </div>;
+};
+
+const Card = ({label,value,sub,icon,color=C.navy,accent})=>(
+  <div style={{background:C.white,borderRadius:12,padding:"16px 18px",border:`1px solid ${C.warm}`,position:"relative",overflow:"hidden"}}>
+    <div style={{position:"absolute",top:0,left:0,right:0,height:3,background:color}}/>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+      <div>
+        <div style={{fontSize:10,fontWeight:600,color:C.lt,textTransform:"uppercase",letterSpacing:".06em",marginBottom:3}}>{label}</div>
+        <div style={{fontSize:26,fontWeight:700,color:C.dk,fontFamily:"'apotek-variable','DM Serif Display',Georgia,serif",lineHeight:1.1}}>{typeof value==="number"?value.toLocaleString():value}</div>
+        {sub&&<div style={{fontSize:11,color:accent||C.mid,marginTop:3,fontWeight:500}}>{sub}</div>}
+      </div>
+      {icon&&<span style={{fontSize:22,opacity:.7}}>{icon}</span>}
+    </div>
+  </div>
+);
+
+const Hdr = ({title,sub,icon,src})=>(
+  <div style={{marginBottom:14,marginTop:6}}>
+    <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+      {icon&&<span style={{fontSize:18}}>{icon}</span>}
+      <h2 style={{fontSize:17,fontWeight:700,color:C.navy,fontFamily:"'apotek-variable','DM Serif Display',Georgia,serif",margin:0}}>{title}</h2>
+      {src&&<span style={{background:src==="GA4"?"#FFF3E0":src==="Clarity"?"#E3F2FD":"#F3E5F5",color:src==="GA4"?"#E65100":src==="Clarity"?"#1565C0":"#6A1B9A",fontSize:9,fontWeight:700,padding:"2px 7px",borderRadius:3,textTransform:"uppercase",letterSpacing:".04em"}}>{src}</span>}
+    </div>
+    {sub&&<p style={{fontSize:12,color:C.mid,margin:"3px 0 0",lineHeight:1.4}}>{sub}</p>}
+  </div>
+);
+
+const Note = ({type="info",children})=>{
+  const s={info:{bg:"#E8F5E9",b:"#A5D6A7",i:"✅"},warn:{bg:"#FFF8E1",b:"#FFE082",i:"⚠️"},crit:{bg:"#FFEBEE",b:"#EF9A9A",i:"🚨"},tip:{bg:"#E3F2FD",b:"#90CAF9",i:"💡"}};
+  const v=s[type]||s.info;
+  return <div style={{background:v.bg,border:`1px solid ${v.b}`,borderRadius:8,padding:"10px 14px",fontSize:12,color:C.dk,lineHeight:1.5,display:"flex",gap:8,alignItems:"flex-start",marginTop:12}}>
+    <span style={{flexShrink:0}}>{v.i}</span><div>{children}</div>
+  </div>;
+};
+
+const PBar = ({label,value,max,color=C.coral})=>(
+  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:5}}>
+    <div style={{fontSize:11,color:C.dk,fontWeight:500,width:200,flexShrink:0,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{label}</div>
+    <div style={{flex:1,height:7,background:C.warm,borderRadius:4,overflow:"hidden"}}>
+      <div style={{width:`${Math.min((value/max)*100,100)}%`,height:"100%",background:color,borderRadius:4}}/>
+    </div>
+    <div style={{fontSize:11,color:C.mid,fontWeight:600,minWidth:50,textAlign:"right"}}>{value.toLocaleString()}</div>
+  </div>
+);
+
+// ============================================================
+// MAIN DASHBOARD
+// ============================================================
+export default function Dashboard() {
+  const [tab,setTab] = useState("overview");
+  const [phase,setPhase] = useState("all");
+
+  const phases = [
+    {id:"all",label:"Full Month",range:"Mar 1–31",color:C.navy,icon:"📅"},
+    {id:"pre",label:"Pre-Launch",range:"Mar 1–16",color:C.orange,icon:"⏳"},
+    {id:"launch",label:"Launch Week",range:"Mar 17–22",color:C.coral,icon:"🚀"},
+    {id:"post",label:"Post-Launch",range:"Mar 23–31",color:C.teal,icon:"🔄"},
+  ];
+
+  const filtered = useMemo(()=>{
+    if(phase==="all") return DAILY;
+    if(phase==="pre") return DAILY.filter(d=>d.date<="2026-03-16");
+    if(phase==="launch") return DAILY.filter(d=>d.date>="2026-03-17"&&d.date<="2026-03-22");
+    return DAILY.filter(d=>d.date>="2026-03-23");
+  },[phase]);
+
+  const tot = useMemo(()=>{
+    const f=filtered;
+    return {
+      sessions:f.reduce((s,d)=>s+d.site,0),ctrl:f.reduce((s,d)=>s+d.ctrl,0),pv:f.reduce((s,d)=>s+d.pv,0),
+      fv:f.reduce((s,d)=>s+d.fv,0),clk:f.reduce((s,d)=>s+d.clk,0),scr:f.reduce((s,d)=>s+d.scr,0),
+      form:f.reduce((s,d)=>s+d.form,0),vid:f.reduce((s,d)=>s+d.vid,0),
+      gscClk:f.reduce((s,d)=>s+d.gscClk,0),gscImp:f.reduce((s,d)=>s+d.gscImp,0),
+    };
+  },[filtered]);
+
+  // Phase aggregates for comparison table
+  const phaseData = useMemo(()=>{
+    const calc = (arr)=>({
+      sessions:arr.reduce((s,d)=>s+d.site,0),ctrl:arr.reduce((s,d)=>s+d.ctrl,0),
+      days:arr.length,dailyAvg:Math.round(arr.reduce((s,d)=>s+d.ctrl,0)/arr.length),
+      clk:arr.reduce((s,d)=>s+d.clk,0),scr:arr.reduce((s,d)=>s+d.scr,0),
+      form:arr.reduce((s,d)=>s+d.form,0),vid:arr.reduce((s,d)=>s+d.vid,0),
+      fv:arr.reduce((s,d)=>s+d.fv,0),
+    });
+    return {
+      pre: calc(DAILY.filter(d=>d.date<="2026-03-16")),
+      launch: calc(DAILY.filter(d=>d.date>="2026-03-17"&&d.date<="2026-03-22")),
+      post: calc(DAILY.filter(d=>d.date>="2026-03-23")),
+    };
+  },[]);
+
+  const tabs = [
+    {id:"overview",label:"Overview",icon:"📊"},{id:"control",label:"CONTROL Page",icon:"📖"},
+    {id:"channels",label:"Channels",icon:"🔀"},{id:"search",label:"Search (GSC)",icon:"🔍"},
+    {id:"clicks",label:"Clicks & UX",icon:"🎯"},{id:"tour",label:"Tour & Podcast",icon:"🎙️"},
+  ];
+
+  // ============================================================
+  // OVERVIEW
+  // ============================================================
+  const renderOverview = ()=>(
+    <>
+      <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:14}}>
+        {phases.map(p=><button key={p.id} onClick={()=>setPhase(p.id)} style={{
+          display:"inline-flex",alignItems:"center",gap:5,padding:"7px 14px",borderRadius:8,
+          border:`2px solid ${p.color}`,background:phase===p.id?p.color:"transparent",
+          color:phase===p.id?"#fff":p.color,fontWeight:600,fontSize:12,cursor:"pointer",fontFamily:"inherit",transition:"all .2s"
+        }}><span>{p.icon}</span>{p.label}<span style={{opacity:.7,fontSize:10}}>({p.range})</span></button>)}
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(155px,1fr))",gap:10,marginBottom:22}}>
+        <Card label="Total Sessions" value={tot.sessions} sub={`${filtered.length} days`} icon="👥" color={C.navy}/>
+        <Card label="/control/ Sessions" value={tot.ctrl} sub={`${(tot.ctrl/tot.sessions*100).toFixed(1)}% of total`} icon="📖" color={C.coral} accent={C.coral}/>
+        <Card label="GA4 Click Events" value={tot.clk} sub="on /control/" icon="🖱️" color={C.orange}/>
+        <Card label="Scroll Events" value={tot.scr} sub="on /control/" icon="📜" color={C.teal}/>
+        <Card label="Form Submits" value={tot.form} sub="Free chapter signups" icon="📝" color={C.purp}/>
+        <Card label="GSC Clicks" value={tot.gscClk} sub={`${(tot.gscClk/tot.gscImp*100).toFixed(2)}% CTR`} icon="🔍" color={C.grn}/>
+      </div>
+
+      <Hdr title="Daily Sessions — Site vs. /control/" sub="The CONTROL page captured the vast majority of all site traffic throughout March" icon="📈" src="GA4"/>
+      <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:"18px 14px 8px"}}>
+        <ResponsiveContainer width="100%" height={280}>
+          <ComposedChart data={DAILY} margin={{top:5,right:10,left:0,bottom:5}}>
+            <defs>
+              <linearGradient id="gS" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.navy} stopOpacity={.25}/><stop offset="100%" stopColor={C.navy} stopOpacity={.02}/></linearGradient>
+              <linearGradient id="gC" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.coral} stopOpacity={.2}/><stop offset="100%" stopColor={C.coral} stopOpacity={.02}/></linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke={C.warm}/>
+            <XAxis dataKey="d" tick={{fontSize:10,fill:C.lt}} interval={2}/>
+            <YAxis tick={{fontSize:10,fill:C.lt}}/>
+            <Tooltip content={<Tip/>}/>
+            <Legend wrapperStyle={{fontSize:11}}/>
+            <ReferenceLine x="Mar 17" stroke={C.coral} strokeDasharray="4 4" label={{value:"🚀 Launch",fontSize:10,fill:C.coral}}/>
+            <ReferenceLine x="Mar 23" stroke={C.teal} strokeDasharray="4 4" label={{value:"🔄 Post",fontSize:10,fill:C.teal}}/>
+            <Area type="monotone" dataKey="site" name="Site Sessions" stroke={C.navy} fill="url(#gS)" strokeWidth={2} dot={false}/>
+            <Area type="monotone" dataKey="ctrl" name="/control/ Sessions" stroke={C.coral} fill="url(#gC)" strokeWidth={2} dot={false}/>
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+
+      <Note type="tip"><strong>Key pattern:</strong> Traffic came in waves driven by LinkedIn campaign pushes. The two biggest spikes were launch day (Mar 17: 2,665 /control/ sessions) and the day after (Mar 18: 3,097). A third spike on Mar 23 (2,719) suggests another LinkedIn push. Between pushes, traffic drops sharply — indicating the campaign is highly dependent on active social promotion.</Note>
+
+      {/* Phase comparison table */}
+      <Hdr title="Phase-over-Phase Performance" sub="Comparing the three campaign phases for the CONTROL page" icon="🔄" src="GA4"/>
+      <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18,overflowX:"auto"}}>
+        <table style={{width:"100%",borderCollapse:"separate",borderSpacing:0,fontSize:12}}>
+          <thead><tr>{["Metric","Pre-Launch (Mar 1–16)","Launch Week (Mar 17–22)","Δ vs Pre","Post-Launch (Mar 23–31)","Δ vs Launch"].map((h,i)=>
+            <th key={i} style={{padding:"8px 12px",textAlign:i?'center':'left',borderBottom:`2px solid ${C.warm}`,color:C.mid,fontWeight:600,fontSize:10,textTransform:"uppercase",letterSpacing:".04em"}}>{h}</th>
+          )}</tr></thead>
+          <tbody>{[
+            {m:"/control/ Sessions",pre:phaseData.pre.ctrl,launch:phaseData.launch.ctrl,post:phaseData.post.ctrl},
+            {m:"Daily Average",pre:phaseData.pre.dailyAvg,launch:phaseData.launch.dailyAvg,post:phaseData.post.dailyAvg},
+            {m:"Click Events",pre:phaseData.pre.clk,launch:phaseData.launch.clk,post:phaseData.post.clk},
+            {m:"Scroll Events",pre:phaseData.pre.scr,launch:phaseData.launch.scr,post:phaseData.post.scr},
+            {m:"Form Submissions",pre:phaseData.pre.form,launch:phaseData.launch.form,post:phaseData.post.form},
+            {m:"Video Starts",pre:phaseData.pre.vid,launch:phaseData.launch.vid,post:phaseData.post.vid},
+            {m:"First Visits",pre:phaseData.pre.fv,launch:phaseData.launch.fv,post:phaseData.post.fv},
+            {m:"Lightbox Status",pre:"✅ Active",launch:"❌ Disabled",post:"✅ Re-enabled"},
+          ].map((r,i)=>{
+            const pN=typeof r.pre==="number"?r.pre:null;const lN=typeof r.launch==="number"?r.launch:null;const poN=typeof r.post==="number"?r.post:null;
+            const d1=pN&&pN>0?Math.round((lN-pN)/pN*100):null;const d2=lN&&lN>0?Math.round((poN-lN)/lN*100):null;
+            return <tr key={i} style={{background:i%2===0?C.cream:C.white}}>
+              <td style={{padding:"8px 12px",fontWeight:600,color:C.dk}}>{r.m}</td>
+              <td style={{padding:"8px 12px",textAlign:"center"}}>{typeof r.pre==="number"?r.pre.toLocaleString():r.pre}</td>
+              <td style={{padding:"8px 12px",textAlign:"center",fontWeight:700,color:C.coral}}>{typeof r.launch==="number"?r.launch.toLocaleString():r.launch}</td>
+              <td style={{padding:"8px 12px",textAlign:"center",fontWeight:600,color:d1>0?C.grn:d1<0?C.red:C.mid}}>{d1!==null?`${d1>0?"+":""}${d1}%`:"—"}</td>
+              <td style={{padding:"8px 12px",textAlign:"center"}}>{typeof r.post==="number"?r.post.toLocaleString():r.post}</td>
+              <td style={{padding:"8px 12px",textAlign:"center",fontWeight:600,color:d2<0?C.red:d2>0?C.grn:C.mid}}>{d2!==null?`${d2>0?"+":""}${d2}%`:"—"}</td>
+            </tr>;
+          })}</tbody>
+        </table>
+      </div>
+      <Note type="info"><strong>Launch week delivered a 7.5x daily average vs. pre-launch</strong> (1,476/day vs. 198/day). Disabling the lightbox during launch week correlated with a 452% increase in scroll events — visitors engaged deeper with the page content when the overlay wasn't blocking them.</Note>
+    </>
+  );
+
+  // ============================================================
+  // CONTROL PAGE
+  // ============================================================
+  const renderControl = ()=>(
+    <>
+      <Hdr title="CONTROL Landing Page Deep Dive" sub="stupski.org/control/ — 18,722 landing sessions (76.1% of all site traffic)" icon="📖" src="GA4"/>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(155px,1fr))",gap:10,marginBottom:20}}>
+        <Card label="Landing Sessions" value={18722} sub="76.1% of site total" icon="📖" color={C.coral}/>
+        <Card label="Unique Users (Clarity)" value={20134} sub="90.2% new visitors" icon="🧑" color={C.teal}/>
+        <Card label="Avg Engagement (Organic)" value="46.3s" sub="vs 2.4s for Direct" icon="⏱️" color={C.orange}/>
+        <Card label="Scroll Depth (Clarity)" value="22.0%" sub="Avg across all sessions" icon="📜" color={C.purp}/>
+      </div>
+
+      <Hdr title="/control/ Sessions by Source/Medium" sub="How visitors arrived at the CONTROL landing page" icon="🔀" src="GA4"/>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:20}}>
+        <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18}}>
+          <ResponsiveContainer width="100%" height={220}>
+            <PieChart><Pie data={[
+              {name:"Direct",v:14835},{name:"LinkedIn",v:2081},{name:"Google Organic",v:413},
+              {name:"lnkd.in",v:381},{name:"imasdk (ads)",v:280},{name:"Substack",v:178},
+              {name:"Other",v:554}
+            ]} dataKey="v" nameKey="name" cx="50%" cy="50%" innerRadius={42} outerRadius={78} paddingAngle={2}>
+              {[C.navy,C.coral,C.teal,C.coralLt,C.lt,C.orange,C.warm].map((c,i)=><Cell key={i} fill={c}/>)}
+            </Pie><Tooltip content={<Tip/>}/></PieChart>
+          </ResponsiveContainer>
+          <div style={{display:"flex",flexWrap:"wrap",gap:5,justifyContent:"center",marginTop:4}}>
+            {[{n:"Direct (79.2%)",c:C.navy},{n:"LinkedIn (11.1%)",c:C.coral},{n:"Organic (2.2%)",c:C.teal},{n:"lnkd.in (2.0%)",c:C.coralLt},{n:"Substack (0.9%)",c:C.orange}].map((s,i)=>
+              <div key={i} style={{display:"flex",alignItems:"center",gap:3,fontSize:10,color:C.mid}}>
+                <span style={{width:7,height:7,borderRadius:4,background:s.c,display:"inline-block"}}/>{s.n}
+              </div>
+            )}
+          </div>
+        </div>
+        <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18}}>
+          <div style={{fontSize:13,fontWeight:700,color:C.navy,marginBottom:12}}>Engagement by Channel</div>
+          {[
+            {ch:"Google Organic",eng:"29.4s",s:413,rate:"High"},
+            {ch:"Substack (email)",eng:"9.0s",s:156,rate:"Medium"},
+            {ch:"Who Gives? Substack",eng:"32.0s",s:22,rate:"High"},
+            {ch:"LinkedIn referral",eng:"2.1s",s:2081,rate:"Low"},
+            {ch:"Direct",eng:"2.4s",s:14835,rate:"Low"},
+            {ch:"Fox News",eng:"1.2s",s:46,rate:"Very Low"},
+          ].map((r,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0",borderBottom:i<5?`1px solid ${C.warm}`:"none",fontSize:12}}>
+            <span style={{fontWeight:500,color:C.dk}}>{r.ch}</span>
+            <div style={{display:"flex",gap:12,alignItems:"center"}}>
+              <span style={{color:C.mid,fontSize:11}}>{r.s.toLocaleString()} sess</span>
+              <span style={{fontWeight:700,color:r.rate==="High"?C.grn:r.rate==="Medium"?C.orange:C.red,fontSize:11}}>{r.eng}</span>
+            </div>
+          </div>)}
+        </div>
+      </div>
+      <Note type="warn"><strong>LinkedIn "Direct" attribution issue:</strong> The majority of LinkedIn traffic arrives with `li_ed` tracking parameters, which GA4 classifies as Direct rather than Referral. The true LinkedIn-driven traffic is likely 14,835 + 2,081 + 381 = ~17,297 sessions (92.4% of /control/ landings). This should be addressed with UTM parameters in future LinkedIn posts.</Note>
+
+      <Hdr title="Daily /control/ Session Trend" sub="With click events and scroll events overlaid" icon="📈" src="GA4"/>
+      <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:"18px 14px 8px"}}>
+        <ResponsiveContainer width="100%" height={260}>
+          <ComposedChart data={DAILY}>
+            <CartesianGrid strokeDasharray="3 3" stroke={C.warm}/>
+            <XAxis dataKey="d" tick={{fontSize:10,fill:C.lt}} interval={2}/>
+            <YAxis tick={{fontSize:10,fill:C.lt}}/>
+            <Tooltip content={<Tip/>}/><Legend wrapperStyle={{fontSize:11}}/>
+            <ReferenceLine x="Mar 17" stroke={C.coral} strokeDasharray="4 4"/>
+            <Bar dataKey="ctrl" name="/control/ Sessions" fill={C.coral} radius={[3,3,0,0]} opacity={.7}/>
+            <Line type="monotone" dataKey="scr" name="Scrolls" stroke={C.teal} strokeWidth={2} dot={false}/>
+            <Line type="monotone" dataKey="clk" name="Clicks" stroke={C.orange} strokeWidth={2} dot={false}/>
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+    </>
+  );
+
+  // ============================================================
+  // CHANNELS
+  // ============================================================
+  const renderChannels = ()=>(
+    <>
+      <Hdr title="Traffic Acquisition Channels" sub="GA4 channel groupings for all of stupski.org — March 2026" icon="🔀" src="GA4"/>
+      <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18,marginBottom:20}}>
+        {[
+          {ch:"Direct",s:17432,pct:71.2,eng:21.2,time:4.5,c:C.navy},
+          {ch:"Organic Search",s:3007,pct:12.3,eng:58.7,time:46.3,c:C.teal},
+          {ch:"Organic Social",s:2679,pct:10.9,eng:12.8,time:5.1,c:C.coral},
+          {ch:"Referral",s:892,pct:3.6,eng:23.2,time:13.1,c:C.orange},
+          {ch:"Email",s:208,pct:0.9,eng:22.1,time:11.8,c:C.purp},
+          {ch:"Organic Video",s:24,pct:0.1,eng:33.3,time:14.4,c:C.tealLt},
+        ].map((r,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 0",borderBottom:i<5?`1px solid ${C.warm}`:"none"}}>
+          <div style={{width:4,height:36,borderRadius:3,background:r.c,flexShrink:0}}/>
+          <div style={{flex:1}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
+              <span style={{fontWeight:700,fontSize:14,color:C.dk}}>{r.ch}</span>
+              <span style={{fontSize:20,fontWeight:700,color:r.c,fontFamily:"'apotek-variable','DM Serif Display',Georgia,serif"}}>{r.s.toLocaleString()}</span>
+            </div>
+            <div style={{display:"flex",gap:16,marginTop:2,fontSize:11,color:C.mid}}>
+              <span>{r.pct}% of total</span>
+              <span>Eng rate: <strong style={{color:r.eng>40?C.grn:r.eng>20?C.orange:C.red}}>{r.eng}%</strong></span>
+              <span>Avg time: <strong>{r.time}s</strong></span>
+            </div>
+          </div>
+        </div>)}
+      </div>
+
+      <Hdr title="Referrer Breakdown" sub="Top external referrers from Microsoft Clarity" icon="🌐" src="Clarity"/>
+      <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18}}>
+        {[
+          {src:"LinkedIn (combined)",s:2376},{src:"Google (organic)",s:2173},{src:"Internal (stupski.org)",s:1863},
+          {src:"Bing",s:94},{src:"Substack (combined)",s:81},{src:"DuckDuckGo",s:42},
+          {src:"Google Ads",s:35},{src:"Fox News",s:34},{src:"Amazon Ads",s:32},{src:"Who Gives? Substack",s:31},
+        ].map((r,i)=><PBar key={i} label={r.src} value={r.s} max={2376} color={CH[i%CH.length]}/>)}
+      </div>
+      <Note type="info"><strong>LinkedIn is the dominant paid/organic social channel</strong> — 2,376 sessions via Clarity tracking. Organic search (Google) is the second largest driver. Substack and the Who Gives? newsletter combined for 112 sessions — a smaller but highly engaged audience.</Note>
+    </>
+  );
+
+  // ============================================================
+  // SEARCH (GSC)
+  // ============================================================
+  const renderSearch = ()=>(
+    <>
+      <Hdr title="Google Search Console Performance" sub="stupski.org organic search — March 2026" icon="🔍" src="GSC"/>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(155px,1fr))",gap:10,marginBottom:20}}>
+        <Card label="Total Clicks" value={2048} icon="🖱️" color={C.teal}/>
+        <Card label="Total Impressions" value="516K" icon="👁️" color={C.navy}/>
+        <Card label="Avg CTR" value="0.40%" icon="📊" color={C.orange}/>
+        <Card label="Avg Position" value="7.5" icon="📍" color={C.purp}/>
+      </div>
+
+      <Hdr title="Daily GSC Clicks & Impressions" icon="📈" src="GSC"/>
+      <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:"18px 14px 8px"}}>
+        <ResponsiveContainer width="100%" height={240}>
+          <ComposedChart data={DAILY}>
+            <CartesianGrid strokeDasharray="3 3" stroke={C.warm}/>
+            <XAxis dataKey="d" tick={{fontSize:10,fill:C.lt}} interval={2}/>
+            <YAxis yAxisId="left" tick={{fontSize:10,fill:C.lt}}/>
+            <YAxis yAxisId="right" orientation="right" tick={{fontSize:10,fill:C.lt}}/>
+            <Tooltip content={<Tip/>}/><Legend wrapperStyle={{fontSize:11}}/>
+            <Bar yAxisId="right" dataKey="gscImp" name="Impressions" fill={C.warm} radius={[2,2,0,0]}/>
+            <Line yAxisId="left" type="monotone" dataKey="gscClk" name="Clicks" stroke={C.teal} strokeWidth={2.5} dot={false}/>
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginTop:20}}>
+        <div>
+          <Hdr title="Top Search Queries" sub="Branded searches dominate" icon="🔑" src="GSC"/>
+          <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18}}>
+            {[
+              {q:"stupski foundation",clk:627,imp:974,ctr:"64.4%"},
+              {q:"glen galaich",clk:139,imp:454,ctr:"30.6%"},
+              {q:"break fake rules",clk:42,imp:73,ctr:"57.5%"},
+              {q:"stupski",clk:28,imp:61,ctr:"45.9%"},
+              {q:"control why big giving falls short",clk:24,imp:130,ctr:"18.5%"},
+              {q:"break fake rules podcast",clk:22,imp:48,ctr:"45.8%"},
+              {q:"glen galaich stupski",clk:20,imp:45,ctr:"44.4%"},
+              {q:"control glen galaich",clk:16,imp:49,ctr:"32.7%"},
+              {q:"glen galaich book",clk:11,imp:47,ctr:"23.4%"},
+            ].map((r,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"5px 0",borderBottom:i<8?`1px solid ${C.warm}`:"none",fontSize:12}}>
+              <span style={{fontWeight:500,color:C.dk,maxWidth:180,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.q}</span>
+              <div style={{display:"flex",gap:10,fontSize:11,color:C.mid}}>
+                <span><strong style={{color:C.teal}}>{r.clk}</strong> clk</span>
+                <span>{r.ctr}</span>
+              </div>
+            </div>)}
+          </div>
+        </div>
+        <div>
+          <Hdr title="Top Pages (Organic)" sub="Which pages earn organic clicks" icon="📄" src="GSC"/>
+          <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18}}>
+            {[
+              {p:"Homepage (/)",clk:595,imp:2707},{p:"/control/",clk:272,imp:1707},
+              {p:"Glen Galaich bio",clk:232,imp:1568},{p:"/break-fake-rules/",clk:201,imp:"493K"},
+              {p:"/intern-with-stupski/",clk:96,imp:1985},{p:"/about/our-team/",clk:92,imp:1614},
+              {p:"/control/book-tour-events/",clk:7,imp:59},
+            ].map((r,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"5px 0",borderBottom:i<6?`1px solid ${C.warm}`:"none",fontSize:12}}>
+              <span style={{fontWeight:500,color:C.dk,maxWidth:180,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.p}</span>
+              <div style={{display:"flex",gap:10,fontSize:11,color:C.mid}}>
+                <span><strong style={{color:C.teal}}>{r.clk}</strong> clk</span>
+                <span>{typeof r.imp==="number"?r.imp.toLocaleString():r.imp} imp</span>
+              </div>
+            </div>)}
+          </div>
+        </div>
+      </div>
+      <Note type="tip"><strong>Book-related queries are emerging:</strong> Searches for "control why big giving falls short," "glen galaich book," and "control glen galaich" combined for 98 clicks and 469 impressions. As awareness grows from the tour and media coverage, these non-branded book queries should increase significantly.</Note>
+      <Note type="warn"><strong>Break Fake Rules anomaly:</strong> 493K impressions but only 201 clicks (0.04% CTR). This is likely matching on generic "rules" or "fake" queries unrelated to the podcast. The page may benefit from more specific title tags to improve relevance.</Note>
+    </>
+  );
+
+  // ============================================================
+  // CLICKS & UX
+  // ============================================================
+  const renderClicks = ()=>(
+    <>
+      <Hdr title="Click & Tap Behavior on /control/" sub="How visitors interact with the CONTROL page — PC vs. Mobile (Clarity heatmap data)" icon="🎯" src="Clarity"/>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(155px,1fr))",gap:10,marginBottom:20}}>
+        <Card label="Total Pageviews" value={15703} sub="PC + Mobile combined" icon="📄" color={C.navy}/>
+        <Card label="Total Interactions" value={3709} sub="23.6% interaction rate" icon="🖱️" color={C.coral}/>
+        <Card label="Mobile Pageviews" value="90.0%" sub="14,136 of 15,703" icon="📱" color={C.teal}/>
+        <Card label="Dead Clicks" value={683} sub="2.92% of sessions" icon="⚠️" color={C.red}/>
+      </div>
+
+      <Hdr title="Top Click Elements on /control/" sub="What visitors clicked most — mapped from CSS selectors to meaningful actions" icon="🎯"/>
+      <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18,marginBottom:16}}>
+        {[
+          {el:"🔴 Lightbox CLOSE Button",clicks:1203,pct:32.4,type:"friction"},
+          {el:"Lightbox Video/Content Area",clicks:783,pct:21.1,type:"engage"},
+          {el:"Navigation Links (combined)",clicks:101,pct:2.7,type:"nav"},
+          {el:"Banner Content Area",clicks:83,pct:2.2,type:"cta"},
+          {el:"Hero Section",clicks:38,pct:1.0,type:"engage"},
+          {el:"🟢 Lightbox CTA Button",clicks:44,pct:1.2,type:"cta"},
+          {el:"Video Play Button",clicks:18,pct:0.5,type:"engage"},
+          {el:"🟢 Order Now CTA (Hero)",clicks:13,pct:0.4,type:"cta"},
+          {el:"Amazon Logo (Order Bar)",clicks:10,pct:0.3,type:"cta"},
+          {el:"Free Chapter Form Submit",clicks:10,pct:0.3,type:"convert"},
+        ].map((r,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"7px 0",borderBottom:i<9?`1px solid ${C.warm}`:"none"}}>
+          <div style={{width:4,height:28,borderRadius:3,background:r.type==="friction"?C.red:r.type==="cta"?C.grn:r.type==="convert"?C.purp:C.teal,flexShrink:0}}/>
+          <div style={{flex:1,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <span style={{fontSize:12,fontWeight:600,color:C.dk}}>{r.el}</span>
+            <div style={{display:"flex",gap:10,alignItems:"center"}}>
+              <span style={{fontSize:18,fontWeight:700,color:C.dk,fontFamily:"'apotek-variable','DM Serif Display',Georgia,serif"}}>{r.clicks.toLocaleString()}</span>
+              <span style={{fontSize:11,color:C.mid}}>{r.pct}%</span>
+            </div>
+          </div>
+        </div>)}
+      </div>
+      <Note type="crit"><strong>Lightbox friction is the #1 UX signal:</strong> 1,203 close-button clicks (32.4% of ALL interactions) means the lightbox is the most-interacted element on the page — and visitors are dismissing it, not converting through it. Only 44 visitors clicked the lightbox CTA button vs. 1,203 who closed it. That's a 3.7% conversion rate on the lightbox itself.</Note>
+      <Note type="tip"><strong>Smart Events (Clarity):</strong> 530 outbound clicks, 41 "Book" events, 11 "Checkout" events, 13 video plays, and 16 form submissions tracked across the full site during March.</Note>
+
+      <Hdr title="Performance & Behavior Signals" sub="Core Web Vitals and behavioral insights" icon="⚡" src="Clarity"/>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+        <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18}}>
+          <div style={{fontSize:13,fontWeight:700,color:C.navy,marginBottom:12}}>Core Web Vitals</div>
+          {[{m:"Performance Score",v:"60.9",status:"needs-work"},{m:"LCP",v:"3.9s",status:"poor"},{m:"INP",v:"384ms",status:"poor"},{m:"CLS",v:"0.40s",status:"poor"}].map((r,i)=>
+            <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:i<3?`1px solid ${C.warm}`:"none",fontSize:12}}>
+              <span style={{color:C.dk,fontWeight:500}}>{r.m}</span>
+              <span style={{fontWeight:700,color:r.status==="good"?C.grn:r.status==="needs-work"?C.orange:C.red}}>{r.v}</span>
+            </div>
+          )}
+        </div>
+        <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18}}>
+          <div style={{fontSize:13,fontWeight:700,color:C.navy,marginBottom:12}}>Behavioral Insights</div>
+          {[{m:"Rage Clicks",v:15,note:"0.06% — very low"},{m:"Dead Clicks",v:683,note:"2.92% — moderate"},{m:"Quick Back Clicks",v:663,note:"2.83% — moderate"},{m:"Excessive Scrolling",v:1,note:"< 0.01% — negligible"}].map((r,i)=>
+            <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:i<3?`1px solid ${C.warm}`:"none",fontSize:12}}>
+              <span style={{color:C.dk,fontWeight:500}}>{r.m}</span>
+              <span style={{color:C.mid,fontSize:11}}>{r.note}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+
+  // ============================================================
+  // TOUR & PODCAST
+  // ============================================================
+  const renderTour = ()=>(
+    <>
+      <Hdr title="Book Tour & Break Fake Rules Podcast" sub="Supporting pages for the CONTROL launch" icon="🎙️"/>
+
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:20}}>
+        <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:20}}>
+          <div style={{fontSize:15,fontWeight:700,color:C.navy,fontFamily:"'apotek-variable','DM Serif Display',Georgia,serif",marginBottom:4}}>🗺️ Book Tour Events Page</div>
+          <div style={{fontSize:12,color:C.mid,marginBottom:14}}>stupski.org/control/book-tour-events/</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+            <Card label="GA4 Landing Sessions" value={108} color={C.teal} sub="0.4% of site"/>
+            <Card label="GA4 Page Views" value={169} color={C.navy} sub="Across all sources"/>
+            <Card label="Clarity Sessions" value={161} color={C.coral} sub="0.7% of site"/>
+            <Card label="GSC Clicks" value={7} color={C.grn} sub="59 impressions"/>
+          </div>
+          <Note type="tip"><strong>Tour page traffic will grow</strong> as Glen's tour dates approach. Current traffic is modest — primary sources are direct (61 sessions), Google organic (20), and LinkedIn (30). Track weekly as tour marketing ramps up.</Note>
+        </div>
+
+        <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:20}}>
+          <div style={{fontSize:15,fontWeight:700,color:C.navy,fontFamily:"'apotek-variable','DM Serif Display',Georgia,serif",marginBottom:4}}>🎙️ Break Fake Rules Podcast</div>
+          <div style={{fontSize:12,color:C.mid,marginBottom:14}}>stupski.org/break-fake-rules/</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+            <Card label="GA4 Landing Sessions" value={571} color={C.orange} sub="2.3% of site"/>
+            <Card label="Clarity Sessions" value={675} color={C.coral} sub="2.9% of site"/>
+            <Card label="Video Starts" value={386} color={C.navy} sub="246 unique users"/>
+            <Card label="GSC Clicks" value={201} color={C.grn} sub="493K imp (anomaly)"/>
+          </div>
+          <Note type="info"><strong>Podcast → Book pipeline signal:</strong> Clarity tracked 638 "Break Fake Rules - Page Visit" smart events. The co-host takeover episode about CONTROL likely drove cross-traffic. GA4 shows 29 in-person QR code scans on the podcast page — indicating real-world event promotion is working.</Note>
+        </div>
+      </div>
+
+      <Hdr title="Key Pages Summary" sub="All CONTROL-ecosystem pages at a glance" icon="📄"/>
+      <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18}}>
+        <table style={{width:"100%",borderCollapse:"separate",borderSpacing:0,fontSize:12}}>
+          <thead><tr>{["Page","GA4 Sessions","Clarity Sessions","GSC Clicks","Engagement"].map((h,i)=>
+            <th key={i} style={{padding:"8px 10px",textAlign:i?'center':'left',borderBottom:`2px solid ${C.warm}`,color:C.mid,fontWeight:600,fontSize:10,textTransform:"uppercase"}}>{h}</th>
+          )}</tr></thead>
+          <tbody>{[
+            {p:"/control/",ga:18722,cl:19055,gsc:272,eng:"2.4s (Direct) / 29.4s (Organic)"},
+            {p:"/ (Homepage)",ga:1670,cl:1519,gsc:595,eng:"49.6s avg"},
+            {p:"/break-fake-rules/",ga:571,cl:675,gsc:201,eng:"26.3s avg"},
+            {p:"/people/glen-galaich-ph-d/",ga:317,cl:428,gsc:232,eng:"41.8s avg"},
+            {p:"/control/book-tour-events/",ga:108,cl:161,gsc:7,eng:"30.1s avg"},
+          ].map((r,i)=><tr key={i} style={{background:i%2===0?C.cream:C.white}}>
+            <td style={{padding:"8px 10px",fontWeight:600,color:C.dk}}>{r.p}</td>
+            <td style={{padding:"8px 10px",textAlign:"center"}}>{r.ga.toLocaleString()}</td>
+            <td style={{padding:"8px 10px",textAlign:"center"}}>{r.cl.toLocaleString()}</td>
+            <td style={{padding:"8px 10px",textAlign:"center"}}>{r.gsc}</td>
+            <td style={{padding:"8px 10px",textAlign:"center",fontSize:11,color:C.mid}}>{r.eng}</td>
+          </tr>)}</tbody>
+        </table>
+      </div>
+    </>
+  );
+
+  return (
+    <div style={{minHeight:"100vh",background:C.cream,fontFamily:"'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif"}}>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+      <style>{`@font-face { font-family: 'apotek-variable'; src: url('https://stupski.org/wp-content/themes/stupski/assets/fonts/39CDB8_2_0.woff2') format('woff2'); font-weight: 200 900; font-style: normal; font-display: swap; }`}</style>
+
+      {/* Header */}
+      <div style={{background:`linear-gradient(135deg, ${C.navy} 0%, #2A3D66 100%)`,padding:"22px 28px",color:"#fff"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
+          <div>
+            <div style={{fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:".15em",color:C.coralLt,marginBottom:3}}>Stupski Foundation</div>
+            <h1 style={{margin:0,fontSize:24,fontWeight:700,fontFamily:"'apotek-variable','DM Serif Display',Georgia,serif"}}>CONTROL <span style={{fontWeight:400,opacity:.6}}>Book Launch Analytics</span></h1>
+            <div style={{fontSize:12,color:"rgba(255,255,255,.5)",marginTop:3}}>March 1–31, 2026 — Data: GA4 + Microsoft Clarity + Google Search Console</div>
+          </div>
+          <div style={{textAlign:"right",fontSize:11,color:"rgba(255,255,255,.4)"}}>
+            <div>Prepared by 4Site Interactive Studios</div>
+            <div style={{marginTop:2}}>Report generated {new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{background:C.white,borderBottom:`1px solid ${C.warm}`,padding:"0 28px",overflowX:"auto"}}>
+        <div style={{display:"flex",gap:0}}>
+          {tabs.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{
+            padding:"12px 18px",border:"none",background:"transparent",cursor:"pointer",
+            fontSize:12,fontWeight:tab===t.id?700:500,fontFamily:"inherit",
+            color:tab===t.id?C.coral:C.mid,borderBottom:tab===t.id?`3px solid ${C.coral}`:"3px solid transparent",
+            transition:"all .2s",display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"
+          }}><span>{t.icon}</span>{t.label}</button>)}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{padding:"20px 28px",maxWidth:1100}}>
+        {tab==="overview"&&renderOverview()}
+        {tab==="control"&&renderControl()}
+        {tab==="channels"&&renderChannels()}
+        {tab==="search"&&renderSearch()}
+        {tab==="clicks"&&renderClicks()}
+        {tab==="tour"&&renderTour()}
+      </div>
+
+      <div style={{padding:"14px 28px",borderTop:`1px solid ${C.warm}`,fontSize:10,color:C.lt,display:"flex",justifyContent:"space-between"}}>
+        <span>Prepared by 4Site Interactive Studios for the Stupski Foundation</span>
+        <span>Data sources: GA4, Microsoft Clarity, Google Search Console</span>
+      </div>
+    </div>
+  );
+}
