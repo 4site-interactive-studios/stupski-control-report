@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from "react";
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area, ComposedChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from "recharts";
 
+// ============================================================
+// DATA SET
+// ============================================================
 const DAILY = [
   { date:"2026-03-01",d:"Mar 1",site:356,ctrl:356,pv:428,fv:335,clk:3,scr:57,form:1,vid:0,gscClk:9,gscImp:12177 },
   { date:"2026-03-02",d:"Mar 2",site:684,ctrl:683,pv:805,fv:628,clk:5,scr:41,form:0,vid:0,gscClk:54,gscImp:19123 },
@@ -38,9 +41,12 @@ const DAILY = [
 const C = { navy:"#1B2A4A",coral:"#E8604C",coralLt:"#F0816F",orange:"#F4A259",teal:"#3A8F8B",tealLt:"#4DB0AC",cream:"#FAF7F2",warm:"#E8E3DC",white:"#FFF",dk:"#1B2A4A",mid:"#5A6578",lt:"#8A92A0",grn:"#4CAF50",red:"#E84C4C",purp:"#7B61FF" };
 const CH = [C.coral,C.teal,C.orange,C.navy,C.purp,C.tealLt,C.coralLt,"#C4A35A"];
 
+// ============================================================
+// COMPONENTS
+// ============================================================
 const Tip = ({active,payload,label})=>{
   if(!active||!payload?.length)return null;
-  return <div style={{background:C.navy,borderRadius:8,padding:"10px 14px",boxShadow:"0 4px 20px rgba(0,0,0,.2)"}}>
+  return <div style={{background:C.navy,borderRadius:8,padding:"10px 14px",boxShadow:"0 4px 20px rgba(0,0,0,.2)", border: "none"}}>
     <div style={{color:C.warm,fontSize:11,fontWeight:600,marginBottom:6}}>{label}</div>
     {payload.map((p,i)=><div key={i} style={{color:"#fff",fontSize:12,display:"flex",gap:6,alignItems:"center",marginBottom:2}}>
       <span style={{width:7,height:7,borderRadius:4,background:p.color,display:"inline-block",flexShrink:0}}/>
@@ -92,7 +98,10 @@ const PBar = ({label,value,max,color=C.coral})=>(
   </div>
 );
 
-export default function Dashboard() {
+// ============================================================
+// MAIN DASHBOARD
+// ============================================================
+export default function App() {
   const [tab,setTab] = useState("overview");
   const [phase,setPhase] = useState("all");
 
@@ -147,7 +156,7 @@ export default function Dashboard() {
         {phases.map(p=><button key={p.id} onClick={()=>setPhase(p.id)} style={{
           display:"inline-flex",alignItems:"center",gap:5,padding:"7px 14px",borderRadius:8,
           border:`2px solid ${p.color}`,background:phase===p.id?p.color:"transparent",
-          color:phase===p.id?"#fff":p.color,fontWeight:600,fontSize:12,cursor:"pointer",fontFamily:"inherit",transition:"all .2s"
+          color:phase===p.id?"#fff":p.color,fontWeight:600,fontSize:12,cursor:"pointer",transition:"all .2s"
         }}><span>{p.icon}</span>{p.label}<span style={{opacity:.7,fontSize:10}}>({p.range})</span></button>)}
       </div>
 
@@ -186,8 +195,8 @@ export default function Dashboard() {
       <Hdr title="Phase-over-Phase Performance" sub="Comparing the three campaign phases for the CONTROL page" icon="🔄" src="GA4"/>
       <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18,overflowX:"auto"}}>
         <table style={{width:"100%",borderCollapse:"separate",borderSpacing:0,fontSize:12}}>
-          <thead><tr>{["Metric","Pre-Launch (Mar 1–16)","Launch Week (Mar 17–22)","Δ vs Pre","Post-Launch (Mar 23–31)","Δ vs Launch"].map((h,i)=>
-            <th key={i} style={{padding:"8px 12px",textAlign:i?'center':'left',borderBottom:`2px solid ${C.warm}`,color:C.mid,fontWeight:600,fontSize:10,textTransform:"uppercase",letterSpacing:".04em"}}>{h}</th>
+          <thead><tr>{["Metric","Pre-Launch","Launch Week","Δ vs Pre","Post-Launch","Δ vs Launch"].map((h,i)=>
+            <th key={i} style={{padding:"8px 12px",textAlign:i?'center':'left',borderBottom:`2px solid ${C.warm}`,color:C.mid,fontWeight:600,fontSize:10,textTransform:"uppercase"}}>{h}</th>
           )}</tr></thead>
           <tbody>{[
             {m:"/control/ Sessions",pre:phaseData.pre.ctrl,launch:phaseData.launch.ctrl,post:phaseData.post.ctrl},
@@ -195,18 +204,17 @@ export default function Dashboard() {
             {m:"Click Events",pre:phaseData.pre.clk,launch:phaseData.launch.clk,post:phaseData.post.clk},
             {m:"Scroll Events",pre:phaseData.pre.scr,launch:phaseData.launch.scr,post:phaseData.post.scr},
             {m:"Form Submissions",pre:phaseData.pre.form,launch:phaseData.launch.form,post:phaseData.post.form},
-            {m:"Video Starts",pre:phaseData.pre.vid,launch:phaseData.launch.vid,post:phaseData.post.vid},
-            {m:"First Visits",pre:phaseData.pre.fv,launch:phaseData.launch.fv,post:phaseData.post.fv},
           ].map((r,i)=>{
-            const pN=typeof r.pre==="number"?r.pre:null;const lN=typeof r.launch==="number"?r.launch:null;const poN=typeof r.post==="number"?r.post:null;
-            const d1=pN&&pN>0?Math.round((lN-pN)/pN*100):null;const d2=lN&&lN>0?Math.round((poN-lN)/lN*100):null;
+            const pN=r.pre;const lN=r.launch;const poN=r.post;
+            const d1=pN&&pN>0?Math.round((lN-pN)/pN*100):null;
+            const d2=lN&&lN>0?Math.round((poN-lN)/lN*100):null;
             return <tr key={i} style={{background:i%2===0?C.cream:C.white}}>
-              <td style={{padding:"8px 12px",fontWeight:600,color:C.dk}}>{r.m}</td>
-              <td style={{padding:"8px 12px",textAlign:"center"}}>{typeof r.pre==="number"?r.pre.toLocaleString():r.pre}</td>
-              <td style={{padding:"8px 12px",textAlign:"center",fontWeight:700,color:C.coral}}>{typeof r.launch==="number"?r.launch.toLocaleString():r.launch}</td>
-              <td style={{padding:"8px 12px",textAlign:"center",fontWeight:600,color:d1>0?C.grn:d1<0?C.red:C.mid}}>{d1!==null?`${d1>0?"+":""}${d1}%`:"—"}</td>
-              <td style={{padding:"8px 12px",textAlign:"center"}}>{typeof r.post==="number"?r.post.toLocaleString():r.post}</td>
-              <td style={{padding:"8px 12px",textAlign:"center",fontWeight:600,color:d2<0?C.red:d2>0?C.grn:C.mid}}>{d2!==null?`${d2>0?"+":""}${d2}%`:"—"}</td>
+              <td style={{padding:"8px 12px",fontWeight:600}}>{r.m}</td>
+              <td style={{padding:"8px 12px",textAlign:"center"}}>{r.pre.toLocaleString()}</td>
+              <td style={{padding:"8px 12px",textAlign:"center",color:C.coral,fontWeight:700}}>{r.launch.toLocaleString()}</td>
+              <td style={{padding:"8px 12px",textAlign:"center",color:d1>0?C.grn:C.red}}>{d1??"-"}%</td>
+              <td style={{padding:"8px 12px",textAlign:"center"}}>{r.post.toLocaleString()}</td>
+              <td style={{padding:"8px 12px",textAlign:"center",color:d2>0?C.grn:C.red}}>{d2??"-"}%</td>
             </tr>;
           })}</tbody>
         </table>
@@ -220,18 +228,86 @@ export default function Dashboard() {
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(155px,1fr))",gap:10,marginBottom:20}}>
         <Card label="Landing Sessions" value={18722} sub="76.1% of site total" icon="📖" color={C.coral}/>
         <Card label="Unique Users" value={20134} sub="90.2% new visitors" icon="🧑" color={C.teal}/>
-        <Card label="Avg Engagement (Organic)" value="46.3s" sub="vs 2.4s for Direct" icon="⏱️" color={C.orange}/>
-        <Card label="Scroll Depth" value="22.0%" sub="Avg across all sessions" icon="📜" color={C.purp}/>
+        <Card label="Avg Engagement" value="46.3s" sub="vs 2.4s for Direct" icon="⏱️" color={C.orange}/>
+        <Card label="Scroll Depth" value="22.0%" sub="Avg across sessions" icon="📜" color={C.purp}/>
       </div>
-      <Note type="warn">LinkedIn attribution issues identified: majority of traffic labeled as Direct.</Note>
+      <Hdr title="Engagement by Channel" src="GA4"/>
+      <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18}}>
+        {[
+          {ch:"Google Organic",eng:"29.4s",s:413,rate:"High"},
+          {ch:"Substack (email)",eng:"9.0s",s:156,rate:"Medium"},
+          {ch:"LinkedIn referral",eng:"2.1s",s:2081,rate:"Low"},
+          {ch:"Direct",eng:"2.4s",s:14835,rate:"Low"},
+        ].map((r,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:i<3?`1px solid ${C.warm}`:"none",fontSize:12}}>
+            <span>{r.ch}</span>
+            <span><strong>{r.eng}</strong> ({r.s.toLocaleString()} sess)</span>
+        </div>)}
+      </div>
     </>
+  );
+
+  const renderChannels = ()=>(
+    <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18}}>
+      <Hdr title="Traffic Acquisition" src="GA4"/>
+      {[
+        {ch:"Direct",s:17432,pct:71.2,c:C.navy},
+        {ch:"Organic Search",s:3007,pct:12.3,c:C.teal},
+        {ch:"Organic Social",s:2679,pct:10.9,c:C.coral},
+        {ch:"Referral",s:892,pct:3.6,c:C.orange},
+      ].map((r,i)=><PBar key={i} label={r.ch} value={r.s} max={17432} color={r.c}/>)}
+    </div>
+  );
+
+  const renderSearch = ()=>(
+    <>
+      <Hdr title="Google Search Console" src="GSC"/>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(155px,1fr))",gap:10,marginBottom:20}}>
+        <Card label="Total Clicks" value={2048} color={C.teal}/>
+        <Card label="Total Impressions" value="516K" color={C.navy}/>
+        <Card label="Avg Position" value="7.5" color={C.purp}/>
+      </div>
+      <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18}}>
+        <Hdr title="Top Pages (Organic)"/>
+        {[
+          {p:"Homepage (/)",clk:595},{p:"/control/",clk:272},{p:"Glen Galaich bio",clk:232},{p:"/break-fake-rules/",clk:201}
+        ].map((r,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",fontSize:12}}>
+            <span>{r.p}</span><span><strong>{r.clk} clicks</strong></span>
+        </div>)}
+      </div>
+    </>
+  );
+
+  const renderClicks = ()=>(
+    <>
+      <Hdr title="Top Click Elements" src="Clarity"/>
+      <div style={{background:C.white,borderRadius:12,border:`1px solid ${C.warm}`,padding:18}}>
+        {[
+          {el:"🔴 Lightbox CLOSE Button",clicks:1203,type:"friction"},
+          {el:"Lightbox Video/Content Area",clicks:783,type:"engage"},
+          {el:"Navigation Links",clicks:101,type:"nav"},
+          {el:"🟢 Lightbox CTA Button",clicks:44,type:"cta"},
+        ].map((r,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",fontSize:12}}>
+            <span>{r.el}</span><span><strong>{r.clicks}</strong></span>
+        </div>)}
+      </div>
+      <Note type="crit"><strong>Lightbox friction:</strong> 1,203 visitors closed the lightbox vs only 44 who clicked the CTA.</Note>
+    </>
+  );
+
+  const renderTour = ()=>(
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+        <Card label="Podcast Landing Sessions" value={571} color={C.orange}/>
+        <Card label="Podcast Video Starts" value={386} color={C.navy}/>
+        <Card label="Tour Page Sessions" value={108} color={C.teal}/>
+        <Card label="GSC Clicks (Tour)" value={7} color={C.grn}/>
+    </div>
   );
 
   return (
     <div style={{minHeight:"100vh",background:C.cream,fontFamily:"sans-serif"}}>
       <div style={{background:C.navy,padding:"22px 28px",color:"#fff"}}>
-        <h1 style={{margin:0,fontSize:24,fontWeight:700}}>CONTROL <span style={{fontWeight:400,opacity:.6}}>Book Launch Analytics</span></h1>
-        <div style={{fontSize:12,color:"rgba(255,255,255,.5)",marginTop:3}}>March 1–31, 2026 — Data: GA4 + Microsoft Clarity + GSC</div>
+        <h1 style={{margin:0,fontSize:24}}>CONTROL <span style={{fontWeight:400,opacity:.6}}>Book Launch Analytics</span></h1>
+        <div style={{fontSize:12,opacity:.5,marginTop:3}}>March 1–31, 2026 — Data: GA4 + Clarity + GSC</div>
       </div>
       <div style={{background:C.white,borderBottom:`1px solid ${C.warm}`,padding:"0 28px",display:"flex",overflowX:"auto"}}>
         {tabs.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{
@@ -241,13 +317,13 @@ export default function Dashboard() {
           display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"
         }}><span>{t.icon}</span>{t.label}</button>)}
       </div>
-      <div style={{padding:"20px 28px",maxWidth:1100}}>
+      <div style={{padding:"20px 28px",maxWidth:1100, margin: "0 auto"}}>
         {tab==="overview"&&renderOverview()}
         {tab==="control"&&renderControl()}
-        {tab==="channels"&&<p>Channel Data Section</p>}
-        {tab==="search"&&<p>Search Console Section</p>}
-        {tab==="clicks"&&<p>Click & UX Section</p>}
-        {tab==="tour"&&<p>Tour Section</p>}
+        {tab==="channels"&&renderChannels()}
+        {tab==="search"&&renderSearch()}
+        {tab==="clicks"&&renderClicks()}
+        {tab==="tour"&&renderTour()}
       </div>
     </div>
   );
