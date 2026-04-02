@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CONTROL Book Launch Analytics — Stupski Foundation</title>
+<meta name="description" content="Interactive analytics dashboard for the CONTROL book launch by Glen Galaich, prepared by 4Site Interactive Studios."/>
+<link rel="icon" href="https://stupski.org/wp-content/uploads/2019/07/cropped-favicon-32x32.png" sizes="32x32"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+@font-face{font-family:'apotek-variable';src:url('https://stupski.org/wp-content/themes/stupski/assets/fonts/39CDB8_2_0.woff2') format('woff2');font-weight:200 900;font-style:normal;font-display:swap}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:#FAF7F2;color:#1B2A4A}
+:root{--navy:#1B2A4A;--coral:#E8604C;--coral-lt:#F0816F;--orange:#F4A259;--teal:#3A8F8B;--teal-lt:#4DB0AC;--cream:#FAF7F2;--warm:#E8E3DC;--dk:#1B2A4A;--mid:#5A6578;--lt:#8A92A0;--grn:#4CAF50;--red:#E84C4C;--purp:#7B61FF;--hf:'apotek-variable','DM Serif Display',Georgia,serif}
+.header{background:linear-gradient(135deg,var(--navy) 0%,#2A3D66 100%);padding:22px 28px;color:#fff}
+.header-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;max-width:1100px}
+.header-sub{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.15em;color:var(--coral-lt);margin-bottom:3px}
+.header h1{margin:0;font-size:24px;font-weight:700;font-family:var(--hf)}
+.header h1 span{font-weight:400;opacity:.6}
+.header-meta{text-align:right;font-size:11px;color:rgba(255,255,255,.4)}
+.tab-bar{background:#fff;border-bottom:1px solid var(--warm);padding:0 28px;overflow-x:auto;white-space:nowrap}
+.tab-btn{padding:12px 18px;border:none;background:transparent;cursor:pointer;font-size:12px;font-weight:500;font-family:inherit;color:var(--mid);border-bottom:3px solid transparent;transition:all .2s;display:inline-flex;align-items:center;gap:5px}
+.tab-btn.active{font-weight:700;color:var(--coral);border-bottom-color:var(--coral)}
+.content{padding:20px 28px;max-width:1100px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.grid{display:grid;gap:10px;margin-bottom:22px}
+.grid-6{grid-template-columns:repeat(auto-fit,minmax(155px,1fr))}
+.grid-4{grid-template-columns:repeat(auto-fit,minmax(155px,1fr))}
+.grid-2{grid-template-columns:1fr 1fr;gap:16px}
+.card{background:#fff;border-radius:12px;padding:16px 18px;border:1px solid var(--warm);position:relative;overflow:hidden}
+.card-label{font-size:10px;font-weight:600;color:var(--lt);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.card-value{font-size:26px;font-weight:700;color:var(--dk);font-family:var(--hf);line-height:1.1}
+.card-sub{font-size:11px;color:var(--mid);margin-top:3px;font-weight:500}
+.card-icon{font-size:22px;opacity:.7;position:absolute;top:16px;right:18px}
+.hdr{margin-bottom:14px;margin-top:6px}
+.hdr h2{font-size:17px;font-weight:700;color:var(--navy);font-family:var(--hf);margin:0;display:inline}
+.hdr-icon{font-size:18px;margin-right:8px}
+.hdr-src{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:.04em;margin-left:8px;vertical-align:middle}
+.hdr-sub{font-size:12px;color:var(--mid);margin:3px 0 0;line-height:1.4}
+.chart-box{background:#fff;border-radius:12px;border:1px solid var(--warm);padding:20px 16px}
+.chart-box canvas{width:100%!important}
+.note{border-radius:8px;padding:10px 14px;font-size:12px;color:var(--dk);line-height:1.5;display:flex;gap:8px;align-items:flex-start;margin-top:12px}
+.note-info{background:#E8F5E9;border:1px solid #A5D6A7}
+.note-warn{background:#FFF8E1;border:1px solid #FFE082}
+.note-crit{background:#FFEBEE;border:1px solid #EF9A9A}
+.note-tip{background:#E3F2FD;border:1px solid #90CAF9}
+.note-icon{flex-shrink:0}
+.phase-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;border:2px solid var(--navy);background:transparent;font-weight:600;font-size:12px;cursor:pointer;font-family:inherit;transition:all .2s;margin-right:6px;margin-bottom:6px}
+.phase-btn.active{color:#fff!important}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px}
+th{padding:8px 12px;border-bottom:2px solid var(--warm);color:var(--mid);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.04em}
+td{padding:8px 12px}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.bar-label{font-size:11px;color:var(--dk);font-weight:500;width:200px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:7px;background:var(--warm);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px}
+.bar-val{font-size:11px;color:var(--mid);font-weight:600;min-width:50px;text-align:right}
+.ch-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--warm)}
+.ch-row:last-child{border-bottom:none}
+.ch-bar{width:4px;height:36px;border-radius:3px;flex-shrink:0}
+.ch-name{font-weight:700;font-size:14px}
+.ch-val{font-size:20px;font-weight:700;font-family:var(--hf)}
+.ch-meta{display:flex;gap:16px;margin-top:2px;font-size:11px;color:var(--mid)}
+.click-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--warm)}
+.click-row:last-child{border-bottom:none}
+.click-bar{width:4px;height:28px;border-radius:3px;flex-shrink:0}
+.click-name{font-size:12px;font-weight:600;color:var(--dk)}
+.click-val{font-size:18px;font-weight:700;color:var(--dk);font-family:var(--hf)}
+.click-pct{font-size:11px;color:var(--mid)}
+.eng-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--warm);font-size:12px}
+.eng-row:last-child{border-bottom:none}
+.q-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--warm);font-size:12px}
+.q-row:last-child{border-bottom:none}
+.q-name{font-weight:500;color:var(--dk);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.white-box{background:#fff;border-radius:12px;border:1px solid var(--warm);padding:18px}
+.footer{padding:14px 28px;border-top:1px solid var(--warm);font-size:10px;color:var(--lt);display:flex;justify-content:space-between}
+.page-card{background:#fff;border-radius:12px;border:1px solid var(--warm);padding:20px}
+.page-card-title{font-size:15px;font-weight:700;color:var(--navy);font-family:var(--hf);margin-bottom:4px}
+.page-card-sub{font-size:12px;color:var(--mid);margin-bottom:14px}
+.pie-legend{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:8px}
+.pie-legend-item{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--mid)}
+.pie-dot{width:7px;height:7px;border-radius:4px;display:inline-block}
+@media(max-width:768px){.grid-2{grid-template-columns:1fr}.header-inner{flex-direction:column}.header-meta{text-align:left}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header"><div class="header-inner">
+<div>
+  <div class="header-sub">Stupski Foundation</div>
+  <h1>CONTROL <span>Book Launch Analytics</span></h1>
+  <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:3px">March 1–31, 2026 — Data: GA4 + Microsoft Clarity + Google Search Console</div>
+</div>
+<div class="header-meta"><div>Prepared by 4Site Interactive Studios</div><div style="margin-top:2px" id="report-date"></div></div>
+</div></div>
+
+<!-- TABS -->
+<div class="tab-bar">
+<button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">📊 Overview</button>
+<button class="tab-btn" data-tab="control" onclick="switchTab('control')">📖 CONTROL Page</button>
+<button class="tab-btn" data-tab="channels" onclick="switchTab('channels')">🔀 Channels</button>
+<button class="tab-btn" data-tab="search" onclick="switchTab('search')">🔍 Search (GSC)</button>
+<button class="tab-btn" data-tab="clicks" onclick="switchTab('clicks')">🎯 Clicks & UX</button>
+<button class="tab-btn" data-tab="tour" onclick="switchTab('tour')">🎙️ Tour & Podcast</button>
+</div>
+
+<div class="content">
+
+<!-- =============== OVERVIEW =============== -->
+<div id="tab-overview" class="tab-panel active">
+<div id="phase-buttons" style="margin-bottom:14px"></div>
+<div class="grid grid-6" id="overview-cards"></div>
+<div class="hdr"><span class="hdr-icon">📈</span><h2>Daily Sessions — Site vs. /control/</h2><span class="hdr-src" style="background:#FFF3E0;color:#E65100">GA4</span><p class="hdr-sub">The CONTROL page captured the vast majority of all site traffic throughout March</p></div>
+<div class="chart-box"><div style="position:relative;height:280px"><canvas id="chart-daily"></canvas></div></div>
+<div class="note note-tip"><span class="note-icon">💡</span><div><strong>Key pattern:</strong> Traffic came in waves driven by LinkedIn campaign pushes. Launch day (Mar 17: 2,665 /control/ sessions) and Mar 18 (3,097) were the biggest spikes. A third spike on Mar 23 (2,719) suggests another LinkedIn push.</div></div>
+<div class="hdr" style="margin-top:20px"><span class="hdr-icon">🔄</span><h2>Phase-over-Phase Performance</h2><span class="hdr-src" style="background:#FFF3E0;color:#E65100">GA4</span><p class="hdr-sub">Comparing the three campaign phases for the CONTROL page</p></div>
+<div class="white-box" style="overflow-x:auto"><table id="phase-table"></table></div>
+<div class="note note-info"><span class="note-icon">✅</span><div><strong>Launch week delivered a 7.5x daily average vs. pre-launch</strong> (1,476/day vs. 198/day). Disabling the lightbox during launch week correlated with a 452% increase in scroll events.</div></div>
+</div>
+
+<!-- =============== CONTROL PAGE =============== -->
+<div id="tab-control" class="tab-panel">
+<div class="hdr"><span class="hdr-icon">📖</span><h2>CONTROL Landing Page Deep Dive</h2><span class="hdr-src" style="background:#FFF3E0;color:#E65100">GA4</span><p class="hdr-sub">stupski.org/control/ — 18,722 landing sessions (76.1% of all site traffic)</p></div>
+<div class="grid grid-4">
+<div class="card" style="--c:var(--coral)"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--coral)"></div><div class="card-label">Landing Sessions</div><div class="card-value">18,722</div><div class="card-sub" style="color:var(--coral)">76.1% of site total</div><span class="card-icon">📖</span></div>
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--teal)"></div><div class="card-label">Unique Users (Clarity)</div><div class="card-value">20,134</div><div class="card-sub">90.2% new visitors</div><span class="card-icon">🧑</span></div>
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--orange)"></div><div class="card-label">Avg Engagement (Organic)</div><div class="card-value">46.3s</div><div class="card-sub">vs 2.4s for Direct</div><span class="card-icon">⏱️</span></div>
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--purp)"></div><div class="card-label">Scroll Depth (Clarity)</div><div class="card-value">22.0%</div><div class="card-sub">Avg across all sessions</div><span class="card-icon">📜</span></div>
+</div>
+<div class="hdr"><span class="hdr-icon">🔀</span><h2>/control/ Sessions by Source/Medium</h2><span class="hdr-src" style="background:#FFF3E0;color:#E65100">GA4</span><p class="hdr-sub">How visitors arrived at the CONTROL landing page</p></div>
+<div class="grid grid-2" style="align-items:start">
+<div class="white-box"><div style="position:relative;height:200px;max-width:200px;margin:0 auto"><canvas id="chart-pie"></canvas></div><div class="pie-legend" id="pie-legend"></div></div>
+<div class="white-box"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">Engagement by Channel</div><div id="eng-rows"></div></div>
+</div>
+<div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>LinkedIn "Direct" attribution issue:</strong> Most LinkedIn traffic arrives with li_ed tracking parameters, classified as Direct in GA4. True LinkedIn-driven traffic is likely ~17,297 sessions (92.4%). Address with UTM parameters.</div></div>
+<div class="hdr" style="margin-top:20px"><span class="hdr-icon">📈</span><h2>Daily /control/ Session Trend</h2><span class="hdr-src" style="background:#FFF3E0;color:#E65100">GA4</span><p class="hdr-sub">With click events and scroll events overlaid</p></div>
+<div class="chart-box"><div style="position:relative;height:260px"><canvas id="chart-control-daily"></canvas></div></div>
+</div>
+
+<!-- =============== CHANNELS =============== -->
+<div id="tab-channels" class="tab-panel">
+<div class="hdr"><span class="hdr-icon">🔀</span><h2>Traffic Acquisition Channels</h2><span class="hdr-src" style="background:#FFF3E0;color:#E65100">GA4</span><p class="hdr-sub">GA4 channel groupings for all of stupski.org — March 2026</p></div>
+<div class="white-box" style="margin-bottom:20px" id="channel-rows"></div>
+<div class="hdr"><span class="hdr-icon">🌐</span><h2>Referrer Breakdown</h2><span class="hdr-src" style="background:#E3F2FD;color:#1565C0">Clarity</span><p class="hdr-sub">Top external referrers from Microsoft Clarity</p></div>
+<div class="white-box" id="referrer-bars"></div>
+<div class="note note-info"><span class="note-icon">✅</span><div><strong>LinkedIn is the dominant channel</strong> — 2,376 sessions via Clarity. Substack and Who Gives? combined for 112 sessions — smaller but highly engaged.</div></div>
+</div>
+
+<!-- =============== SEARCH =============== -->
+<div id="tab-search" class="tab-panel">
+<div class="hdr"><span class="hdr-icon">🔍</span><h2>Google Search Console Performance</h2><span class="hdr-src" style="background:#F3E5F5;color:#6A1B9A">GSC</span><p class="hdr-sub">stupski.org organic search — March 2026</p></div>
+<div class="grid grid-4">
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--teal)"></div><div class="card-label">Total Clicks</div><div class="card-value">2,048</div><span class="card-icon">🖱️</span></div>
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--navy)"></div><div class="card-label">Total Impressions</div><div class="card-value">516K</div><span class="card-icon">👁️</span></div>
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--orange)"></div><div class="card-label">Avg CTR</div><div class="card-value">0.40%</div><span class="card-icon">📊</span></div>
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--purp)"></div><div class="card-label">Avg Position</div><div class="card-value">7.5</div><span class="card-icon">📍</span></div>
+</div>
+<div class="hdr"><span class="hdr-icon">📈</span><h2>Daily GSC Clicks & Impressions</h2><span class="hdr-src" style="background:#F3E5F5;color:#6A1B9A">GSC</span></div>
+<div class="chart-box"><div style="position:relative;height:240px"><canvas id="chart-gsc"></canvas></div></div>
+<div class="grid grid-2" style="margin-top:20px">
+<div><div class="hdr"><span class="hdr-icon">🔑</span><h2>Top Search Queries</h2><span class="hdr-src" style="background:#F3E5F5;color:#6A1B9A">GSC</span><p class="hdr-sub">Branded searches dominate</p></div><div class="white-box" id="query-rows"></div></div>
+<div><div class="hdr"><span class="hdr-icon">📄</span><h2>Top Pages (Organic)</h2><span class="hdr-src" style="background:#F3E5F5;color:#6A1B9A">GSC</span><p class="hdr-sub">Which pages earn organic clicks</p></div><div class="white-box" id="gsc-page-rows"></div></div>
+</div>
+<div class="note note-tip"><span class="note-icon">💡</span><div><strong>Book-related queries emerging:</strong> "control why big giving falls short," "glen galaich book," and "control glen galaich" combined for 98 clicks and 469 impressions.</div></div>
+<div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>Break Fake Rules anomaly:</strong> 493K impressions but only 201 clicks (0.04% CTR). Likely generic query matching.</div></div>
+</div>
+
+<!-- =============== CLICKS & UX =============== -->
+<div id="tab-clicks" class="tab-panel">
+<div class="hdr"><span class="hdr-icon">🎯</span><h2>Click & Tap Behavior on /control/</h2><span class="hdr-src" style="background:#E3F2FD;color:#1565C0">Clarity</span><p class="hdr-sub">How visitors interact with the CONTROL page — PC vs. Mobile (Clarity heatmap data)</p></div>
+<div class="grid grid-4">
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--navy)"></div><div class="card-label">Total Pageviews</div><div class="card-value">15,703</div><div class="card-sub">PC + Mobile</div><span class="card-icon">📄</span></div>
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--coral)"></div><div class="card-label">Total Interactions</div><div class="card-value">3,709</div><div class="card-sub">23.6% interaction rate</div><span class="card-icon">🖱️</span></div>
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--teal)"></div><div class="card-label">Mobile Pageviews</div><div class="card-value">90.0%</div><div class="card-sub">14,136 of 15,703</div><span class="card-icon">📱</span></div>
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--red)"></div><div class="card-label">Dead Clicks</div><div class="card-value">683</div><div class="card-sub">2.92% of sessions</div><span class="card-icon">⚠️</span></div>
+</div>
+<div class="hdr"><span class="hdr-icon">🎯</span><h2>Top Click Elements on /control/</h2><p class="hdr-sub">What visitors clicked most — mapped from CSS selectors to meaningful actions</p></div>
+<div class="white-box" id="click-rows" style="margin-bottom:16px"></div>
+<div class="note note-crit"><span class="note-icon">🚨</span><div><strong>Lightbox friction is the #1 UX signal:</strong> 1,203 close-button clicks (32.4% of ALL interactions). Only 44 clicked the CTA — 3.7% lightbox conversion rate.</div></div>
+<div class="note note-tip"><span class="note-icon">💡</span><div><strong>Smart Events (Clarity):</strong> 530 outbound clicks, 41 "Book" events, 11 "Checkout" events, 13 video plays, 16 form submissions.</div></div>
+<div class="hdr" style="margin-top:20px"><span class="hdr-icon">⚡</span><h2>Performance & Behavior Signals</h2><span class="hdr-src" style="background:#E3F2FD;color:#1565C0">Clarity</span><p class="hdr-sub">Core Web Vitals and behavioral insights</p></div>
+<div class="grid grid-2">
+<div class="white-box"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">Core Web Vitals</div><div id="cwv-rows"></div></div>
+<div class="white-box"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">Behavioral Insights</div><div id="behavior-rows"></div></div>
+</div>
+</div>
+
+<!-- =============== TOUR & PODCAST =============== -->
+<div id="tab-tour" class="tab-panel">
+<div class="hdr"><span class="hdr-icon">🎙️</span><h2>Book Tour & Break Fake Rules Podcast</h2><p class="hdr-sub">Supporting pages for the CONTROL launch</p></div>
+<div class="grid grid-2" style="margin-bottom:20px">
+<div class="page-card">
+<div class="page-card-title">🗺️ Book Tour Events Page</div>
+<div class="page-card-sub">stupski.org/control/book-tour-events/</div>
+<div class="grid grid-4" style="margin-bottom:0">
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--teal)"></div><div class="card-label">GA4 Landing Sessions</div><div class="card-value">108</div><div class="card-sub">0.4% of site</div></div>
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--navy)"></div><div class="card-label">GA4 Page Views</div><div class="card-value">169</div><div class="card-sub">Across all sources</div></div>
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--coral)"></div><div class="card-label">Clarity Sessions</div><div class="card-value">161</div><div class="card-sub">0.7% of site</div></div>
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--grn)"></div><div class="card-label">GSC Clicks</div><div class="card-value">7</div><div class="card-sub">59 impressions</div></div>
+</div>
+<div class="note note-tip"><span class="note-icon">💡</span><div><strong>Tour page traffic will grow</strong> as Glen's tour dates approach. Current traffic is modest — primary sources are direct (61 sessions), Google organic (20), and LinkedIn (30). Track weekly as tour marketing ramps up.</div></div>
+</div>
+<div class="page-card">
+<div class="page-card-title">🎙️ Break Fake Rules Podcast</div>
+<div class="page-card-sub">stupski.org/break-fake-rules/</div>
+<div class="grid grid-4" style="margin-bottom:0">
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--orange)"></div><div class="card-label">GA4 Landing Sessions</div><div class="card-value">571</div><div class="card-sub">2.3% of site</div></div>
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--coral)"></div><div class="card-label">Clarity Sessions</div><div class="card-value">675</div><div class="card-sub">2.9% of site</div></div>
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--navy)"></div><div class="card-label">Video Starts</div><div class="card-value">386</div><div class="card-sub">246 unique users</div></div>
+<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--grn)"></div><div class="card-label">GSC Clicks</div><div class="card-value">201</div><div class="card-sub">493K imp (anomaly)</div></div>
+</div>
+<div class="note note-info"><span class="note-icon">✅</span><div><strong>Podcast → Book pipeline:</strong> 638 BFR page visit events. 29 QR code scans indicate real-world event promotion is working.</div></div>
+</div>
+</div>
+<div class="hdr"><span class="hdr-icon">📄</span><h2>Key Pages Summary</h2><p class="hdr-sub">All CONTROL-ecosystem pages at a glance</p></div>
+<div class="white-box" style="overflow-x:auto"><table id="pages-table"></table></div>
+</div>
+
+</div><!-- /content -->
+
+<div class="footer"><span>Prepared by 4Site Interactive Studios for the Stupski Foundation</span><span>Data sources: GA4, Microsoft Clarity, Google Search Console</span></div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const DAILY=[{date:"2026-03-01",d:"Mar 1",site:356,ctrl:356,clk:3,scr:57,form:1,vid:0,fv:335,gscClk:9,gscImp:12177},{date:"2026-03-02",d:"Mar 2",site:684,ctrl:683,clk:5,scr:41,form:0,vid:0,fv:628,gscClk:54,gscImp:19123},{date:"2026-03-03",d:"Mar 3",site:728,ctrl:726,clk:9,scr:38,form:3,vid:0,fv:672,gscClk:140,gscImp:16428},{date:"2026-03-04",d:"Mar 4",site:906,ctrl:901,clk:8,scr:36,form:3,vid:0,fv:836,gscClk:122,gscImp:20483},{date:"2026-03-05",d:"Mar 5",site:311,ctrl:311,clk:2,scr:13,form:0,vid:0,fv:258,gscClk:84,gscImp:19607},{date:"2026-03-06",d:"Mar 6",site:98,ctrl:98,clk:2,scr:13,form:1,vid:0,fv:71,gscClk:85,gscImp:21309},{date:"2026-03-07",d:"Mar 7",site:117,ctrl:115,clk:1,scr:1,form:0,vid:0,fv:102,gscClk:27,gscImp:10556},{date:"2026-03-08",d:"Mar 8",site:584,ctrl:584,clk:1,scr:35,form:0,vid:0,fv:573,gscClk:22,gscImp:12460},{date:"2026-03-09",d:"Mar 9",site:111,ctrl:107,clk:6,scr:21,form:0,vid:0,fv:61,gscClk:69,gscImp:16877},{date:"2026-03-10",d:"Mar 10",site:181,ctrl:176,clk:12,scr:17,form:1,vid:0,fv:147,gscClk:86,gscImp:8131},{date:"2026-03-11",d:"Mar 11",site:351,ctrl:327,clk:14,scr:25,form:0,vid:1,fv:288,gscClk:94,gscImp:7151},{date:"2026-03-12",d:"Mar 12",site:400,ctrl:393,clk:10,scr:25,form:2,vid:1,fv:369,gscClk:83,gscImp:12767},{date:"2026-03-13",d:"Mar 13",site:350,ctrl:345,clk:4,scr:14,form:0,vid:1,fv:319,gscClk:52,gscImp:10184},{date:"2026-03-14",d:"Mar 14",site:55,ctrl:55,clk:3,scr:3,form:0,vid:0,fv:44,gscClk:13,gscImp:5859},{date:"2026-03-15",d:"Mar 15",site:46,ctrl:46,clk:1,scr:7,form:0,vid:0,fv:39,gscClk:12,gscImp:7734},{date:"2026-03-16",d:"Mar 16",site:333,ctrl:330,clk:12,scr:62,form:0,vid:15,fv:304,gscClk:69,gscImp:11915},{date:"2026-03-17",d:"Mar 17",site:2678,ctrl:2665,clk:40,scr:258,form:4,vid:15,fv:2560,gscClk:77,gscImp:9364},{date:"2026-03-18",d:"Mar 18",site:3103,ctrl:3097,clk:14,scr:205,form:1,vid:6,fv:2813,gscClk:83,gscImp:19423},{date:"2026-03-19",d:"Mar 19",site:1189,ctrl:1186,clk:11,scr:49,form:1,vid:2,fv:1026,gscClk:70,gscImp:18697},{date:"2026-03-20",d:"Mar 20",site:1574,ctrl:1573,clk:10,scr:59,form:0,vid:0,fv:1405,gscClk:69,gscImp:17702},{date:"2026-03-21",d:"Mar 21",site:235,ctrl:234,clk:3,scr:9,form:1,vid:0,fv:167,gscClk:33,gscImp:13229},{date:"2026-03-22",d:"Mar 22",site:101,ctrl:100,clk:6,scr:6,form:0,vid:0,fv:60,gscClk:48,gscImp:16681},{date:"2026-03-23",d:"Mar 23",site:2722,ctrl:2719,clk:16,scr:96,form:0,vid:3,fv:2527,gscClk:108,gscImp:22663},{date:"2026-03-24",d:"Mar 24",site:371,ctrl:364,clk:10,scr:28,form:2,vid:0,fv:244,gscClk:93,gscImp:22762},{date:"2026-03-25",d:"Mar 25",site:263,ctrl:261,clk:7,scr:13,form:0,vid:0,fv:195,gscClk:90,gscImp:25940},{date:"2026-03-26",d:"Mar 26",site:129,ctrl:127,clk:6,scr:13,form:0,vid:0,fv:85,gscClk:84,gscImp:27706},{date:"2026-03-27",d:"Mar 27",site:151,ctrl:145,clk:12,scr:14,form:0,vid:0,fv:108,gscClk:60,gscImp:26858},{date:"2026-03-28",d:"Mar 28",site:94,ctrl:94,clk:6,scr:10,form:0,vid:1,fv:72,gscClk:38,gscImp:16797},{date:"2026-03-29",d:"Mar 29",site:201,ctrl:200,clk:4,scr:14,form:0,vid:0,fv:175,gscClk:31,gscImp:18183},{date:"2026-03-30",d:"Mar 30",site:345,ctrl:329,clk:11,scr:21,form:2,vid:1,fv:279,gscClk:63,gscImp:26005},{date:"2026-03-31",d:"Mar 31",site:209,ctrl:206,clk:10,scr:15,form:0,vid:0,fv:178,gscClk:80,gscImp:21343}];
+
+let currentPhase='all';
+const chartInstances={};
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function sum(arr,key){return arr.reduce((s,d)=>s+d[key],0);}
+function filterPhase(p){if(p==='all')return DAILY;if(p==='pre')return DAILY.filter(d=>d.date<='2026-03-16');if(p==='launch')return DAILY.filter(d=>d.date>='2026-03-17'&&d.date<='2026-03-22');return DAILY.filter(d=>d.date>='2026-03-23');}
+function pct(a,b){return b?((a/b)*100).toFixed(1)+'%':'0%';}
+function delta(a,b){if(!a||typeof a!=='number')return'\u2014';const d=Math.round((b-a)/a*100);return(d>0?'+':'')+d+'%';}
+function deltaColor(a,b){if(!a||typeof a!=='number')return'var(--mid)';return(b-a)>0?'var(--grn)':'var(--red)';}
+function num(n){return typeof n==='number'?n.toLocaleString():n;}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+const chartRendered={control:false,search:false};
+
+function switchTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  // Highlight matching button by data attribute
+  document.querySelectorAll('.tab-btn').forEach(b=>{if(b.getAttribute('data-tab')===id)b.classList.add('active');});
+  // Render charts on first visit (Chart.js needs visible canvas)
+  if(id==='control'&&!chartRendered.control){setTimeout(()=>{renderControlDailyChart();renderPieChart();chartRendered.control=true;},50);}
+  if(id==='search'&&!chartRendered.search){setTimeout(()=>{renderGSCChart();chartRendered.search=true;},50);}
+  // Resize any already-rendered charts
+  setTimeout(()=>{Object.values(chartInstances).forEach(c=>{if(c&&c.resize)c.resize();});},100);
+}
+
+// ============================================================
+// PHASE SELECTOR & OVERVIEW CARDS
+// ============================================================
+function renderPhaseButtons(){
+  const phases=[{id:'all',label:'Full Month',range:'Mar 1–31',color:'var(--navy)'},{id:'pre',label:'Pre-Launch',range:'Mar 1–16',color:'var(--orange)'},{id:'launch',label:'Launch Week',range:'Mar 17–22',color:'var(--coral)'},{id:'post',label:'Post-Launch',range:'Mar 23–31',color:'var(--teal)'}];
+  const icons={all:'📅',pre:'⏳',launch:'🚀',post:'🔄'};
+  document.getElementById('phase-buttons').innerHTML=phases.map(p=>`<button class="phase-btn ${currentPhase===p.id?'active':''}" style="border-color:${p.color};color:${currentPhase===p.id?'#fff':p.color};background:${currentPhase===p.id?p.color:'transparent'}" onclick="setPhase('${p.id}')">${icons[p.id]} ${p.label} <span style="opacity:.7;font-size:10px">(${p.range})</span></button>`).join('');
+}
+function setPhase(p){currentPhase=p;renderPhaseButtons();renderOverviewCards();renderDailyChart();}
+
+function renderOverviewCards(){
+  const f=filterPhase(currentPhase);
+  const t={sessions:sum(f,'site'),ctrl:sum(f,'ctrl'),clk:sum(f,'clk'),scr:sum(f,'scr'),form:sum(f,'form'),gscClk:sum(f,'gscClk'),gscImp:sum(f,'gscImp')};
+  const cards=[
+    {l:'Total Sessions',v:num(t.sessions),s:f.length+' days',i:'👥',c:'var(--navy)'},
+    {l:'/control/ Sessions',v:num(t.ctrl),s:pct(t.ctrl,t.sessions)+' of total',i:'📖',c:'var(--coral)',ac:'var(--coral)'},
+    {l:'GA4 Click Events',v:num(t.clk),s:'on /control/',i:'🖱️',c:'var(--orange)'},
+    {l:'Scroll Events',v:num(t.scr),s:'on /control/',i:'📜',c:'var(--teal)'},
+    {l:'Form Submits',v:num(t.form),s:'Free chapter signups',i:'📝',c:'var(--purp)'},
+    {l:'GSC Clicks',v:num(t.gscClk),s:(t.gscClk/t.gscImp*100).toFixed(2)+'% CTR',i:'🔍',c:'var(--grn)'},
+  ];
+  document.getElementById('overview-cards').innerHTML=cards.map(c=>`<div class="card"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:${c.c}"></div><div class="card-label">${c.l}</div><div class="card-value">${c.v}</div><div class="card-sub" style="color:${c.ac||'var(--mid)'}">${c.s}</div><span class="card-icon">${c.i}</span></div>`).join('');
+}
+
+// ============================================================
+// CHARTS
+// ============================================================
+const chartDefaults={responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{font:{family:'DM Sans',size:11},usePointStyle:true,pointStyleWidth:8}},tooltip:{mode:'index',intersect:false,backgroundColor:'#1B2A4A',titleFont:{family:'DM Sans',size:11},bodyFont:{family:'DM Sans',size:12},cornerRadius:8,padding:10}},scales:{x:{grid:{display:false},ticks:{font:{family:'DM Sans',size:10},color:'#8A92A0'}},y:{grid:{color:'#E8E3DC'},ticks:{font:{family:'DM Sans',size:10},color:'#8A92A0'}}}};
+
+function renderDailyChart(){
+  if(chartInstances.daily)chartInstances.daily.destroy();
+  const ctx=document.getElementById('chart-daily');
+  const verticalLinePlugin={id:'vertLines',afterDraw(chart){const xAxis=chart.scales.x;const yAxis=chart.scales.y;const ctx2=chart.ctx;const lines=[{index:16,color:'#E8604C',label:'🚀 Launch'},{index:22,color:'#3A8F8B',label:'🔄 Post'}];lines.forEach(l=>{const x=xAxis.getPixelForValue(l.index);ctx2.save();ctx2.beginPath();ctx2.setLineDash([4,4]);ctx2.strokeStyle=l.color;ctx2.lineWidth=1;ctx2.moveTo(x,yAxis.top);ctx2.lineTo(x,yAxis.bottom);ctx2.stroke();ctx2.setLineDash([]);ctx2.fillStyle=l.color;ctx2.font='10px DM Sans';ctx2.textAlign='center';ctx2.fillText(l.label,x,yAxis.top-5);ctx2.restore();});}};
+  chartInstances.daily=new Chart(ctx,{type:'line',data:{labels:DAILY.map(d=>d.d),datasets:[{label:'Site Sessions',data:DAILY.map(d=>d.site),borderColor:'#1B2A4A',backgroundColor:'rgba(27,42,74,.1)',fill:true,tension:.3,pointRadius:0,borderWidth:2},{label:'/control/ Sessions',data:DAILY.map(d=>d.ctrl),borderColor:'#E8604C',backgroundColor:'rgba(232,96,76,.08)',fill:true,tension:.3,pointRadius:0,borderWidth:2}]},options:chartDefaults,plugins:[verticalLinePlugin]});
+}
+
+function renderControlDailyChart(){
+  if(chartInstances.controlDaily)chartInstances.controlDaily.destroy();
+  const ctx=document.getElementById('chart-control-daily');
+  const refLinePlugin={id:'refLine',afterDraw(chart){const xAxis=chart.scales.x;const yAxis=chart.scales.y;const ctx2=chart.ctx;const x=xAxis.getPixelForValue(16);ctx2.save();ctx2.beginPath();ctx2.setLineDash([4,4]);ctx2.strokeStyle='#E8604C';ctx2.lineWidth=1;ctx2.moveTo(x,yAxis.top);ctx2.lineTo(x,yAxis.bottom);ctx2.stroke();ctx2.restore();}};
+  chartInstances.controlDaily=new Chart(ctx,{type:'bar',data:{labels:DAILY.map(d=>d.d),datasets:[{label:'/control/ Sessions',data:DAILY.map(d=>d.ctrl),backgroundColor:'rgba(232,96,76,.7)',borderRadius:3,order:2},{label:'Scrolls',data:DAILY.map(d=>d.scr),type:'line',borderColor:'#3A8F8B',borderWidth:2,pointRadius:0,tension:.3,order:1,yAxisID:'y'},{label:'Clicks',data:DAILY.map(d=>d.clk),type:'line',borderColor:'#F4A259',borderWidth:2,pointRadius:0,tension:.3,order:0,yAxisID:'y'}]},options:{...chartDefaults},plugins:[refLinePlugin]});
+}
+
+function renderPieChart(){
+  if(chartInstances.pie)chartInstances.pie.destroy();
+  const data=[{l:'Direct',v:14835},{l:'LinkedIn',v:2081},{l:'Google Organic',v:413},{l:'lnkd.in',v:381},{l:'imasdk (ads)',v:280},{l:'Substack',v:178},{l:'Other',v:554}];
+  const colors=['#1B2A4A','#E8604C','#3A8F8B','#F0816F','#8A92A0','#F4A259','#E8E3DC'];
+  const ctx=document.getElementById('chart-pie');
+  chartInstances.pie=new Chart(ctx,{type:'doughnut',data:{labels:data.map(d=>d.l),datasets:[{data:data.map(d=>d.v),backgroundColor:colors,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:true,cutout:'55%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1B2A4A',cornerRadius:8,bodyFont:{family:'DM Sans'}}}}});
+  document.getElementById('pie-legend').innerHTML=data.slice(0,5).map((d,i)=>`<span class="pie-legend-item"><span class="pie-dot" style="background:${colors[i]}"></span>${d.l} (${pct(d.v,18722)})</span>`).join('');
+}
+
+function renderGSCChart(){
+  if(chartInstances.gsc)chartInstances.gsc.destroy();
+  const ctx=document.getElementById('chart-gsc');
+  chartInstances.gsc=new Chart(ctx,{type:'bar',data:{labels:DAILY.map(d=>d.d),datasets:[{label:'Impressions',data:DAILY.map(d=>d.gscImp),backgroundColor:'rgba(232,227,220,.6)',borderRadius:2,order:2,yAxisID:'y1'},{label:'Clicks',data:DAILY.map(d=>d.gscClk),type:'line',borderColor:'#3A8F8B',borderWidth:2.5,pointRadius:0,tension:.3,order:1,yAxisID:'y'}]},options:{...chartDefaults,scales:{...chartDefaults.scales,y1:{position:'right',grid:{display:false},ticks:{font:{family:'DM Sans',size:10},color:'#8A92A0'}}}}});
+}
+
+// ============================================================
+// STATIC CONTENT RENDERERS
+// ============================================================
+function renderEngRows(){
+  const rows=[{ch:'Google Organic',eng:'29.4s',s:'413',r:'High'},{ch:'Substack (email)',eng:'9.0s',s:'156',r:'Medium'},{ch:'Who Gives? Substack',eng:'32.0s',s:'22',r:'High'},{ch:'LinkedIn referral',eng:'2.1s',s:'2,081',r:'Low'},{ch:'Direct',eng:'2.4s',s:'14,835',r:'Low'},{ch:'Fox News',eng:'1.2s',s:'46',r:'Very Low'}];
+  document.getElementById('eng-rows').innerHTML=rows.map((r,i)=>`<div class="eng-row" style="${i===rows.length-1?'border-bottom:none':''}"><span style="font-weight:500">${r.ch}</span><div style="display:flex;gap:12px;align-items:center"><span style="color:var(--mid);font-size:11px">${r.s} sess</span><span style="font-weight:700;color:${r.r==='High'?'var(--grn)':r.r==='Medium'?'var(--orange)':'var(--red)'};font-size:11px">${r.eng}</span></div></div>`).join('');
+}
+
+function renderChannelRows(){
+  const chs=[{ch:'Direct',s:17432,pct:71.2,eng:21.2,time:4.5,c:'var(--navy)'},{ch:'Organic Search',s:3007,pct:12.3,eng:58.7,time:46.3,c:'var(--teal)'},{ch:'Organic Social',s:2679,pct:10.9,eng:12.8,time:5.1,c:'var(--coral)'},{ch:'Referral',s:892,pct:3.6,eng:23.2,time:13.1,c:'var(--orange)'},{ch:'Email',s:208,pct:0.9,eng:22.1,time:11.8,c:'var(--purp)'},{ch:'Organic Video',s:24,pct:0.1,eng:33.3,time:14.4,c:'var(--teal-lt)'}];
+  document.getElementById('channel-rows').innerHTML=chs.map((r,i)=>`<div class="ch-row" style="${i===chs.length-1?'border-bottom:none':''}"><div class="ch-bar" style="background:${r.c}"></div><div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="ch-name">${r.ch}</span><span class="ch-val" style="color:${r.c}">${num(r.s)}</span></div><div class="ch-meta"><span>${r.pct}% of total</span><span>Eng rate: <strong style="color:${r.eng>40?'var(--grn)':r.eng>20?'var(--orange)':'var(--red)'}">${r.eng}%</strong></span><span>Avg time: <strong>${r.time}s</strong></span></div></div></div>`).join('');
+}
+
+function renderReferrerBars(){
+  const refs=[{src:'LinkedIn (combined)',s:2376},{src:'Google (organic)',s:2173},{src:'Internal (stupski.org)',s:1863},{src:'Bing',s:94},{src:'Substack (combined)',s:81},{src:'DuckDuckGo',s:42},{src:'Google Ads',s:35},{src:'Fox News',s:34},{src:'Amazon Ads',s:32},{src:'Who Gives? Substack',s:31}];
+  const colors=['#E8604C','#3A8F8B','#F4A259','#1B2A4A','#7B61FF','#4DB0AC','#F0816F','#C4A35A','#E8604C','#3A8F8B'];
+  document.getElementById('referrer-bars').innerHTML=refs.map((r,i)=>`<div class="bar-row"><div class="bar-label">${r.src}</div><div class="bar-track"><div class="bar-fill" style="width:${(r.s/2376*100)}%;background:${colors[i]}"></div></div><div class="bar-val">${num(r.s)}</div></div>`).join('');
+}
+
+function renderQueryRows(){
+  const qs=[{q:'stupski foundation',clk:627,ctr:'64.4%'},{q:'glen galaich',clk:139,ctr:'30.6%'},{q:'break fake rules',clk:42,ctr:'57.5%'},{q:'stupski',clk:28,ctr:'45.9%'},{q:'control why big giving falls short',clk:24,ctr:'18.5%'},{q:'break fake rules podcast',clk:22,ctr:'45.8%'},{q:'glen galaich stupski',clk:20,ctr:'44.4%'},{q:'control glen galaich',clk:16,ctr:'32.7%'},{q:'glen galaich book',clk:11,ctr:'23.4%'}];
+  document.getElementById('query-rows').innerHTML=qs.map((r,i)=>`<div class="q-row" style="${i===qs.length-1?'border-bottom:none':''}"><span class="q-name">${r.q}</span><div style="display:flex;gap:10px;font-size:11px;color:var(--mid)"><span><strong style="color:var(--teal)">${r.clk}</strong> clk</span><span>${r.ctr}</span></div></div>`).join('');
+}
+
+function renderGSCPageRows(){
+  const ps=[{p:'Homepage (/)',clk:595,imp:'2,707'},{p:'/control/',clk:272,imp:'1,707'},{p:'Glen Galaich bio',clk:232,imp:'1,568'},{p:'/break-fake-rules/',clk:201,imp:'493K'},{p:'/intern-with-stupski/',clk:96,imp:'1,985'},{p:'/about/our-team/',clk:92,imp:'1,614'},{p:'/control/book-tour-events/',clk:7,imp:'59'}];
+  document.getElementById('gsc-page-rows').innerHTML=ps.map((r,i)=>`<div class="q-row" style="${i===ps.length-1?'border-bottom:none':''}"><span class="q-name">${r.p}</span><div style="display:flex;gap:10px;font-size:11px;color:var(--mid)"><span><strong style="color:var(--teal)">${r.clk}</strong> clk</span><span>${r.imp} imp</span></div></div>`).join('');
+}
+
+function renderClickRows(){
+  const clicks=[{el:'🔴 Lightbox CLOSE Button',clicks:1203,pct:32.4,t:'friction'},{el:'Lightbox Video/Content Area',clicks:783,pct:21.1,t:'engage'},{el:'Navigation Links (combined)',clicks:101,pct:2.7,t:'nav'},{el:'Banner Content Area',clicks:83,pct:2.2,t:'cta'},{el:'Hero Section',clicks:38,pct:1.0,t:'engage'},{el:'🟢 Lightbox CTA Button',clicks:44,pct:1.2,t:'cta'},{el:'Video Play Button',clicks:18,pct:0.5,t:'engage'},{el:'🟢 Order Now CTA (Hero)',clicks:13,pct:0.4,t:'cta'},{el:'Amazon Logo (Order Bar)',clicks:10,pct:0.3,t:'cta'},{el:'Free Chapter Form Submit',clicks:10,pct:0.3,t:'convert'}];
+  const tc={friction:'var(--red)',cta:'var(--grn)',convert:'var(--purp)',engage:'var(--teal)',nav:'var(--orange)'};
+  document.getElementById('click-rows').innerHTML=clicks.map((r,i)=>`<div class="click-row" style="${i===clicks.length-1?'border-bottom:none':''}"><div class="click-bar" style="background:${tc[r.t]}"></div><div style="flex:1;display:flex;justify-content:space-between;align-items:center"><span class="click-name">${r.el}</span><div style="display:flex;gap:10px;align-items:center"><span class="click-val">${num(r.clicks)}</span><span class="click-pct">${r.pct}%</span></div></div></div>`).join('');
+}
+
+function renderCWV(){
+  const cwv=[{m:'Performance Score',v:'60.9',c:'var(--orange)'},{m:'LCP',v:'3.9s',c:'var(--red)'},{m:'INP',v:'384ms',c:'var(--red)'},{m:'CLS',v:'0.40s',c:'var(--red)'}];
+  document.getElementById('cwv-rows').innerHTML=cwv.map((r,i)=>`<div class="eng-row" style="${i===cwv.length-1?'border-bottom:none':''}"><span style="font-weight:500">${r.m}</span><span style="font-weight:700;color:${r.c}">${r.v}</span></div>`).join('');
+  const bh=[{m:'Rage Clicks',n:'15 (0.06%)'},{m:'Dead Clicks',n:'683 (2.92%)'},{m:'Quick Back Clicks',n:'663 (2.83%)'},{m:'Excessive Scrolling',n:'1 (< 0.01%)'}];
+  document.getElementById('behavior-rows').innerHTML=bh.map((r,i)=>`<div class="eng-row" style="${i===bh.length-1?'border-bottom:none':''}"><span style="font-weight:500">${r.m}</span><span style="color:var(--mid);font-size:11px">${r.n}</span></div>`).join('');
+}
+
+function renderPhaseTable(){
+  const pre=filterPhase('pre'),launch=filterPhase('launch'),post=filterPhase('post');
+  const calc=(arr,key)=>sum(arr,key);
+  const avg=(arr,key)=>Math.round(sum(arr,key)/arr.length);
+  const rows=[
+    {m:'/control/ Sessions',pre:calc(pre,'ctrl'),launch:calc(launch,'ctrl'),post:calc(post,'ctrl')},
+    {m:'Daily Average',pre:avg(pre,'ctrl'),launch:avg(launch,'ctrl'),post:avg(post,'ctrl')},
+    {m:'Click Events',pre:calc(pre,'clk'),launch:calc(launch,'clk'),post:calc(post,'clk')},
+    {m:'Scroll Events',pre:calc(pre,'scr'),launch:calc(launch,'scr'),post:calc(post,'scr')},
+    {m:'Form Submissions',pre:calc(pre,'form'),launch:calc(launch,'form'),post:calc(post,'form')},
+    {m:'Video Starts',pre:calc(pre,'vid'),launch:calc(launch,'vid'),post:calc(post,'vid')},
+    {m:'First Visits',pre:calc(pre,'fv'),launch:calc(launch,'fv'),post:calc(post,'fv')},
+    {m:'Lightbox Status',pre:'✅ Active',launch:'❌ Disabled',post:'✅ Re-enabled'},
+  ];
+  document.getElementById('phase-table').innerHTML=`<thead><tr><th style="text-align:left">Metric</th><th>Pre-Launch (Mar 1–16)</th><th>Launch Week (Mar 17–22)</th><th>Δ vs Pre</th><th>Post-Launch (Mar 23–31)</th><th>Δ vs Launch</th></tr></thead><tbody>${rows.map((r,i)=>`<tr style="background:${i%2===0?'var(--cream)':'#fff'}"><td style="font-weight:600">${r.m}</td><td style="text-align:center">${typeof r.pre==='number'?num(r.pre):r.pre}</td><td style="text-align:center;font-weight:700;color:var(--coral)">${typeof r.launch==='number'?num(r.launch):r.launch}</td><td style="text-align:center;font-weight:600;color:${deltaColor(r.pre,r.launch)}">${delta(r.pre,r.launch)}</td><td style="text-align:center">${typeof r.post==='number'?num(r.post):r.post}</td><td style="text-align:center;font-weight:600;color:${deltaColor(r.launch,r.post)}">${delta(r.launch,r.post)}</td></tr>`).join('')}</tbody>`;
+}
+
+function renderPagesTable(){
+  const pages=[{p:'/control/',ga:'18,722',cl:'19,055',gsc:272,eng:'2.4s (Direct) / 29.4s (Organic)'},{p:'/ (Homepage)',ga:'1,670',cl:'1,519',gsc:595,eng:'49.6s avg'},{p:'/break-fake-rules/',ga:'571',cl:'675',gsc:201,eng:'26.3s avg'},{p:'/people/glen-galaich-ph-d/',ga:'317',cl:'428',gsc:232,eng:'41.8s avg'},{p:'/control/book-tour-events/',ga:'108',cl:'161',gsc:7,eng:'30.1s avg'}];
+  document.getElementById('pages-table').innerHTML=`<thead><tr><th style="text-align:left">Page</th><th>GA4 Sessions</th><th>Clarity Sessions</th><th>GSC Clicks</th><th>Engagement</th></tr></thead><tbody>${pages.map((r,i)=>`<tr style="background:${i%2===0?'var(--cream)':'#fff'}"><td style="font-weight:600">${r.p}</td><td style="text-align:center">${r.ga}</td><td style="text-align:center">${r.cl}</td><td style="text-align:center">${r.gsc}</td><td style="text-align:center;font-size:11px;color:var(--mid)">${r.eng}</td></tr>`).join('')}</tbody>`;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.getElementById('report-date').textContent='Report generated '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+renderPhaseButtons();
+renderOverviewCards();
+renderDailyChart();
+renderPhaseTable();
+// Charts on hidden tabs are deferred to first visit (Chart.js needs visible canvas)
+// renderControlDailyChart() and renderPieChart() → triggered by switchTab('control')
+// renderGSCChart() → triggered by switchTab('search')
+renderEngRows();
+renderQueryRows();
+renderGSCPageRows();
+renderChannelRows();
+renderReferrerBars();
+renderClickRows();
+renderCWV();
+renderPagesTable();
+</script>
+</body>
+</html>
