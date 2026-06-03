@@ -261,52 +261,44 @@ td{padding:8px 12px}
 
 <!-- RECOMMENDATIONS -->
 <div id="tab-recs" class="tab-panel">
-<div class="hdr"><span class="hdr-icon">💡</span><h2>Recommendations for Increasing Engagement and Conversion</h2><p class="hdr-sub">Specific actions for driving CONTROL book purchases and improving site engagement, organized by effort</p></div>
-<div class="note note-info" style="margin-bottom:20px"><span class="note-icon">📌</span><div>This section translates the findings in the dashboard into specific actions. Recommendations are grouped by effort, what can ship this week with no design or dev required, what requires a design or dev cycle, and longer-term content and SEO investments. A separate Strategic Considerations document accompanies this dashboard for forward-looking planning decisions.</div></div>
+<div class="hdr"><span class="hdr-icon">💡</span><h2>Recommendations for Increasing Engagement and Conversion</h2><p class="hdr-sub">Specific actions for driving CONTROL book purchases and improving site engagement</p></div>
+<div class="note note-info" style="margin-bottom:20px"><span class="note-icon">📌</span><div>Below are recommendations based on the findings highlighted throughout the dashboard, organized into specific actions items for Stupski to consider.</div></div>
 
-<div class="hdr" style="margin-top:24px"><span class="hdr-icon">⚡</span><h2>Quick Wins</h2><p class="hdr-sub">Ship this week, no design or dev required</p></div>
+<div class="hdr" style="margin-top:24px"><span class="hdr-icon">⚡</span><h2>Quick Wins</h2></div>
 
 <div class="white-box" style="margin-bottom:14px;padding:16px 18px">
 <div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Remove the promo modal on mobile</div>
-<div style="font-size:12px;color:var(--mid);line-height:1.6">Highest-impact single change available. Mobile is 74.2% of /control/ traffic, and the modal close-to-CTA ratio there is 54:1. One configuration change in the modal's display logic.</div>
+<div style="font-size:12px;color:var(--mid);line-height:1.6"> Mobile is 74.2% of /control/ traffic, and the modal close-to-CTA ratio there is 54:1. Dev would need to make this configuration change in the Promo Plugin display logic.</div>
 </div>
 
 <div class="white-box" style="margin-bottom:14px;padding:16px 18px">
-<div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Add UTM tagging to LinkedIn shares from Stupski staff and partners</div>
-<div style="font-size:12px;color:var(--mid);line-height:1.6">Recovers the LinkedIn attribution currently bucketed as Direct due to LinkedIn's redirect behavior. We recommend building a small library of pre-tagged URLs in a shared Drive doc for common campaigns.</div>
+<div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Add UTM tracking to all URLs being shared via digital channels/social media</div>
+<div style="font-size:12px;color:var(--mid);line-height:1.6">Being consistent and intentional about ensuring UTM tracking is added to all links would help recover the LinkedIn attribution currently bucketed as Direct due to LinkedIn's redirect behavior. 4Site can support creating and following best practices to ensure consistency.</div>
 </div>
 
 <div class="white-box" style="margin-bottom:14px;padding:16px 18px">
 <div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Update the /break-fake-rules/ page title and meta description</div>
-<div style="font-size:12px;color:var(--mid);line-height:1.6">Disambiguate the page as a podcast page. Updating the title to "Break Fake Rules Podcast | Glen Galaich | Stupski Foundation" signals podcast context immediately in search results and should reduce the misattributed impression problem.</div>
+<div style="font-size:12px;color:var(--mid);line-height:1.6">Disambiguate the page as a podcast page, the SEO on this page is not optimized for its content and recommend updating the title to "Break Fake Rules Podcast | Glen Galaich | Stupski Foundation" signals podcast context immediately in search results and should reduce the misattributed impression problem.</div>
 </div>
 
-<div class="white-box" style="margin-bottom:14px;padding:16px 18px">
-<div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Update the Time100 banner to include the /control/ landing page</div>
-<div style="font-size:12px;color:var(--mid);line-height:1.6">Currently the Time100 banner runs site-wide except on /control/. Visitors arriving from the Time100 article deserve a clear next step toward the book, especially when they land on the book's own page.</div>
-</div>
 
-<div class="hdr" style="margin-top:28px"><span class="hdr-icon">🔧</span><h2>Conversion Optimization</h2><p class="hdr-sub">Requires design or dev cycles, ships within 30 days</p></div>
+<div class="hdr" style="margin-top:28px"><span class="hdr-icon">🔧</span><h2>Conversion Optimization</h2></div>
 
 <div class="white-box" style="margin-bottom:14px;padding:16px 18px">
-<div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Switch the desktop modal trigger from immediate to delayed</div>
-<div style="font-size:12px;color:var(--mid);line-height:1.6">Currently the modal appears on page load. Change it to fire on either scroll past 25% or 15 seconds of dwell time, whichever comes first. Visitors clearly bouncing won't see it, and visitors engaged enough to scroll or linger have signaled interest. Exit-intent (mouse moving toward the browser close button) is worth testing as an alternative.</div>
+<div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Switch or test different modal/lightbox trigger timing</div>
+<div style="font-size:12px;color:var(--mid);line-height:1.6">Currently most lightboxes have been trigger on page load. It is worth testing different trigger timings and configuration to provide visitors with a better user experiance when moving through the site. Example: Change the lower right Time 100 banner to fire on either scroll past 25% or 15 seconds of dwell time, whichever comes first. Visitors clearly bouncing won't see it, and visitors engaged enough to scroll or linger have signaled interest. Exit-intent (mouse moving toward the browser close button) is worth testing as an alternative.</div>
 </div>
 
 <div class="white-box" style="margin-bottom:14px;padding:16px 18px">
 <div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Fix CLS by adding explicit dimensions to above-the-fold media</div>
-<div style="font-size:12px;color:var(--mid);line-height:1.6">Single development session, immediate impact on Core Web Vitals and perceived stability. Adding width and height attributes to the hero image and other above-the-fold media stabilizes layout as the page loads.</div>
+<div style="font-size:12px;color:var(--mid);line-height:1.6"> This update would have immediate impact on Core Web Vitals (page load speed) and perceived stability. Adding width and height attributes to the hero image and other above-the-fold media stabilizes layout as the page loads.</div>
 </div>
 
 <div class="white-box" style="margin-bottom:14px;padding:16px 18px">
 <div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Optimize the hero image and video poster for faster LCP</div>
-<div style="font-size:12px;color:var(--mid);line-height:1.6">Compress the image, serve it in a modern format like WebP or AVIF, and lazy-load anything below the fold. Should bring LCP from 3.6s into the "good" range under 2.5s.</div>
+<div style="font-size:12px;color:var(--mid);line-height:1.6">We can compress the image resolution size and/or file type and serve it in a modern format like WebP or AVIF, and lazy-load anything below the fold. Should bring LCP from 3.6s into the "good" range under 2.5s = faster page load = better SEO & user experience.</div>
 </div>
 
-<div class="white-box" style="margin-bottom:14px;padding:16px 18px">
-<div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Audit the JavaScript bundle for INP improvements</div>
-<div style="font-size:12px;color:var(--mid);line-height:1.6">A 368ms INP usually means JavaScript is running heavily on interaction. Common causes to investigate include large analytics or tag manager configurations, third-party widgets, and scripts that block the main thread. Scope to be confirmed by the dev team after initial review.</div>
-</div>
 
 <div class="white-box" style="margin-bottom:14px;padding:16px 18px">
 <div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Add a sticky "Buy the Book" CTA bar on mobile</div>
@@ -314,30 +306,22 @@ td{padding:8px 12px}
 </div>
 
 <div class="white-box" style="margin-bottom:14px;padding:16px 18px">
-<div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Fix the iOS webkit messageHandlers error</div>
+<div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Fix the iOS webkit messageHandlers error - dev to dig deeper on issue</div>
 <div style="font-size:12px;color:var(--mid);line-height:1.6">The dev team should identify the script calling <code>window.webkit.messageHandlers</code> and add a defensive check before the call: <code>if (window.webkit && window.webkit.messageHandlers) { ... }</code>. This is a standard iOS webview defensive coding pattern. The exact scope depends on which script is responsible.</div>
 </div>
 
-<div class="white-box" style="margin-bottom:14px;padding:16px 18px">
-<div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Test a simplified hero with a single primary CTA</div>
-<div style="font-size:12px;color:var(--mid);line-height:1.6">The current hero has multiple CTAs competing for attention. A/B test against a single "Buy CONTROL" primary CTA with a secondary "Learn more" anchor below.</div>
-</div>
 
-<div class="hdr" style="margin-top:28px"><span class="hdr-icon">📚</span><h2>Content & SEO</h2><p class="hdr-sub">Ships within 60 to 90 days</p></div>
+<div class="hdr" style="margin-top:28px"><span class="hdr-icon">📚</span><h2>Content & SEO</h2></div>
 
-<div class="white-box" style="margin-bottom:14px;padding:16px 18px">
-<div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Build a dedicated /press/ or /in-the-news/ page</div>
-<div style="font-size:12px;color:var(--mid);line-height:1.6">Consolidate Time100 and other external mentions in one place. Captures branded search intent currently landing on the homepage and gives Google more context for future zero-click answers.</div>
-</div>
 
 <div class="white-box" style="margin-bottom:14px;padding:16px 18px">
 <div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Add PodcastSeries schema markup to /break-fake-rules/</div>
-<div style="font-size:12px;color:var(--mid);line-height:1.6">Helps Google understand the page as a podcast resource rather than generic content. Works alongside the title and meta description fixes from Quick Wins. Schema sourced from the schema.org PodcastSeries specification.</div>
+<div style="font-size:12px;color:var(--mid);line-height:1.6">Helps Google understand the page as a podcast resource rather than generic content. Works alongside the title and meta description fixes from Quick Wins. Schema sourced from the schema.org PodcastSeries specification. Another option is to turn Yoast's new AEO schema option on and monitor analytics. </div>
 </div>
 
 <div class="white-box" style="margin-bottom:14px;padding:16px 18px">
 <div style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px">Internal linking audit and refresh</div>
-<div style="font-size:12px;color:var(--mid);line-height:1.6">Add intentional links from /control/ to /people/glen-galaich-ph-d/ and to /break-fake-rules/, and from those pages back to /control/. Currently these pages live in relative isolation from each other, which limits how Google understands their relationship and how visitors discover the full ecosystem.</div>
+<div style="font-size:12px;color:var(--mid);line-height:1.6">Add intentional links into the body content on the /control/ page to /people/glen-galaich-ph-d/ (in his bio copy) and to /break-fake-rules/ (add copy about the podcast to his bio copy), and from those pages back to /control/. Currently these pages live in relative isolation from each other, which limits how Google understands their relationship and how visitors discover the full ecosystem - we can make it a bit cleaner of a journey for users.</div>
 </div>
 
 <div class="white-box" style="margin-bottom:14px;padding:16px 18px">
@@ -350,7 +334,6 @@ td{padding:8px 12px}
 <div style="font-size:12px;color:var(--mid);line-height:1.6">If the misattributed impressions don't drop within 60 days of the Quick Wins updates, the next step is submitting a URL-level signal to Google Search Console asking it to re-evaluate the page intent. 4Site can handle this as part of regular site maintenance.</div>
 </div>
 
-<div class="note note-info" style="margin-top:24px"><span class="note-icon">📋</span><div><strong>Strategic considerations are documented separately.</strong> Decisions about future Facebook paid spending, planning the next amplification moment, and book sales attribution measurement are forward-looking planning items rather than tactical recommendations. They live in the standalone Strategic Considerations document delivered alongside this dashboard.</div></div>
 </div>
 
 </div><!-- /content -->
