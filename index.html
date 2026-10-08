@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stupski CONTROL Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@300;400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* Layout and palette carried over from the Mar 1 to May 31 CONTROL report: navy header band, white tab bar, cream page, white cards with color bars. Single light theme by design. */
+@font-face{font-family:'apotek-variable';src:url('https://stupski.org/wp-content/themes/stupski/assets/fonts/39CDB8_2_0.woff2') format('woff2');font-weight:200 900;font-style:normal;font-display:swap}
+:root{--navy:#1B2A4A;--navy-2:#2A3D66;--coral:#E8604C;--coral-lt:#F0816F;--orange:#F4A259;--teal:#3A8F8B;--teal-lt:#4DB0AC;--cream:#FAF7F2;--warm:#E8E3DC;--white:#FFFFFF;--dk:#1B2A4A;--mid:#5A6578;--lt:#8A92A0;--grn:#4CAF50;--grn-dk:#2E7D32;--red:#E84C4C;--purp:#7B61FF;--purp-lt:#9D85FF;--fb:#1877F2;--pink:#C2408A;--olive:#6D8B2F;--amber:#B26A00;
+  --hf:'apotek-variable','Outfit','DM Sans',-apple-system,sans-serif;--bf:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;color-scheme:light}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--bf);background:var(--cream);color:var(--dk);font-size:14px;line-height:1.45}
+a{color:var(--coral)}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);padding:22px 28px;color:var(--white)}
+.header-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;max-width:1100px}
+.header-sub{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.15em;color:var(--coral-lt);margin-bottom:3px}
+.header h1{font-size:26px;font-weight:400;font-family:var(--hf);line-height:1.2}
+.header h1 span{font-weight:300;opacity:.6}
+.header-line{font-size:12px;color:rgba(255,255,255,.55);margin-top:3px}
+.header-meta{text-align:right;font-size:11px;color:rgba(255,255,255,.45)}
+.header-meta a{color:rgba(255,255,255,.75)}
+.tab-bar{background:var(--white);border-bottom:1px solid var(--warm);padding:0 28px;overflow-x:auto;white-space:nowrap;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.tab-btn{padding:12px 18px;border:none;background:transparent;cursor:pointer;font-size:12px;font-weight:500;font-family:inherit;color:var(--mid);border-bottom:3px solid transparent;transition:color .2s,border-color .2s;display:inline-flex;align-items:center;gap:5px}
+.tab-btn:hover{color:var(--dk)}
+.tab-btn.active{font-weight:700;color:var(--coral);border-bottom-color:var(--coral)}
+.tab-new{font-size:8.5px;font-weight:700;letter-spacing:.06em;background:var(--coral);color:var(--white);border-radius:3px;padding:1px 4px}
+.content{padding:20px 28px;max-width:1156px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.grid{display:grid;gap:10px;margin-bottom:22px}
+.grid-4{grid-template-columns:repeat(auto-fit,minmax(155px,1fr))}
+.grid-2{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.card{background:var(--white);border-radius:12px;padding:16px 18px;border:1px solid var(--warm);position:relative;overflow:hidden;min-width:0}
+.card .bar{position:absolute;top:0;left:0;right:0;height:3px}
+.card-label{font-size:10px;font-weight:600;color:var(--lt);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.card-value{font-size:26px;font-weight:400;color:var(--dk);font-family:var(--hf);line-height:1.15;font-variant-numeric:tabular-nums}
+.card-sub{font-size:11px;color:var(--mid);margin-top:3px;font-weight:500}
+.card-icon{font-size:22px;opacity:.7;position:absolute;top:16px;right:18px}
+.hdr{margin-bottom:14px;margin-top:6px}
+.hdr h2{font-size:18px;font-weight:400;color:var(--navy);font-family:var(--hf);display:inline}
+.hdr-icon{font-size:18px;margin-right:8px}
+.hdr-src{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:.04em;margin-left:8px;vertical-align:middle;display:inline-block}
+.src-ga4{background:#FFF3E0;color:#E65100}.src-clarity{background:#E3F2FD;color:#1565C0}.src-gsc{background:#F3E5F5;color:#6A1B9A}.src-new{background:#FDECEA;color:#C62828}
+.hdr-sub{font-size:12px;color:var(--mid);margin:3px 0 0;line-height:1.4}
+.mt{margin-top:24px}
+.chart-box{background:var(--white);border-radius:12px;border:1px solid var(--warm);padding:20px 16px}
+.white-box{background:var(--white);border-radius:12px;border:1px solid var(--warm);padding:18px;min-width:0}
+.box-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px}
+.note{border-radius:8px;padding:10px 14px;font-size:12px;color:var(--dk);line-height:1.55;display:flex;gap:8px;align-items:flex-start;margin-top:12px}
+.note-info{background:#E8F5E9;border:1px solid #A5D6A7}
+.note-warn{background:#FFF8E1;border:1px solid #FFE082}
+.note-crit{background:#FFEBEE;border:1px solid #EF9A9A}
+.note-tip{background:#E3F2FD;border:1px solid #90CAF9}
+.note-icon{flex-shrink:0}
+.note code,.white-box code,td code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:rgba(27,42,74,.07);padding:1px 4px;border-radius:3px;word-break:break-word}
+.month-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;border:2px solid var(--navy);background:transparent;font-weight:600;font-size:12px;cursor:pointer;font-family:inherit;transition:background .2s,color .2s;margin-right:6px;margin-bottom:6px}
+.month-btn small{opacity:.7;font-size:10px;font-weight:500}
+.milestone{background:linear-gradient(135deg,#7B61FF 0%,#9D85FF 100%);border-radius:12px;padding:16px 20px;margin-bottom:18px;color:var(--white);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.milestone .big{font-size:32px;flex-shrink:0}
+.milestone .eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.85;margin-bottom:3px}
+.milestone .title{font-size:15px;font-weight:700;line-height:1.35;margin-bottom:3px}
+.milestone .body{font-size:12px;opacity:.92;line-height:1.5}
+.milestone code{background:rgba(255,255,255,.18);padding:1px 4px;border-radius:3px;font-size:11px}
+.milestone.alert{background:linear-gradient(135deg,#B85A10 0%,#E08A2E 100%)}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--dk);cursor:pointer;background:var(--white);border:1px solid var(--warm);border-radius:8px;padding:7px 12px;margin-bottom:14px}
+.toggle input{width:15px;height:15px;accent-color:var(--coral)}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;font-variant-numeric:tabular-nums}
+th{padding:8px 12px;border-bottom:2px solid var(--warm);color:var(--mid);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.04em;text-align:center;white-space:nowrap}
+td{padding:8px 12px;text-align:center}
+th.l,td.l{text-align:left}
+td.wrap{white-space:normal;min-width:190px;max-width:340px}
+tbody tr:nth-child(odd) td{background:var(--cream)}
+tbody tr:nth-child(even) td{background:var(--white)}
+td.lead{font-weight:600}
+td.hi{font-weight:700;color:var(--coral)}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.bar-label{font-size:11px;color:var(--dk);font-weight:500;width:200px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:7px;background:var(--warm);border-radius:4px;overflow:hidden;min-width:40px}
+.bar-fill{height:100%;border-radius:4px}
+.bar-val{font-size:11px;color:var(--mid);font-weight:600;min-width:50px;text-align:right}
+.ch-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--warm)}
+.ch-row:last-child{border-bottom:none}
+.ch-bar{width:4px;height:36px;border-radius:3px;flex-shrink:0}
+.ch-name{font-weight:700;font-size:14px}
+.ch-val{font-size:20px;font-weight:400;font-family:var(--hf)}
+.ch-meta{display:flex;gap:16px;margin-top:2px;font-size:11px;color:var(--mid);flex-wrap:wrap}
+.click-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--warm)}
+.click-row:last-child{border-bottom:none}
+.click-bar{width:4px;height:28px;border-radius:3px;flex-shrink:0}
+.click-name{font-size:12px;font-weight:600;color:var(--dk)}
+.click-val{font-size:18px;font-weight:400;color:var(--dk);font-family:var(--hf)}
+.click-pct{font-size:11px;color:var(--mid);min-width:44px;text-align:right}
+.eng-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--warm);font-size:12px}
+.eng-row:last-child{border-bottom:none}
+.q-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--warm);font-size:12px}
+.q-row:last-child{border-bottom:none}
+.q-name{font-weight:500;color:var(--dk);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.q-meta{display:flex;gap:10px;font-size:11px;color:var(--mid);flex-shrink:0}
+.page-card{background:var(--white);border-radius:12px;border:1px solid var(--warm);padding:20px;min-width:0}
+.page-card-title{font-size:16px;font-weight:400;color:var(--navy);font-family:var(--hf);margin-bottom:4px}
+.page-card-sub{font-size:12px;color:var(--mid);margin-bottom:14px}
+.pie-legend{display:flex;flex-wrap:wrap;gap:5px 10px;justify-content:center;margin-top:10px}
+.pie-legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--mid)}
+.pie-dot{width:7px;height:7px;border-radius:4px;display:inline-block}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;font-size:11px;color:var(--mid);margin-bottom:8px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.pill{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.03em;border-radius:3px;padding:2px 6px;white-space:nowrap;text-transform:uppercase}
+.p-crit{background:#FFEBEE;color:#C62828}.p-warn{background:#FFF8E1;color:#B26A00}.p-ok{background:#E8F5E9;color:#2E7D32}.p-tip{background:#E3F2FD;color:#1565C0}
+.rec{background:var(--white);border-radius:12px;border:1px solid var(--warm);padding:16px 18px;margin-bottom:14px}
+.rec-title{font-weight:700;color:var(--navy);font-size:14px;margin-bottom:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rec-body{font-size:12px;color:var(--mid);line-height:1.6}
+.conv{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.footer{padding:14px 28px;border-top:1px solid var(--warm);font-size:10px;color:var(--lt);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:10px}
+.footer a{color:var(--mid)}
+@media(max-width:768px){.grid-2{grid-template-columns:minmax(0,1fr)}.header-inner{flex-direction:column;align-items:flex-start}.header-meta{text-align:left}.header,.content{padding-left:16px;padding-right:16px}.tab-bar{padding:0 8px}.bar-label{width:120px}.footer{padding-left:16px;padding-right:16px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head><body>
+
+<div class="header"><div class="header-inner">
+  <div>
+    <div class="header-sub">Stupski Foundation</div>
+    <h1>CONTROL <span>Book Launch Analytics</span></h1>
+    <div class="header-line">March 1 – October 6, 2026, Data: GA4 + Microsoft Clarity + Google Search Console</div>
+  </div>
+  <div class="header-meta">
+    <div>Prepared by 4Site Interactive Studios</div>
+    <div style="margin-top:2px">Data through October 6, 2026</div>
+    <div style="margin-top:2px"><a href="https://4site-interactive-studios.github.io/stupski-control-report/" target="_blank" rel="noopener">Previous report (Mar 1 – May 31)</a></div>
+  </div>
+</div></div>
+
+<div class="tab-bar" id="tabbar">
+  <button class="tab-btn active" data-tab="overview">📊 Overview</button>
+  <button class="tab-btn" data-tab="utm">🏷️ UTM &amp; Campaigns <span class="tab-new">NEW</span></button>
+  <button class="tab-btn" data-tab="control">📖 CONTROL Page</button>
+  <button class="tab-btn" data-tab="channels">🔀 Channels</button>
+  <button class="tab-btn" data-tab="search">🔍 Search (GSC)</button>
+  <button class="tab-btn" data-tab="clicks">🎯 Clicks &amp; UX</button>
+  <button class="tab-btn" data-tab="tour">🎙️ Tour &amp; Podcast</button>
+  <button class="tab-btn" data-tab="recs">💡 Recommendations</button>
+</div>
+
+<div class="content">
+
+<!-- OVERVIEW -->
+<div id="tab-overview" class="tab-panel active">
+  <div id="phase-buttons" style="margin-bottom:8px"></div>
+  <label class="toggle" for="excl"><input type="checkbox" id="excl" checked> Exclude the Sept 3 scanner burst (2,580 sessions) from all GA4 figures</label>
+
+  <div class="milestone alert">
+    <div class="big">🧐</div>
+    <div style="flex:1;min-width:240px">
+      <div class="eyebrow">Sept 2 – Oct 6, 2026, Fall campaign on SSIR</div>
+      <div class="title">September traffic needs a closer look before it is reported as audience reach</div>
+      <div class="body">On Sept 3, 2,577 sessions arrived within one hour carrying scrambled UTM values (<code>abyy_dbzcbvta / FFVE Afjfyfggfe / Email</code>), all on /control/, nearly all desktop Chrome, from cloud data-center cities. That pattern fits automated link scanning, not readers. The SSIR banner traffic shows a similar fingerprint. See the UTM &amp; Campaigns tab for the detail.</div>
+    </div>
+  </div>
+
+  <div class="grid grid-4" id="overview-cards"></div>
+
+  <div class="hdr"><span class="hdr-icon">📈</span><h2>Daily Sessions by Channel</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Stacked daily sessions from launch through the fall campaign. Oct 6 is a partial day.</p></div>
+  <div class="chart-box"><div class="legend" id="lg-daily"></div><div style="position:relative;height:340px"><canvas id="chart-daily" aria-label="Daily sessions by channel"></canvas></div></div>
+  <div class="note note-tip"><span class="note-icon">💡</span><div><strong>Five campaign phases now show in the timeline:</strong> the March 17 to 23 launch waves (mostly LinkedIn arriving as Direct), the Facebook paid campaign from April 5 to May 14, the TIME100 recognition on May 14, a quiet summer baseline of about 4,300 sessions a month, and the fall campaign on SSIR starting Sept 2. The tracking update on Aug 16 added the book events and the <code>control_page_view</code> key event.</div></div>
+
+  <div class="hdr mt"><span class="hdr-icon">🔄</span><h2>Month-by-Month Performance</h2><span class="hdr-src src-ga4">GA4</span><span class="hdr-src src-gsc">GSC</span><p class="hdr-sub">March through October 6. Engagement rate from Aug 16 onward is inflated by the new key event (see Recommendations).</p></div>
+  <div class="white-box tbl-wrap"><table id="month-table"></table></div>
+
+  <div class="hdr mt"><span class="hdr-icon">📝</span><h2>What Changed Since the May 31 Report</h2></div>
+  <div id="takeaways"></div>
+</div>
+
+<!-- UTM -->
+<div id="tab-utm" class="tab-panel">
+  <div class="hdr"><span class="hdr-icon">🏷️</span><h2>UTM &amp; Campaign Tracking</h2><span class="hdr-src src-ga4">GA4</span><span class="hdr-src src-new">New</span><p class="hdr-sub">Every session GA4 attributed to a named campaign, from UTM parameters or Google Ads auto-tagging. GA4's built-in labels for direct, organic, referral and AI-assistant traffic are excluded.</p></div>
+  <div class="grid grid-4" id="utm-cards"></div>
+
+  <div class="hdr"><span class="hdr-icon">📈</span><h2>Tagged Sessions Over Time</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Daily sessions carrying a campaign name, grouped by initiative</p></div>
+  <div class="chart-box"><div class="legend" id="lg-utm"></div><div style="position:relative;height:280px"><canvas id="chart-utm" aria-label="Daily tagged sessions"></canvas></div></div>
+
+  <div class="grid grid-2 mt">
+    <div><div class="hdr"><span class="hdr-icon">🎯</span><h2>Share of Sessions Tagged</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Campaign-tagged sessions as a percent of all sessions, by month</p></div>
+      <div class="chart-box"><div style="position:relative;height:220px"><canvas id="chart-utm-cov" aria-label="Percent tagged by month"></canvas></div></div></div>
+    <div><div class="hdr"><span class="hdr-icon">🔗</span><h2>Untagged LinkedIn &amp; Facebook Clicks</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Landings carrying LinkedIn's <code>li_ed</code> or Facebook's <code>fbclid</code> click ID</p></div>
+      <div class="chart-box"><div style="position:relative;height:220px"><canvas id="chart-utm-raw" aria-label="li_ed and fbclid landings by month"></canvas></div></div></div>
+  </div>
+  <div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>Only paid pushes were tagged.</strong> Facebook ads in April and May and the fall_campaign links from Aug 14 carry UTMs. Organic LinkedIn sharing never did: 20,786 /control/ landings carried LinkedIn's <code>li_ed</code> click ID between March and May, and GA4 filed them all as Direct.</div></div>
+
+  <div class="hdr mt"><span class="hdr-icon">📋</span><h2>Campaign Performance</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Mar 1 – Oct 6. Key events only exist from Aug 16.</p></div>
+  <div class="white-box tbl-wrap"><table id="camp-table"></table></div>
+
+  <div class="hdr mt"><span class="hdr-icon">🤖</span><h2>Is the Fall Campaign Traffic Human?</h2><span class="hdr-src src-ga4">GA4</span><span class="hdr-src src-clarity">Clarity</span><p class="hdr-sub">Fingerprint of the three largest fall_campaign sources, Aug 1 – Oct 6</p></div>
+  <div class="white-box tbl-wrap"><table id="fall-table"></table></div>
+  <div class="note note-crit"><span class="note-icon">🚨</span><div><strong>Both large sources look automated.</strong> The scrambled-UTM burst and the SSIR banner come from the same cloud data-center cities (Moses Lake WA, San Jose CA, Des Moines IA, Ashburn VA, Phoenix AZ, Toronto, Canberra, Dublin, Amsterdam, Singapore), almost entirely desktop Chrome, with about one page per session. Clarity logged only 36 sessions referred by ssir.org from Sept 1 to Oct 6. The SSIR newsletter traffic (109 sessions, 2.07 pages per session, 69s average) looks human. Ask SSIR for their delivered click count before reporting the banner numbers.</div></div>
+
+  <div class="hdr mt"><span class="hdr-icon">🧹</span><h2>UTM Hygiene Check</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Issues found in the raw campaign values, with the fix for each</p></div>
+  <div class="white-box tbl-wrap"><table id="hyg-table"></table></div>
+
+  <div class="hdr mt"><span class="hdr-icon">📐</span><h2>Proposed UTM Convention for Stupski</h2><p class="hdr-sub">GA4 treats <code>Email</code> and <code>email</code> as different values, so one lowercase vocabulary keeps reports clean</p></div>
+  <div class="conv">
+    <div class="card"><div class="bar" style="background:var(--navy)"></div><div class="card-label">utm_source</div><div class="card-sub">Where the link lives: <code>linkedin</code>, <code>ssir</code>, <code>chronicle-of-philanthropy</code>, <code>mailchimp</code>, <code>substack</code></div></div>
+    <div class="card"><div class="bar" style="background:var(--coral)"></div><div class="card-label">utm_medium</div><div class="card-sub">One of: <code>social</code>, <code>paid-social</code>, <code>email</code>, <code>display</code>, <code>cpc</code>, <code>qr</code>, <code>referral</code></div></div>
+    <div class="card"><div class="bar" style="background:var(--teal)"></div><div class="card-label">utm_campaign</div><div class="card-sub">Initiative and season: <code>control-book-fall-2026</code>, <code>bfr-podcast-2026</code></div></div>
+    <div class="card"><div class="bar" style="background:var(--orange)"></div><div class="card-label">utm_content</div><div class="card-sub">Creative or placement: <code>banner-300x250</code>, <code>post-2026-09-15</code></div></div>
+  </div>
+</div>
+
+<!-- CONTROL -->
+<div id="tab-control" class="tab-panel">
+  <div class="hdr"><span class="hdr-icon">📖</span><h2>CONTROL Landing Page Deep Dive</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub" id="ctrl-sub"></p></div>
+  <div class="grid grid-4" id="ctrl-cards"></div>
+
+  <div class="hdr"><span class="hdr-icon">🔀</span><h2>/control/ Sessions by Source/Medium</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">How visitors arrived at the CONTROL landing page, Mar 1 – Oct 6</p></div>
+  <div class="grid grid-2" style="margin-bottom:6px">
+    <div class="white-box"><div style="position:relative;height:200px;max-width:200px;margin:0 auto"><canvas id="chart-pie" aria-label="Control sessions by source"></canvas></div><div class="pie-legend" id="pie-legend"></div></div>
+    <div class="white-box"><div class="box-title">Engagement by Source/Medium</div><div id="eng-rows"></div></div>
+  </div>
+  <div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>Since June, most /control/ landings come from fall_campaign links.</strong> Of the sessions landing on /control/ from June 1 on, the SSIR banner and newsletter account for more than half. Organic search and Direct make up most of the rest, and mobile traffic dropped to a few hundred sessions a month once the Facebook ads ended.</div></div>
+
+  <div class="hdr mt"><span class="hdr-icon">📈</span><h2>Daily /control/ Session Trend</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Daily landing sessions with a 7-day average engagement time overlay</p></div>
+  <div class="chart-box"><div style="position:relative;height:290px"><canvas id="chart-control-daily" aria-label="Daily control sessions"></canvas></div></div>
+
+  <div class="grid grid-2 mt">
+    <div><div class="hdr"><span class="hdr-icon">📱</span><h2>Device Mix by Month</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">/control/ landing sessions</p></div>
+      <div class="chart-box"><div style="position:relative;height:240px"><canvas id="chart-ctrl-dev" aria-label="Control device mix"></canvas></div></div></div>
+    <div><div class="hdr"><span class="hdr-icon">🛒</span><h2>Book Retailer Clicks</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Outbound clicks to book retailers, all pages</p></div>
+      <div class="chart-box"><div style="position:relative;height:240px"><canvas id="chart-retail" aria-label="Retailer clicks by month"></canvas></div></div></div>
+  </div>
+  <div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>Buy clicks tapered off with traffic.</strong> Amazon clicks fell from 196 in March to 14 in September, and Bookshop.org, Barnes &amp; Noble and the signed-copy store follow the same curve. The fall campaign has not produced a visible lift in buy clicks yet.</div></div>
+
+  <div class="hdr mt"><span class="hdr-icon">📚</span><h2>Book Events Added Aug 16</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Custom events from the August tracking update</p></div>
+  <div class="white-box tbl-wrap"><table id="bookev-table"></table></div>
+</div>
+
+<!-- CHANNELS -->
+<div id="tab-channels" class="tab-panel">
+  <div class="hdr"><span class="hdr-icon">🔀</span><h2>Traffic Acquisition by Channel Group</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">GA4 default channel groupings, site-wide, March 1 to October 6, 2026</p></div>
+  <div id="ch-switch" style="margin-bottom:8px"></div>
+  <div class="white-box" style="margin-bottom:20px" id="channel-rows"></div>
+
+  <div class="hdr"><span class="hdr-icon">🗓️</span><h2>Channel Mix by Month</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Sessions by channel and calendar month</p></div>
+  <div class="white-box tbl-wrap" style="margin-bottom:20px"><table id="chmonth-table"></table></div>
+
+  <div class="hdr"><span class="hdr-icon">📊</span><h2>Source/Medium Detail</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Underlying source/medium combinations within each channel</p></div>
+  <div id="sm-switch" style="margin-bottom:8px"></div>
+  <div class="white-box tbl-wrap" style="margin-bottom:20px"><table id="sm-table"></table></div>
+
+  <div class="grid grid-2">
+    <div><div class="hdr"><span class="hdr-icon">🌐</span><h2>Referrer Breakdown</h2><span class="hdr-src src-clarity">Clarity</span><p class="hdr-sub">Top external referrers, site-wide</p></div>
+      <div id="ref-switch" style="margin-bottom:8px"></div><div class="white-box" id="referrer-bars"></div></div>
+    <div><div class="hdr"><span class="hdr-icon">🤖</span><h2>AI Assistant Referrals</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Sessions from ChatGPT, Claude, Gemini and Perplexity</p></div>
+      <div class="chart-box"><div style="position:relative;height:250px"><canvas id="chart-ai" aria-label="AI assistant sessions by month"></canvas></div></div></div>
+  </div>
+  <div class="note note-info"><span class="note-icon">✅</span><div><strong>Organic search became the steadiest channel.</strong> Organic search held between 1,583 and 1,992 sessions a month from June through August at strong engagement, and the AI Assistant channel that first appeared in May has sent a small but steady stream since, mostly from ChatGPT.</div></div>
+</div>
+
+<!-- SEARCH -->
+<div id="tab-search" class="tab-panel">
+  <div class="hdr"><span class="hdr-icon">🔍</span><h2>Google Search Console Performance</h2><span class="hdr-src src-gsc">GSC</span><p class="hdr-sub">stupski.org organic search, March 1 to October 6, 2026. Search Console runs two to three days behind.</p></div>
+  <div class="grid grid-4" id="gsc-cards"></div>
+  <div class="hdr"><span class="hdr-icon">📈</span><h2>Daily GSC Clicks &amp; Impressions</h2><span class="hdr-src src-gsc">GSC</span></div>
+  <div class="chart-box"><div style="position:relative;height:270px"><canvas id="chart-gsc" aria-label="Daily clicks and impressions"></canvas></div></div>
+
+  <div id="q-switch" class="mt" style="margin-bottom:8px"></div>
+  <div class="grid grid-2">
+    <div><div class="hdr"><span class="hdr-icon">🔑</span><h2>Top Search Queries</h2><span class="hdr-src src-gsc">GSC</span><p class="hdr-sub">Branded searches dominate</p></div><div class="white-box" id="query-rows"></div></div>
+    <div><div class="hdr"><span class="hdr-icon">📄</span><h2>Top Pages (Organic)</h2><span class="hdr-src src-gsc">GSC</span><p class="hdr-sub">Which pages earn organic clicks</p></div><div class="white-box" id="gsc-page-rows"></div></div>
+  </div>
+  <div class="note note-tip"><span class="note-icon">💡</span><div><strong>Brand search held up after the launch window:</strong> "stupski foundation" drew 3,410 Google clicks at a 67% CTR across the period, 1,632 of them since June 1. "glen galaich" and the Break Fake Rules podcast remain the next largest branded queries, all ranking between positions 1.0 and 1.9.</div></div>
+  <div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>The Break Fake Rules anomaly continues:</strong> /break-fake-rules/ collected 2,161,806 impressions, 92.7% of every impression stupski.org earned, at a 0.06% CTR. It is still matching generic searches that have nothing to do with the podcast. Excluding that page, site CTR is 5.5% rather than 0.45%. Impressions have eased since spring (384,702 since June 1), but the fix in Recommendations still applies.</div></div>
+
+  <div class="hdr mt"><span class="hdr-icon">🌎</span><h2>Clicks by Device &amp; Country</h2><span class="hdr-src src-gsc">GSC</span></div>
+  <div class="white-box tbl-wrap"><table id="gscdev-table"></table></div>
+</div>
+
+<!-- CLICKS & UX -->
+<div id="tab-clicks" class="tab-panel">
+  <div class="hdr"><span class="hdr-icon">🎯</span><h2>Behavior, Performance &amp; Bots</h2><span class="hdr-src src-clarity">Clarity</span><p class="hdr-sub">Microsoft Clarity records sessions independently of GA4 and excludes the bots it detects</p></div>
+  <div id="ux-switch" style="margin-bottom:8px"></div>
+  <div class="grid grid-4" id="ux-cards"></div>
+
+  <div class="hdr"><span class="hdr-icon">🖱️</span><h2>Top Desktop Click Targets on /control/</h2><span class="hdr-src src-clarity">Clarity</span><p class="hdr-sub">June 1 – October 6: 6,834 desktop page views, 856 clicks</p></div>
+  <div class="white-box" id="desktop-click-rows" style="margin-bottom:6px"></div>
+  <div class="note note-info"><span class="note-icon">✅</span><div><strong>The promo modal no longer shows up in the top interactions.</strong> In the spring, closing the promo modal was the #1 click on both mobile and desktop. Since June, visitors click the section anchors (The Book, The Tour, Meet Glen), Glen's bio and the hero video instead. Order Now, Read a free chapter and the Discussion Guide all appear in the top 12.</div></div>
+
+  <div class="hdr mt"><span class="hdr-icon">📱</span><h2>Spring Reference: Promo Modal Friction</h2><span class="hdr-src src-clarity">Clarity</span><p class="hdr-sub">March 1 – May 31, carried over from the previous report for comparison</p></div>
+  <div class="white-box tbl-wrap"><table id="spring-table"></table></div>
+
+  <div class="hdr mt"><span class="hdr-icon">⚡</span><h2>Performance &amp; Behavior Signals</h2><span class="hdr-src src-clarity">Clarity</span><p class="hdr-sub">Core Web Vitals and behavioral insights for the scope selected above</p></div>
+  <div class="grid grid-2">
+    <div class="white-box"><div class="box-title">Core Web Vitals</div><div id="cwv-rows"></div></div>
+    <div class="white-box"><div class="box-title">Behavioral Insights</div><div id="behavior-rows"></div></div>
+  </div>
+  <div class="note note-tip"><span class="note-icon">💡</span><div><strong>What Core Web Vitals are telling us:</strong> Google's thresholds for "good" are LCP (load time) under 2.5 seconds, INP (tap responsiveness) under 200ms and CLS (layout shift) under 0.1. Site-wide field data shows LCP at 5.5s and CLS at 0.34, so pages still load slowly and shift as they settle. /control/ improved a little since June (LCP 3.5s) but CLS stays poor at 0.35.</div></div>
+
+  <div class="grid grid-2 mt">
+    <div><div class="hdr"><span class="hdr-icon">✨</span><h2>Smart Events</h2><span class="hdr-src src-clarity">Clarity</span></div><div class="white-box" id="smart-rows"></div></div>
+    <div><div class="hdr"><span class="hdr-icon">🛡️</span><h2>Bot Traffic Excluded</h2><span class="hdr-src src-clarity">Clarity</span></div><div class="white-box tbl-wrap"><table id="bot-table"></table></div></div>
+  </div>
+  <div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>Bot traffic more than tripled after May:</strong> Clarity excluded 5.1% of sessions as bots from March through May and 16.6% from June 1 on. It still did not catch the Sept 3 burst or the SSIR banner pattern, which is why the GA4 figures here offer an exclusion switch.</div></div>
+</div>
+
+<!-- TOUR & PODCAST -->
+<div id="tab-tour" class="tab-panel">
+  <div class="hdr"><span class="hdr-icon">🎙️</span><h2>Book Tour &amp; Break Fake Rules Podcast</h2><p class="hdr-sub">Supporting pages for CONTROL, March 1 to October 6, 2026</p></div>
+  <div class="grid grid-2" style="margin-bottom:20px" id="page-cards"></div>
+
+  <div class="hdr"><span class="hdr-icon">📄</span><h2>Pages Summary</h2><span class="hdr-src src-ga4">GA4</span><span class="hdr-src src-gsc">GSC</span><p class="hdr-sub">Top landing pages with Google clicks for the same page</p></div>
+  <div id="lp-switch" style="margin-bottom:8px"></div>
+  <div class="white-box tbl-wrap" style="margin-bottom:20px"><table id="pages-table"></table></div>
+
+  <div class="hdr"><span class="hdr-icon">🗓️</span><h2>Landing Sessions by Month, Key Pages</h2><span class="hdr-src src-ga4">GA4</span></div>
+  <div class="white-box tbl-wrap"><table id="lpmonth-table"></table></div>
+  <div class="note note-info"><span class="note-icon">✅</span><div><strong>New content is pulling its own audience:</strong> Philanthropy Confidential #5 with Vu Le drew 610 landing sessions since June, and Jennifer Nguyen's bio page drew 1,003 landings, 848 of them in May. The Break Fake Rules page held between 281 and 616 landings a month from June through September.</div></div>
+</div>
+
+<!-- RECOMMENDATIONS -->
+<div id="tab-recs" class="tab-panel">
+  <div class="hdr"><span class="hdr-icon">💡</span><h2>Recommendations</h2><p class="hdr-sub">Ordered by how much each one improves the accuracy of reporting, then by effort</p></div>
+  <div class="note note-info" style="margin-bottom:20px"><span class="note-icon">📌</span><div>These build on the spring recommendations and on what the UTM review surfaced this period.</div></div>
+  <div id="recs"></div>
+</div>
+
+</div>
+
+<div class="footer">
+  <div>Prepared by 4Site Interactive Studios for the Stupski Foundation</div>
+  <div>Data sources: <a href="https://analytics.google.com/analytics/web/#/a28522603p311760608/reports/intelligenthome" target="_blank" rel="noopener">GA4</a> (Mar 1 – Oct 6, 2026, property time zone Pacific), <a href="https://clarity.microsoft.com/projects/view/scdrbng6iq/dashboard" target="_blank" rel="noopener">Microsoft Clarity</a>, <a href="https://search.google.com/search-console/performance/search-analytics?resource_id=https%3A%2F%2Fstupski.org%2F" target="_blank" rel="noopener">Google Search Console</a></div>
+</div>
+
+<script>
+const D = {"DAILY_COLS":["date","d","s","e","dur","u","nu","pv","ke","direct","paidSocial","organic","social","referral","email","display","paid","ai","other","ctrl","ctrlE","ctrlDur","tag","flag","flagE","gc","gi"],"DAILY":[["20260301","Mar 1",434,99,1827,413,402,528,0,315,0,20,80,18,0,0,0,0,0,356,76,805,0,0,0,9,12177],["20260302","Mar 2",839,186,6342,784,728,1117,0,377,0,79,321,55,0,0,0,0,8,678,109,1123,1,0,0,54,19123],["20260303","Mar 3",1015,279,11575,959,902,1410,0,503,0,172,291,31,11,0,0,0,5,719,137,2417,2,0,0,140,16428],["20260304","Mar 4",1185,265,13136,1109,1033,1513,0,422,0,169,554,28,2,0,0,0,9,890,124,3113,1,0,0,122,20483],["20260305","Mar 5",623,180,11518,556,488,902,0,365,0,122,117,15,1,0,0,0,3,311,49,476,0,0,0,84,19607],["20260306","Mar 6",327,128,10469,298,230,499,0,149,0,114,55,6,0,0,0,0,3,97,18,1225,1,0,0,85,21309],["20260307","Mar 7",241,45,3024,225,198,481,0,107,0,48,74,10,3,0,0,0,0,113,11,237,3,0,0,27,10556],["20260308","Mar 8",696,143,4066,689,676,889,0,487,0,30,162,11,1,0,0,0,4,585,110,982,1,0,0,22,12460],["20260309","Mar 9",334,127,8978,287,214,583,0,196,0,107,9,13,4,0,0,0,5,107,25,742,1,0,0,69,16877],["20260310","Mar 10",421,126,6046,383,323,591,0,246,0,129,21,19,3,0,0,0,2,174,30,565,3,0,0,86,8131],["20260311","Mar 11",614,196,13703,566,493,890,0,204,0,139,239,16,13,0,0,0,2,321,62,2431,2,0,0,94,7151],["20260312","Mar 12",606,152,7969,578,523,828,0,142,0,127,322,10,2,0,0,0,2,392,53,1071,0,0,0,83,12767],["20260313","Mar 13",516,110,4288,489,446,655,0,186,0,77,236,14,0,0,0,0,3,341,50,677,0,0,0,52,10184],["20260314","Mar 14",149,28,1340,145,127,182,0,121,0,18,4,5,1,0,0,0,0,54,16,258,0,0,0,13,5859],["20260315","Mar 15",148,36,2293,144,125,257,0,116,0,21,4,7,0,0,0,0,0,44,11,237,0,0,0,12,7734],["20260316","Mar 16",549,184,12474,498,457,1218,0,323,0,95,72,51,1,0,0,0,8,332,69,3454,1,0,0,69,11915],["20260317","Mar 17",2849,666,12804,2769,2709,3883,0,2507,0,112,11,225,19,0,0,0,12,2666,573,6435,3,0,0,77,9364],["20260318","Mar 18",3250,745,15233,3135,2980,4289,0,2965,0,121,16,91,73,0,0,0,15,3028,642,7279,1,0,0,83,19423],["20260319","Mar 19",1442,290,9320,1325,1204,1833,0,1215,0,132,12,49,23,0,0,0,10,1190,192,3065,1,0,0,70,18697],["20260320","Mar 20",1810,381,9469,1650,1580,2326,0,1614,0,104,9,37,19,0,0,0,27,1556,294,3544,23,0,0,69,17702],["20260321","Mar 21",309,59,2890,278,230,507,0,240,0,40,0,14,13,0,0,0,2,232,31,756,2,0,0,33,13229],["20260322","Mar 22",197,68,4324,177,138,283,0,125,0,61,3,5,2,0,0,0,1,97,23,897,0,0,0,48,16681],["20260323","Mar 23",2916,655,13202,2691,2647,3751,0,2698,0,163,3,36,1,0,0,0,10,2704,551,4661,0,0,0,108,22663],["20260324","Mar 24",548,177,13908,481,370,827,0,371,0,144,13,16,2,0,0,0,2,349,78,3053,0,0,0,93,22762],["20260325","Mar 25",461,184,14510,404,323,823,0,284,0,141,4,25,2,0,0,0,4,257,70,1690,1,0,0,90,25940],["20260326","Mar 26",304,117,6912,266,203,429,0,159,0,129,1,14,0,0,0,0,1,120,25,1315,1,0,0,84,27706],["20260327","Mar 27",282,109,6751,256,199,415,0,179,0,84,12,4,1,0,0,0,2,140,42,1363,1,0,0,60,26858],["20260328","Mar 28",168,48,3286,150,129,216,0,102,0,56,2,6,1,0,0,0,1,93,19,404,0,0,0,38,16797],["20260329","Mar 29",269,66,3975,241,214,344,0,167,0,62,10,26,0,0,0,0,4,197,42,1528,0,0,0,31,18183],["20260330","Mar 30",507,159,8778,453,386,698,0,338,0,120,10,25,6,0,0,0,7,316,78,2801,1,0,0,63,26005],["20260331","Mar 31",396,140,7611,358,310,600,0,246,0,113,16,14,5,0,0,0,1,236,60,1437,4,0,0,80,21342],["20260401","Apr 1",474,149,7978,425,359,736,0,329,1,101,17,20,1,0,0,0,4,298,69,1223,2,0,0,64,22883],["20260402","Apr 2",297,101,5409,261,211,406,0,164,4,98,11,12,5,0,0,0,3,127,22,793,4,0,0,72,21497],["20260403","Apr 3",465,144,6939,426,378,652,0,313,3,106,8,24,7,0,0,0,4,298,71,1476,3,0,0,74,16363],["20260404","Apr 4",202,44,1200,186,167,233,0,132,3,47,5,13,2,0,0,0,0,134,20,195,3,0,0,30,14996],["20260405","Apr 5",287,51,2828,263,236,324,0,100,78,93,8,6,2,0,0,0,0,215,28,945,78,0,0,62,16745],["20260406","Apr 6",678,176,10490,619,571,821,0,232,232,161,17,29,1,0,0,0,4,492,84,3600,232,0,0,117,20781],["20260407","Apr 7",834,180,11969,779,714,1025,0,263,397,136,14,18,0,0,0,0,5,628,83,2518,397,0,0,86,21500],["20260408","Apr 8",727,200,10763,678,611,946,0,399,158,136,13,18,0,0,0,0,3,537,100,2739,158,0,0,86,19523],["20260409","Apr 9",587,139,9169,551,497,758,0,335,115,107,10,17,1,0,0,0,2,409,59,1870,115,0,0,80,19046],["20260410","Apr 10",735,126,5486,712,650,822,0,143,479,90,5,14,0,0,0,0,4,606,73,1091,482,0,0,51,18690],["20260411","Apr 11",713,79,3218,699,656,736,0,130,519,43,7,10,0,0,0,0,5,635,57,588,520,0,0,20,15483],["20260412","Apr 12",764,99,1567,744,699,804,0,133,562,54,8,4,0,0,0,0,2,675,76,660,562,0,0,30,16579],["20260413","Apr 13",969,189,7300,940,856,1148,0,354,462,114,3,23,0,0,0,0,13,793,107,1080,463,0,0,86,21652],["20260414","Apr 14",721,143,6479,692,622,861,0,100,482,115,8,16,0,0,0,0,1,556,61,625,482,0,0,73,20573],["20260415","Apr 15",906,176,10888,850,771,1131,0,360,411,98,11,20,1,0,1,0,7,714,85,787,411,0,0,60,21437],["20260416","Apr 16",850,172,14933,809,723,1082,0,277,400,116,17,31,3,0,0,0,6,615,63,3482,400,0,0,83,23326],["20260417","Apr 17",857,199,9426,826,762,1035,0,202,435,107,3,14,94,0,1,0,1,536,32,1055,529,0,0,74,23752],["20260418","Apr 18",597,47,4457,581,526,647,0,91,455,47,1,1,1,0,0,0,1,510,22,1072,457,0,0,27,19574],["20260419","Apr 19",620,78,3421,593,530,689,0,77,430,101,5,6,2,0,0,0,0,539,48,826,432,0,0,64,22182],["20260420","Apr 20",750,142,7180,704,614,915,0,112,458,160,8,9,1,0,0,0,2,556,45,1187,459,0,0,99,39877],["20260421","Apr 21",713,145,6082,676,558,847,0,93,447,144,10,17,0,0,0,0,2,512,41,1175,448,0,0,93,39641],["20260422","Apr 22",720,157,11606,679,577,983,0,100,432,166,7,17,0,0,0,0,1,491,37,855,432,0,0,115,36737],["20260423","Apr 23",629,106,6006,601,514,778,0,104,414,85,7,12,3,0,0,0,3,478,37,757,419,0,0,48,35609],["20260424","Apr 24",537,85,4813,510,455,647,0,61,377,81,5,11,0,0,0,0,3,404,26,477,378,0,0,55,37728],["20260425","Apr 25",542,35,1125,535,494,582,0,45,464,28,2,2,0,0,0,0,1,491,18,65,464,0,0,20,18183],["20260426","Apr 26",479,29,1358,470,422,503,0,39,406,35,0,1,0,0,0,0,0,428,12,138,406,0,0,21,21794],["20260427","Apr 27",588,101,5439,557,464,742,0,94,375,107,4,7,0,0,0,0,1,425,27,384,376,0,0,69,27027],["20260428","Apr 28",777,191,10252,722,612,1044,0,177,424,135,5,34,0,0,0,0,4,580,94,3193,428,0,0,70,28930],["20260429","Apr 29",933,189,9060,884,783,1309,0,310,419,141,10,49,0,0,0,0,8,733,84,1283,423,0,0,98,18780],["20260430","Apr 30",467,107,8202,436,375,619,0,101,235,109,6,15,1,0,0,0,1,303,29,586,235,0,0,69,24487],["20260501","May 1",356,98,6008,337,282,457,0,106,122,106,4,17,0,0,0,0,2,220,29,524,123,0,0,74,28203],["20260502","May 2",319,60,3903,305,280,397,0,120,149,42,6,1,0,0,0,0,1,240,33,1127,149,0,0,28,19770],["20260503","May 3",321,64,3519,305,275,384,0,136,119,55,4,4,0,0,0,0,3,236,33,527,121,0,0,32,23622],["20260504","May 4",486,145,9275,449,404,646,0,215,119,127,7,13,1,0,0,0,3,303,47,785,121,0,0,88,31909],["20260505","May 5",433,121,7100,403,342,565,0,143,153,111,11,4,8,0,0,0,2,252,32,1236,156,0,0,80,33999],["20260506","May 6",459,107,6903,425,365,614,0,158,155,101,14,18,4,0,0,0,8,299,26,734,165,0,0,61,34022],["20260507","May 7",409,118,10247,380,329,675,0,142,134,86,10,17,17,0,0,0,2,240,34,913,139,0,0,70,32364],["20260508","May 8",360,86,4778,342,304,451,0,101,161,65,3,15,10,0,0,0,5,254,26,769,169,0,0,49,28635],["20260509","May 9",288,41,3887,285,260,331,0,76,162,32,3,9,1,0,0,0,5,223,20,118,167,0,0,17,17858],["20260510","May 10",279,33,1050,277,250,336,0,98,146,22,2,6,2,0,0,0,4,218,12,100,148,0,0,23,21163],["20260511","May 11",458,116,8108,430,376,624,0,165,173,96,10,13,1,0,0,0,0,302,43,1131,173,0,0,59,29459],["20260512","May 12",464,117,10004,434,387,716,0,180,155,101,1,20,4,0,0,0,2,314,35,1234,157,0,0,62,27202],["20260513","May 13",574,167,14189,515,444,836,0,214,166,147,8,24,1,0,0,0,14,347,48,1249,170,0,0,94,26708],["20260514","May 14",457,199,11994,400,335,889,0,258,24,129,16,24,2,0,0,0,3,196,56,1824,25,0,0,72,30197],["20260515","May 15",296,98,6737,269,231,444,0,157,0,92,2,35,0,0,0,0,10,122,25,2318,0,0,0,58,25553],["20260516","May 16",318,58,2428,312,299,410,0,272,0,20,2,23,1,0,0,0,0,253,33,797,0,0,0,17,18080],["20260517","May 17",246,40,1912,233,215,299,0,201,0,29,2,13,0,0,0,0,1,181,23,265,0,0,0,16,18212],["20260518","May 18",943,279,9725,921,930,1170,0,828,0,97,5,12,0,0,0,0,1,110,26,540,0,0,0,61,22570],["20260519","May 19",388,178,15636,341,292,725,0,230,0,135,1,18,1,0,0,0,2,112,30,2112,0,0,0,87,16175],["20260520","May 20",320,117,8673,292,246,531,0,188,0,99,5,27,0,0,0,0,1,117,18,285,1,0,0,75,15738],["20260521","May 21",354,147,10977,327,279,613,0,193,0,117,4,31,8,0,0,0,1,158,28,454,0,0,0,84,15306],["20260522","May 22",232,77,5053,219,177,308,0,139,0,73,2,15,2,0,0,0,1,91,12,106,0,0,0,37,13873],["20260523","May 23",155,38,3233,146,142,209,0,131,0,17,1,5,0,0,0,0,1,114,20,481,0,0,0,12,9238],["20260524","May 24",205,56,3798,195,187,291,0,150,0,36,0,18,0,0,0,0,1,145,27,564,0,0,0,26,9649],["20260525","May 25",182,53,3694,170,143,265,0,114,0,48,3,13,2,0,0,0,2,93,12,280,0,0,0,32,10854],["20260526","May 26",324,128,8267,287,243,524,0,178,0,113,5,27,0,0,0,0,1,151,34,1033,0,0,0,86,9848],["20260527","May 27",312,104,8266,283,248,520,0,192,0,99,1,19,0,0,0,0,1,134,21,1254,0,0,0,74,12897],["20260528","May 28",251,109,6734,212,171,426,0,95,0,129,1,11,12,0,0,3,0,76,21,731,0,0,0,94,11010],["20260529","May 29",189,67,4661,174,134,317,0,106,0,74,0,8,0,0,0,1,0,84,15,430,0,0,0,52,10133],["20260530","May 30",193,75,4275,177,163,352,0,130,0,55,0,4,2,0,0,0,2,139,45,1441,0,0,0,37,9900],["20260531","May 31",148,49,2229,135,121,333,0,105,0,39,0,3,1,0,0,0,0,81,30,903,0,0,0,27,11827],["20260601","Jun 1",158,85,5978,138,108,278,0,40,0,98,5,14,1,0,0,0,0,24,8,287,0,0,0,72,9696],["20260602","Jun 2",172,104,7732,153,125,362,0,37,0,113,1,19,2,0,0,0,1,30,11,872,1,0,0,91,5164],["20260603","Jun 3",165,75,5661,137,102,282,0,70,0,79,2,7,7,0,0,0,0,24,5,676,0,0,0,55,5052],["20260604","Jun 4",162,93,7681,136,98,366,0,51,0,97,2,11,1,0,0,0,0,21,7,610,0,0,0,60,4790],["20260605","Jun 5",154,94,8691,127,92,342,0,41,0,101,5,6,0,0,0,1,0,16,10,219,0,0,0,61,5123],["20260606","Jun 6",68,25,1302,62,43,86,0,27,0,34,0,5,0,0,0,1,1,7,4,170,0,0,0,16,4281],["20260607","Jun 7",61,26,2421,56,43,103,0,18,0,34,5,2,1,0,0,1,0,6,0,0,0,0,0,16,4862],["20260608","Jun 8",177,101,7848,146,96,350,0,62,0,97,3,12,1,0,0,1,1,25,13,298,0,0,0,59,5596],["20260609","Jun 9",199,97,5949,174,144,470,0,86,0,94,2,15,1,0,0,1,0,42,18,642,0,0,0,62,5612],["20260610","Jun 10",195,102,6344,163,128,374,0,62,0,116,4,10,0,0,0,2,1,33,14,611,1,0,0,76,6755],["20260611","Jun 11",166,78,4865,144,115,281,0,64,0,75,3,10,14,0,0,0,0,13,4,171,0,0,0,57,6748],["20260612","Jun 12",152,71,5393,125,85,282,0,59,0,77,1,10,5,0,0,0,0,11,5,279,0,0,0,44,4923],["20260613","Jun 13",52,13,626,49,42,61,0,33,0,17,2,0,0,0,0,0,0,2,2,26,0,0,0,9,3335],["20260614","Jun 14",56,16,756,54,39,76,0,33,0,21,0,2,0,0,0,0,0,1,0,0,0,0,0,10,3915],["20260615","Jun 15",220,116,8389,196,160,450,0,117,0,78,6,16,1,0,0,1,1,15,5,76,0,0,0,42,4767],["20260616","Jun 16",190,93,5444,166,119,297,0,61,0,94,26,6,2,0,0,1,0,24,12,212,0,0,0,66,5277],["20260617","Jun 17",319,167,14035,283,248,473,0,90,0,78,136,7,5,0,0,2,1,19,7,507,0,0,0,56,5084],["20260618","Jun 18",214,108,15028,191,146,346,0,48,0,72,78,8,4,0,0,0,4,9,1,280,1,0,0,60,3667],["20260619","Jun 19",112,44,5180,102,86,181,0,60,0,31,20,1,0,0,0,0,0,9,2,85,0,0,0,17,4261],["20260620","Jun 20",59,17,2250,53,43,92,0,34,0,13,10,1,0,0,0,0,1,2,0,0,0,0,0,10,3752],["20260621","Jun 21",73,25,1330,68,62,93,0,39,0,17,16,0,0,0,0,1,0,6,1,33,0,0,0,18,4474],["20260622","Jun 22",183,81,10508,158,115,310,0,66,0,65,41,8,0,0,0,2,1,20,5,624,0,0,0,47,5952],["20260623","Jun 23",234,120,11773,209,155,397,0,106,0,90,24,12,2,0,0,0,0,65,36,4524,0,0,0,54,6871],["20260624","Jun 24",176,87,5811,146,105,250,0,61,0,90,11,12,0,0,0,1,1,29,12,1353,0,0,0,44,5256],["20260625","Jun 25",166,70,6379,144,111,269,0,61,0,79,13,6,6,0,0,0,1,15,8,386,0,0,0,56,4997],["20260626","Jun 26",180,53,4628,167,135,257,0,108,0,44,15,11,0,0,0,2,0,17,6,223,0,0,0,26,5056],["20260627","Jun 27",83,35,3404,77,66,119,0,29,0,31,10,13,0,0,0,0,0,16,5,280,0,0,0,23,4134],["20260628","Jun 28",76,40,3383,67,51,123,0,34,0,22,4,15,0,0,0,1,0,21,14,766,0,0,0,17,3457],["20260629","Jun 29",547,211,9009,534,520,642,0,457,0,55,17,12,0,0,0,6,0,357,136,3137,0,0,0,33,2467],["20260630","Jun 30",169,93,9522,142,101,330,0,52,0,80,9,26,0,0,0,1,1,15,7,201,0,0,0,45,2438],["20260701","Jul 1",135,64,6133,119,91,377,0,65,0,53,6,9,0,0,0,1,1,14,7,610,0,0,0,40,2266],["20260702","Jul 2",110,43,2964,94,75,200,0,50,0,46,2,11,0,0,0,1,0,11,4,203,0,0,0,44,4811],["20260703","Jul 3",55,29,2084,52,37,140,0,19,0,31,0,4,0,0,0,0,1,9,3,47,0,0,0,27,1722],["20260704","Jul 4",61,21,8221,59,52,74,0,40,0,13,4,2,1,0,0,1,0,1,0,0,0,0,0,11,2431],["20260705","Jul 5",41,14,608,40,35,56,0,23,0,14,3,1,0,0,0,0,0,4,1,0,0,0,0,9,3265],["20260706","Jul 6",128,60,5813,111,92,234,0,50,0,66,5,5,0,0,0,2,0,17,10,346,0,0,0,44,4029],["20260707","Jul 7",130,79,7362,113,84,269,0,47,0,67,5,7,0,0,0,3,1,14,7,299,0,0,0,42,4523],["20260708","Jul 8",120,53,6119,105,69,279,0,38,0,69,4,7,0,0,0,1,1,12,3,27,0,0,0,43,3022],["20260709","Jul 9",114,72,5118,99,69,261,0,44,0,59,1,8,1,0,0,0,1,17,11,824,0,0,0,45,3242],["20260710","Jul 10",99,38,2974,83,66,163,0,34,0,51,8,4,1,0,0,0,1,7,3,74,0,0,0,29,2969],["20260711","Jul 11",41,12,1336,34,27,63,0,16,0,15,8,2,0,0,0,0,0,2,0,0,0,0,0,10,2435],["20260712","Jul 12",45,16,1210,39,31,61,0,18,0,18,4,5,0,0,0,0,0,3,0,0,0,0,0,12,2846],["20260713","Jul 13",159,81,5563,136,97,219,0,50,0,81,12,12,1,0,0,2,1,20,13,570,1,0,0,49,2743],["20260714","Jul 14",137,76,5914,115,79,246,0,37,0,83,8,8,0,0,0,1,0,16,10,413,0,0,0,50,2768],["20260715","Jul 15",116,66,5579,98,75,218,0,39,0,63,8,6,0,0,0,0,0,21,14,865,0,0,0,34,1880],["20260716","Jul 16",151,84,6913,129,111,268,0,68,0,62,9,10,1,0,0,1,0,18,10,239,0,0,0,41,1838],["20260717","Jul 17",80,48,3236,71,58,155,0,26,0,42,4,7,1,0,0,0,0,6,4,67,0,0,0,29,2039],["20260718","Jul 18",42,14,970,40,38,70,0,24,0,15,1,2,0,0,0,0,0,2,1,28,0,0,0,16,1565],["20260719","Jul 19",32,11,930,29,24,48,0,19,0,10,1,1,0,0,0,1,0,2,0,0,0,0,0,6,1754],["20260720","Jul 20",100,54,3098,93,72,171,0,37,0,45,3,12,1,0,0,2,0,18,9,437,0,0,0,37,1464],["20260721","Jul 21",119,71,6504,107,84,278,0,37,0,70,5,4,1,0,0,2,0,10,6,1356,0,0,0,51,5008],["20260722","Jul 22",126,71,6982,115,87,291,0,42,0,72,5,7,0,0,0,0,0,9,4,334,0,0,0,51,2498],["20260723","Jul 23",135,69,4218,119,87,242,0,51,0,64,5,10,0,0,5,0,0,12,6,132,0,0,0,37,1439],["20260724","Jul 24",109,49,2548,95,74,160,0,49,0,48,5,5,0,0,0,1,1,5,4,102,0,0,0,38,1520],["20260725","Jul 25",51,18,2039,47,38,82,0,33,0,14,2,2,0,0,0,0,0,1,1,3,0,0,0,9,1153],["20260726","Jul 26",24,13,545,24,22,31,0,17,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,7,1396],["20260727","Jul 27",117,62,4276,110,87,301,0,38,0,67,1,11,0,0,0,0,0,5,4,68,0,0,0,42,3533],["20260728","Jul 28",141,77,7006,127,101,273,0,46,0,79,3,12,0,0,0,1,0,6,2,34,0,0,0,53,2013],["20260729","Jul 29",203,92,7586,181,147,328,0,72,0,108,8,15,0,0,0,0,0,18,9,352,0,0,0,76,4810],["20260730","Jul 30",174,91,6315,152,117,336,0,67,0,95,4,6,1,0,0,1,0,13,7,325,0,0,0,61,3510],["20260731","Jul 31",91,45,3654,81,60,150,0,31,0,56,1,2,0,0,0,1,0,10,4,140,0,0,0,40,1914],["20260801","Aug 1",81,28,1257,76,69,117,0,51,0,22,3,4,0,0,1,0,0,6,3,43,0,0,0,13,925],["20260802","Aug 2",50,13,686,48,43,62,0,33,0,13,0,3,0,1,0,0,0,3,1,23,1,0,0,9,1223],["20260803","Aug 3",148,72,7774,122,101,298,0,47,0,79,3,10,3,0,2,0,4,14,5,385,1,0,0,48,4912],["20260804","Aug 4",166,84,7877,143,111,319,0,64,0,82,1,6,0,0,8,1,4,33,16,724,0,0,0,60,2075],["20260805","Aug 5",145,71,4934,121,94,268,0,49,0,77,6,13,0,0,0,0,0,19,3,115,0,0,0,49,7132],["20260806","Aug 6",192,92,5732,171,148,273,0,83,0,83,5,12,0,0,7,1,1,23,8,564,0,0,0,59,6657],["20260807","Aug 7",88,46,2385,76,50,157,0,25,0,48,5,9,0,0,0,1,0,15,5,79,0,0,0,30,3540],["20260808","Aug 8",44,17,3083,41,33,89,0,23,0,16,3,2,0,0,0,0,0,5,2,119,0,0,0,10,2996],["20260809","Aug 9",55,25,2865,50,38,126,0,29,0,24,0,0,0,0,0,1,1,5,2,13,0,0,0,17,1672],["20260810","Aug 10",196,80,5244,170,136,288,1,75,0,83,3,6,0,0,27,1,1,29,6,409,0,0,0,50,7273],["20260811","Aug 11",166,69,4713,154,129,256,1,45,0,71,5,8,0,0,37,0,0,19,8,529,0,0,0,52,5680],["20260812","Aug 12",153,84,7325,132,106,279,0,65,0,76,7,3,0,0,2,0,0,14,5,145,0,0,0,45,5602],["20260813","Aug 13",175,87,6018,148,118,352,4,43,0,77,14,8,1,0,28,2,2,30,11,213,0,0,0,56,2781],["20260814","Aug 14",93,42,3195,77,64,179,2,34,0,42,2,11,2,1,0,0,1,11,3,118,2,0,0,30,4189],["20260815","Aug 15",52,27,3027,45,40,115,0,23,0,21,3,5,0,0,0,0,0,2,1,18,0,0,0,14,1908],["20260816","Aug 16",294,190,4016,287,270,349,10,230,0,34,1,6,2,0,19,0,2,22,10,327,3,0,0,20,4087],["20260817","Aug 17",172,100,5398,148,118,294,38,60,0,76,0,13,0,0,23,0,0,34,33,503,0,0,0,55,13506],["20260818","Aug 18",137,70,4814,111,82,264,16,45,0,74,2,5,1,0,6,4,0,14,11,275,1,0,0,39,3263],["20260819","Aug 19",235,130,7543,208,174,407,32,125,0,96,5,8,1,0,0,0,0,22,19,333,1,0,0,76,4011],["20260820","Aug 20",726,430,10704,706,676,851,23,615,0,102,2,8,0,0,0,0,0,15,12,154,0,0,0,57,4458],["20260821","Aug 21",235,96,6158,215,195,342,15,169,0,57,4,5,0,0,0,0,0,9,6,45,0,0,0,43,8879],["20260822","Aug 22",72,23,756,70,65,98,5,53,0,12,5,2,0,0,0,0,0,2,2,32,0,0,0,8,2857],["20260823","Aug 23",35,13,641,34,28,49,2,19,0,15,0,1,0,0,0,0,0,2,1,0,0,0,0,10,9939],["20260824","Aug 24",127,60,2965,103,71,211,14,51,0,69,0,7,0,0,0,0,0,17,11,101,0,0,0,40,4094],["20260825","Aug 25",194,103,7352,164,137,326,13,101,0,62,13,14,0,0,4,0,0,15,10,20,0,0,0,36,4450],["20260826","Aug 26",160,76,3171,151,120,223,22,66,0,65,2,4,0,0,21,1,1,18,18,119,1,0,0,42,4930],["20260827","Aug 27",146,78,4831,128,96,253,15,41,0,67,8,13,2,0,9,1,5,12,11,4,2,0,0,41,4893],["20260828","Aug 28",166,65,3802,152,139,271,11,96,0,59,3,3,0,0,0,0,6,6,4,140,6,0,0,42,4739],["20260829","Aug 29",44,15,671,43,36,62,4,24,0,16,0,3,1,0,0,0,0,4,4,59,0,0,0,13,3255],["20260830","Aug 30",82,40,1737,77,70,135,24,48,0,27,1,4,1,0,0,1,0,22,22,239,0,0,0,15,4493],["20260831","Aug 31",120,67,3932,104,85,219,17,53,0,52,4,7,0,0,0,0,4,9,9,28,4,0,0,39,3859],["20260901","Sep 1",172,103,8163,154,130,354,31,68,0,68,3,12,0,18,0,2,1,24,23,153,18,0,0,50,3644],["20260902","Sep 2",533,450,12132,516,495,638,392,70,0,66,2,10,2,379,0,2,2,392,389,7002,381,0,0,47,2927],["20260903","Sep 3",2916,2766,29931,2856,3004,3362,2724,50,0,81,2,8,2680,49,3,0,13,2739,2706,25386,2732,2577,2556,55,2755],["20260904","Sep 4",133,86,4941,119,97,253,43,38,0,50,1,5,0,31,0,1,7,36,34,562,35,0,0,29,2487],["20260905","Sep 5",68,39,1201,67,64,82,23,39,0,13,0,1,0,14,0,0,1,22,21,391,15,0,0,8,1593],["20260906","Sep 6",91,51,1374,90,85,103,33,41,0,9,8,1,2,30,0,0,0,32,32,669,32,2,2,3,1867],["20260907","Sep 7",90,52,1807,88,74,129,32,32,0,24,1,3,1,28,0,1,0,32,31,531,30,1,1,14,1877],["20260908","Sep 8",330,276,9423,318,298,470,211,51,0,71,2,9,0,191,7,0,0,206,206,3910,191,0,0,50,2960],["20260909","Sep 9",295,173,9755,261,234,475,75,114,0,107,7,15,0,48,0,0,4,72,67,669,49,0,0,72,3132],["20260910","Sep 10",173,118,8090,158,135,297,63,35,0,78,2,16,0,39,0,1,2,55,54,1407,41,0,0,60,3271],["20260911","Sep 11",166,124,7110,152,128,288,64,44,0,67,3,6,0,42,2,0,2,61,60,1428,44,0,0,42,2912],["20260912","Sep 12",55,27,671,54,51,59,18,25,0,13,1,1,0,14,0,0,1,17,15,311,14,0,0,8,1864],["20260913","Sep 13",104,40,1554,101,98,129,17,68,0,19,2,0,0,14,0,1,0,16,16,430,14,0,0,12,2180],["20260914","Sep 14",308,225,11939,290,255,412,132,102,0,67,2,13,1,119,0,1,4,132,131,2257,123,0,0,40,3250],["20260915","Sep 15",212,159,9382,196,170,306,93,37,0,77,2,11,1,74,4,2,4,92,91,1866,81,0,0,47,2902],["20260916","Sep 16",257,191,12360,247,232,345,151,60,0,55,1,11,0,92,37,0,2,141,141,3165,130,0,0,37,3017],["20260917","Sep 17",244,167,7446,228,204,370,116,78,0,77,0,6,0,56,26,0,2,104,104,1749,85,0,0,51,4239],["20260918","Sep 18",194,98,3398,182,170,295,56,71,0,57,0,8,0,32,24,0,2,51,51,780,35,0,0,39,4242],["20260919","Sep 19",84,32,1819,81,71,98,19,47,0,23,1,0,0,13,0,0,0,19,19,677,13,0,0,10,3582],["20260920","Sep 20",146,106,6111,141,132,193,83,33,0,26,0,9,0,77,1,0,0,82,79,2263,77,0,0,16,3868],["20260921","Sep 21",242,185,9308,222,195,371,128,56,0,68,0,13,0,103,0,0,2,125,122,1720,104,0,0,42,3895],["20260922","Sep 22",288,200,5922,262,239,392,143,69,0,74,9,12,0,122,0,0,2,137,136,2271,122,0,0,45,4359],["20260923","Sep 23",288,222,9197,266,241,400,176,52,0,77,1,7,0,149,0,2,1,170,166,3762,149,0,0,48,3722],["20260924","Sep 24",269,198,7165,252,225,415,128,85,0,78,0,2,0,99,0,3,2,122,121,3193,101,0,0,54,4698],["20260925","Sep 25",223,125,6193,197,175,301,70,86,0,95,1,4,0,35,0,2,0,64,63,883,35,0,0,58,5095],["20260926","Sep 26",97,48,1403,88,79,118,30,48,0,23,3,2,0,19,0,2,0,28,28,410,19,0,0,9,3976],["20260927","Sep 27",92,57,2139,86,76,115,47,29,0,19,2,2,0,39,0,1,0,47,47,922,39,0,0,6,4519],["20260928","Sep 28",245,162,7051,220,186,375,91,75,0,81,3,7,3,73,0,2,1,89,89,1740,75,0,0,47,5313],["20260929","Sep 29",233,163,6907,212,191,350,108,51,0,81,0,5,0,92,0,0,4,102,100,1810,92,0,0,51,5421],["20260930","Sep 30",212,143,7616,192,173,372,82,42,0,100,3,11,0,54,0,0,2,68,68,1217,56,0,0,63,3990],["20261001","Oct 1",248,180,6647,233,206,391,87,79,0,91,1,18,0,57,0,0,2,77,77,1563,61,0,0,60,1336],["20261002","Oct 2",205,133,9886,187,160,323,66,58,0,87,4,8,0,47,0,0,1,61,61,1067,48,0,0,49,1155],["20261003","Oct 3",64,24,1848,60,52,75,16,37,0,13,1,4,0,9,0,0,0,15,15,194,9,0,0,6,962],["20261004","Oct 4",86,49,2475,81,72,123,28,32,0,22,6,2,0,24,0,0,0,26,26,507,24,0,0,16,1163],["20261005","Oct 5",202,131,8706,183,157,327,68,65,0,76,6,12,0,40,0,1,2,58,58,949,42,0,0,48,1435],["20261006","Oct 6",125,19,2175,120,79,145,30,29,0,17,3,2,0,8,39,0,69,36,18,303,8,0,0,1,242]],"CH_FULL":[["Direct",36174,9012,319375],["Organic Search",15924,9621,787775],["Paid Social",12015,621,2083],["Organic Social",3850,928,61977],["Email",3180,2817,35614],["Referral",2766,1197,82885],["Display",2332,2293,42938],["Unassigned",361,50,16663],["Paid Search",237,35,0],["Cross-network",107,75,1910],["AI Assistant",89,41,9842],["Organic Video",55,30,2249],["Organic Shopping",52,0,0],["Paid Other",45,8,5]],"CH_SINCE":[["Direct",7814,2859,139854],["Organic Search",7322,4614,387157],["Email",2766,2692,26836],["Display",2332,2293,42938],["Referral",933,595,42799],["Organic Social",799,408,35278],["Paid Search",235,35,0],["Unassigned",167,29,10822],["Cross-network",107,75,1910],["AI Assistant",85,39,9815],["Organic Video",23,17,1580]],"CTRL_CH_FULL":[["Direct",22889,4968,85322],["Paid Social",12010,621,2083],["Email",2895,2709,27036],["Organic Social",2645,293,7161],["Display",2326,2291,42729],["Organic Search",1937,1083,49840],["Referral",1332,312,14995],["Unassigned",96,5,947],["Cross-network",84,74,1656],["Paid Search",74,35,0],["Organic Shopping",52,0,0],["Paid Other",45,8,5],["Organic Video",30,16,670],["AI Assistant",1,1,23]],"CTRL_CH_SINCE":[["Email",2702,2665,24881],["Display",2326,2291,42729],["Direct",1156,591,17764],["Organic Search",607,418,15851],["Referral",178,132,5516],["Cross-network",84,74,1656],["Paid Search",73,35,0],["Organic Social",50,26,651],["Unassigned",13,3,92],["Organic Video",8,6,273],["AI Assistant",1,1,23]],"MCH":{"202603":{"Direct":17469,"Organic Social":2683,"Referral":896,"Organic Search":3049,"Email":209,"Unassigned":114,"Organic Video":24,"Organic Shopping":15},"202609":{"Email":2690,"Display":2145,"Direct":1696,"Organic Search":1744,"Cross-network":67,"Paid Search":37,"Referral":210,"Unassigned":54,"Organic Social":62,"AI Assistant":23,"Organic Video":7},"202605":{"Direct":5521,"Paid Social":1938,"Organic Search":2492,"Referral":467,"Email":80,"Organic Social":133,"Unassigned":34,"Organic Shopping":13,"Paid Other":31,"AI Assistant":4,"Organic Video":1},"202608":{"Direct":2485,"Organic Search":1697,"Paid Search":193,"Organic Social":110,"Referral":203,"Unassigned":20,"Organic Video":12,"AI Assistant":14,"Email":14,"Cross-network":1,"Display":2},"202604":{"Paid Social":10077,"Direct":5370,"Organic Search":3061,"Email":125,"Referral":470,"Organic Social":235,"Organic Shopping":24,"Unassigned":46,"Paid Other":14,"Organic Video":7,"Paid Search":2},"202606":{"Direct":2106,"Organic Social":471,"Organic Search":1992,"Referral":277,"Email":53,"AI Assistant":25,"Unassigned":15},"202607":{"Organic Search":1583,"Direct":1227,"Referral":197,"Organic Social":135,"Paid Search":5,"AI Assistant":22,"Unassigned":4,"Organic Video":4,"Email":9},"202610":{"Organic Search":306,"Direct":300,"Unassigned":74,"Display":185,"Cross-network":39,"Referral":46,"Organic Social":21,"AI Assistant":1}},"SM_FULL":[["Direct","(direct) / (none)",36028,9061,319375],["Organic Search","google / organic",14626,8820,709929],["Paid Social","fb / paid",12112,622,2083],["Organic Social","linkedin.com / referral",3145,716,58900],["Email","FFVE Afjfyfggfe / Email",2580,2559,23844],["Display","SSIR / banner",2325,2288,42877],["Organic Search","bing / organic",724,469,48509],["Referral","imasdk.googleapis.com / referral",438,0,0],["Organic Social","lnkd.in / referral",436,97,1248],["Email","substack / email",341,109,9462],["Display","google / cpc",305,101,1567],["Organic Search","duckduckgo / organic",288,163,12203],["Unassigned","(not set)",254,0,10303],["Organic Search","yahoo / organic",158,91,11629],["Referral","whogives.substack.com / referral",156,97,5725],["Referral","mail.google.com / referral",117,74,3697],["Organic Social","facebook.com / referral",111,68,456],["Email","SSIR Newsletter / Email",109,100,848],["Email","CatchLight Subscribers / email",98,28,736],["Organic Search","ecosia.org / organic",98,74,5064]],"SM_SINCE":[["Direct","(direct) / (none)",7798,2849,139854],["Organic Search","google / organic",6707,4207,350371],["Email","FFVE Afjfyfggfe / Email",2580,2559,23844],["Display","SSIR / banner",2325,2288,42877],["Organic Social","linkedin.com / referral",712,363,34955],["Organic Search","bing / organic",350,236,22668],["Display","google / cpc",303,101,1567],["Organic Search","duckduckgo / organic",125,77,5242],["Unassigned","(not set)",114,0,5580],["Email","SSIR Newsletter / Email",109,100,848],["Organic Search","yahoo / organic",85,44,5191],["Email","substack / email",74,30,2051],["AI Assistant","chatgpt.com / ai-assistant",65,32,1628],["Referral","nonprofitaf.com / referral",64,37,2490],["Referral","whogives.substack.com / referral",60,34,1516],["Organic Search","ecosia.org / organic",58,49,3470],["Organic Social","facebook.com / referral",56,35,172],["Referral","brokenlinkcheck.com / referral",54,50,5003],["Referral","ncg.org / referral",52,31,3986],["Referral","teams.public.onecdn.static.microsoft / referral",45,30,1798]],"CSM_FULL":[["Direct","(direct) / (none)",22803,4978,85322],["Paid Social","fb / paid",12107,622,2083],["Email","FFVE Afjfyfggfe / Email",2580,2559,23844],["Display","SSIR / banner",2321,2287,42721],["Organic Social","linkedin.com / referral",2175,193,5517],["Organic Search","google / organic",1720,967,44585],["Referral","imasdk.googleapis.com / referral",438,0,0],["Organic Social","lnkd.in / referral",383,76,904],["Email","substack / email",181,38,2007],["Display","google / cpc",141,101,1567],["Email","SSIR Newsletter / Email",107,99,792],["Organic Search","bing / organic",105,62,3369]],"CSM_SINCE":[["Email","FFVE Afjfyfggfe / Email",2580,2559,23844],["Display","SSIR / banner",2321,2287,42721],["Direct","(direct) / (none)",1154,590,17764],["Organic Search","google / organic",536,369,14205],["Display","google / cpc",140,101,1567],["Email","SSIR Newsletter / Email",107,99,792],["Organic Social","linkedin.com / referral",45,26,651],["Referral","nonprofitaf.com / referral",43,32,2417],["Organic Search","bing / organic",40,27,1369],["Referral","missionlocal.org / referral",24,17,803],["Referral","teams.public.onecdn.static.microsoft / referral",22,17,713],["Organic Search","duckduckgo / organic",19,13,84]],"CAMP":[["120241471926500178","fb / paid",12112,622,2083,0,{"202604":10172,"202605":1940},1],["abyy_dbzcbvta","FFVE Afjfyfggfe / Email",2580,2559,23844,2560,{"202609":2580},1],["fall_campaign","SSIR / banner",2325,2288,42877,2290,{"202609":2141,"202610":184},2],["fall_campaign","SSIR Newsletter / Email",109,100,848,99,{"202609":106,"202608":3},1],["e8e884785d-EMAIL_CAMPAIGN_2026_04_02_04_46_COPY_01","CatchLight Subscribers / email",98,28,736,0,{"202604":98},1],["CONTROL Book \u2013 Demand Gen","google / cpc",67,66,1567,66,{"202609":67},1],["120241471926500178","an / paid",45,8,5,0,{"202605":31,"202604":14},1],["break_fake_rules","qr_code / qr",42,21,4949,5,{"202609":27,"202608":11,"202610":4},1],["(cross-network)","(data not available) / (data not available)",40,9,343,4,{"202610":39,"202608":1},2],["BFR_Live_Events","In person event / QR code",39,11,380,0,{"202603":33,"202604":5,"202606":1},1],["42648","piano / email",12,6,117,0,{"202603":12},1],["28656687-Impact Navigator","hs_email / email",9,5,240,0,{"202605":7,"202607":1,"202608":1},1],["fall_campaign","National Council on Nonprofits / banner",6,5,61,3,{"202609":4,"202608":1,"202610":1},1],["funder-only-2026-apr-wcwd-pau-hana-invite","newsletter / email",5,2,45,0,{"202603":4,"202604":1},1],["86b210cb3a-EMAIL_CAMPAIGN_2024_10_01_09_42_COPY_01","P150 / email",5,3,205,0,{"202603":5},1],["last-call-for-rsvps-may-8-pau-hana","newsletter / email",4,0,0,0,{"202605":4},1],["a-new-season","missionup.beehiiv.com / newsletter",4,3,121,0,{"202609":4},1],["feed","later-linkinbio / referral",4,2,36,0,{"202610":3,"202609":1},1],["funders-final-call-for-rsvps-may-8-pau-hana","newsletter / email",4,2,30,1,{"202604":2,"202605":1,"202608":1},1],["control_book_launch","[event_name] / qr",2,2,71,1,{"202608":2},1],["fall_campaign","Inside Philanthropy / Newsletter",2,2,82,0,{"202608":2},1],["a-new-season","missionup.beehiiv.com / referral",2,0,0,0,{"202609":2},1],["3De8e8=","3DCatchLight Subscribers / (not set)",1,0,0,0,{"202604":1},1],["32112908-wgs26","hs_email / email",1,0,0,0,{"202605":1},1],["439321c10c-EMAIL_CAMPAIGN_2023_03_02_09_24_COPY_01","New Breath Foundation / email",1,1,39,0,{"202605":1},1],["podnews.net:2026-04-21","podnews.net / web",1,1,3,0,{"202605":1},1],["ai-visibility-score","akii / brand-leaderboard",1,0,0,0,{"202606":1},1],["buffer","linkedin.com / social",1,0,4,0,{"202606":1},1],["YT - Video Views - Test Campaign","google / cpc",1,0,0,0,{"202608":1},1]],"CLAND":{"120241471926500178":[["/control",12147],["/",5]],"abyy_dbzcbvta":[["/control",2580]],"fall_campaign":[["/control",2433],["(not set)",5],["/",4]],"e8e884785d-EMAIL_CAMPAIGN_2026_04_02_04_46_COPY_01":[["/",97],["(not set)",1]],"CONTROL Book \u2013 Demand Gen":[["/control",66],["(not set)",1]],"BFR_Live_Events":[["/break-fake-rules",32],["/control",5],["/philanthropy-confidential",2]],"break_fake_rules":[["/break-fake-rules",31],["/",4],["(not set)",3]],"(cross-network)":[["/control",18],["/",8],["/break-fake-rules",5]],"(ai-assistant)":[["/",16],["(not set)",15],["/intern-with-stupski",14]],"42648":[["/control",9],["/control/book-tour-events",2],["(not set)",1]],"28656687-Impact Navigator":[["/break-fake-rules",6],["/",2],["(not set)",1]],"86b210cb3a-EMAIL_CAMPAIGN_2024_10_01_09_42_COPY_01":[["/control",5]],"feed":[["/break-fake-rules",4]],"funder-only-2026-apr-wcwd-pau-hana-invite":[["/control",4],["(not set)",1]],"funders-final-call-for-rsvps-may-8-pau-hana":[["/control",4]],"last-call-for-rsvps-may-8-pau-hana":[["/control",4]],"a-new-season":[["/",5],["/break-fake-rules",1]],"32112908-wgs26":[["/control",1]],"3De8e8=":[["/",1]],"439321c10c-EMAIL_CAMPAIGN_2023_03_02_09_24_COPY_01":[["/people/jennifer-nguyen",1]],"YT - Video Views - Test Campaign":[["/control",1]],"ai-visibility-score":[["/",1]],"buffer":[["/changecantwaitblog/stupski-foundation-accelerates-grantmaking-in-response-to-threats-to-our-communities-and-democracy",1]],"control_book_launch":[["/",1],["/control",1]],"podnews.net:2026-04-21":[["/",1]]},"DCAMP":{"20260903":{"flag":2577,"fall":152,"other":3},"20260412":{"meta":562},"20260411":{"meta":520},"20260410":{"meta":482},"20260414":{"meta":482},"20260425":{"meta":464},"20260413":{"meta":463},"20260420":{"meta":458,"other":1},"20260418":{"meta":455,"other":2},"20260421":{"meta":447,"other":1},"20260417":{"meta":435,"other":94},"20260422":{"meta":432},"20260419":{"meta":430,"other":2},"20260428":{"meta":428},"20260429":{"meta":423},"20260423":{"meta":414,"other":5},"20260415":{"meta":411},"20260426":{"meta":406},"20260416":{"meta":400},"20260407":{"meta":397},"20260902":{"fall":381},"20260424":{"meta":377,"other":1},"20260427":{"meta":376},"20260430":{"meta":235},"20260406":{"meta":232},"20260908":{"fall":191},"20260511":{"meta":173},"20260513":{"meta":170},"20260509":{"meta":166,"other":1},"20260508":{"meta":165,"other":4},"20260506":{"meta":162,"other":3},"20260408":{"meta":158},"20260505":{"meta":155,"other":1},"20260512":{"meta":155,"other":2},"20260502":{"meta":149},"20260923":{"fall":149},"20260510":{"meta":148},"20260507":{"meta":136,"other":3},"20260501":{"meta":123},"20260922":{"fall":122},"20260503":{"meta":121},"20260504":{"meta":121},"20260914":{"fall":119,"other":4},"20260409":{"meta":115},"20260921":{"fall":103,"other":1},"20260924":{"fall":99,"other":2},"20260916":{"fall":92,"gads":36,"other":2},"20260929":{"fall":92},"20260405":{"meta":78},"20260920":{"fall":77},"20260915":{"fall":74,"gads":4,"other":3},"20260928":{"fall":74,"other":1},"20261001":{"fall":57,"other":4},"20260917":{"fall":56,"gads":26,"other":3},"20260930":{"fall":54,"other":2},"20260909":{"fall":48,"other":1},"20261002":{"fall":47,"other":1},"20260911":{"fall":42,"other":2},"20261005":{"fall":40,"other":2},"20260910":{"fall":39,"other":2},"20260927":{"fall":39},"20261006":{"gads":39,"fall":8},"20260925":{"fall":35},"20260918":{"fall":32,"other":2,"gads":1},"20260904":{"fall":31,"other":4},"20260906":{"fall":30,"flag":2},"20260907":{"fall":28,"other":1,"flag":1},"20260514":{"meta":25},"20261004":{"fall":24},"20260320":{"other":23},"20260926":{"fall":19},"20260901":{"fall":18},"20260905":{"fall":14,"other":1},"20260912":{"fall":14},"20260913":{"fall":14},"20260919":{"fall":13},"20261003":{"fall":9},"20260828":{"other":6},"20260331":{"other":4},"20260402":{"meta":4},"20260831":{"other":4},"20260307":{"other":3},"20260317":{"other":3},"20260403":{"meta":3},"20260404":{"meta":3},"20260303":{"other":2},"20260310":{"other":3},"20260311":{"other":2},"20260321":{"other":2},"20260814":{"fall":2},"20260816":{"fall":2,"other":1},"20260302":{"other":1},"20260304":{"other":1},"20260306":{"other":1},"20260308":{"other":1},"20260309":{"other":1},"20260316":{"other":1},"20260318":{"other":1},"20260319":{"other":1},"20260325":{"other":1},"20260326":{"other":1},"20260327":{"other":1},"20260330":{"other":1},"20260401":{"meta":1,"other":1},"20260520":{"other":1},"20260602":{"other":1},"20260610":{"other":1},"20260618":{"other":1},"20260713":{"other":1},"20260801":{"gads":1},"20260802":{"gads":1},"20260803":{"other":1},"20260818":{"fall":1},"20260819":{"fall":1},"20260826":{"other":1},"20260827":{"other":2}},"LAND":[["/control",[46353,12501,232217],[7207,6269,109380],{"202603":18884,"202604":14671,"202605":5591,"202609":5299,"202606":893,"202608":445,"202607":301,"202610":269}],["/",[9325,5693,475025],[5036,3036,242373],{"202608":1684,"202603":1587,"202604":1431,"202605":1271,"202609":1114,"202606":1074,"202607":923,"202610":241}],["/break-fake-rules",[3847,1798,137168],[1876,912,67445],{"202604":780,"202605":622,"202608":616,"202603":569,"202609":500,"202606":402,"202607":281,"202610":77}],["(not set)",[3267,199,42138],[1487,94,28408],{"202603":657,"202604":610,"202605":513,"202606":453,"202608":369,"202609":327,"202607":291,"202610":47}],["/people/glen-galaich-ph-d",[1197,705,48295],[502,305,21901],{"202603":316,"202604":203,"202605":176,"202606":141,"202609":116,"202608":110,"202607":107,"202610":28}],["/people/jennifer-nguyen",[1003,359,15525],[109,65,3257],{"202605":848,"202606":44,"202603":29,"202609":24,"202608":23,"202604":17,"202607":13,"202610":5}],["/about/our-team",[736,493,39166],[349,235,17424],{"202603":144,"202605":126,"202604":117,"202606":95,"202608":89,"202609":79,"202607":72,"202610":14}],["/changecantwaitblog/philanthropy-confidential-5-on-funding-transformation-not-transaction-with-vu-le",[610,290,31330],[610,290,31330],{"202606":481,"202607":93,"202609":18,"202608":17,"202610":1}],["/join-our-team",[598,392,11808],[344,232,6926],{"202606":95,"202603":92,"202605":91,"202607":82,"202609":82,"202608":74,"202604":71,"202610":11}],["/intern-with-stupski",[553,358,20250],[249,149,9132],{"202603":128,"202605":89,"202604":87,"202607":74,"202606":71,"202609":51,"202608":49,"202610":4}],["/our-programs/for-grant-seekers",[438,274,17025],[201,132,9368],{"202604":93,"202603":75,"202605":69,"202606":60,"202607":57,"202609":47,"202608":28,"202610":9}],["/grant-directory",[414,110,11311],[144,59,6058],{"202603":180,"202604":51,"202608":46,"202605":39,"202609":34,"202606":32,"202607":26,"202610":6}],["/our-programs",[348,224,22017],[167,109,11208],{"202603":69,"202604":56,"202605":56,"202606":47,"202608":47,"202607":35,"202609":30,"202610":8}],["/about/why-spend-down",[308,154,12798],[185,86,6978],{"202606":54,"202603":47,"202607":47,"202608":44,"202605":41,"202604":35,"202609":35,"202610":5}],["/about",[304,177,15064],[162,92,6128],{"202603":65,"202604":48,"202609":44,"202608":39,"202606":37,"202607":31,"202605":29,"202610":11}],["/people/maida-lynn",[299,182,12630],[148,97,6277],{"202604":58,"202603":52,"202609":43,"202605":41,"202607":39,"202606":29,"202608":29,"202610":8}],["/about/about-the-stupskis",[295,174,20884],[166,97,14222],{"202603":47,"202607":42,"202609":42,"202604":41,"202605":41,"202606":38,"202608":31,"202610":13}],["/philanthropy-confidential",[290,158,18922],[128,73,5550],{"202603":94,"202604":55,"202606":35,"202608":35,"202609":35,"202607":16,"202605":13,"202610":7}],["/control/book-tour-events",[288,167,8212],[77,52,1618],{"202603":106,"202605":61,"202604":44,"202606":28,"202608":16,"202609":15,"202607":14,"202610":4}],["/our-programs/food-justice",[286,134,12056],[164,70,6885],{"202609":64,"202603":42,"202604":41,"202605":39,"202606":35,"202608":29,"202607":28,"202610":8}],["/changecantwaitblog/control-why-big-giving-falls-short",[277,122,7156],[63,34,2869],{"202604":96,"202605":79,"202603":39,"202606":30,"202608":16,"202609":11,"202607":6}],["/changecantwaitblog/philanthropy-confidential-4-on-philanthropic-infrastructure",[207,78,8162],[53,15,791],{"202603":116,"202606":23,"202605":22,"202604":16,"202609":11,"202607":10,"202608":9}],["/how-we-do-it",[205,108,8192],[98,44,3588],{"202603":56,"202604":36,"202609":29,"202606":25,"202608":23,"202607":17,"202605":15,"202610":4}],["/about/where-we-work",[183,87,4443],[78,28,1177],{"202604":54,"202603":32,"202609":24,"202605":19,"202608":19,"202606":17,"202610":10,"202607":8}],["/change-cant-wait-blog",[155,61,3183],[55,25,1882],{"202603":68,"202604":18,"202607":18,"202605":14,"202606":14,"202608":12,"202609":8,"202610":3}]],"PAGES":{"/control/":{"full":[54584,235931],"since":[8580,113444]},"/":{"full":[11861,143411],"since":[6163,72809]},"/break-fake-rules/":{"full":[5193,153247],"since":[2399,83831]},"/people/glen-galaich-ph-d/":{"full":[1842,43761],"since":[728,19173]},"/control/book-tour-events/":{"full":[861,16368],"since":[199,3770]},"/philanthropy-confidential/":{"full":[622,14456],"since":[311,5939]}},"EV":{"page_view":{"202603":33767,"202604":23825,"202605":15658,"202609":11867,"202606":8342,"202608":7532,"202607":6044,"202610":1384},"session_start":{"202603":24435,"202604":19457,"202605":10793,"202609":8982,"202606":4959,"202608":4793,"202607":3199,"202610":913},"first_visit":{"202603":20987,"202604":16407,"202605":8854,"202609":7907,"202608":3642,"202606":3483,"202607":2186,"202610":726},"user_engagement":{"202603":11015,"202605":7121,"202604":6969,"202609":6447,"202606":5266,"202607":4103,"202608":3915,"202610":874},"control_page_view":{"202609":5992,"202610":326,"202608":284},"scroll":{"202603":4015,"202604":2807,"202605":2717,"202606":2370,"202609":2261,"202608":2213,"202607":2054,"202610":328},"click":{"202608":1583,"202603":765,"202605":576,"202604":548,"202606":408,"202607":309,"202609":278,"202610":55},"video_start":{"202604":668,"202603":604,"202605":560,"202606":553,"202608":464,"202609":396,"202607":294,"202610":67},"video_progress":{"202606":583,"202604":431,"202603":332,"202605":282,"202609":248,"202608":236,"202607":206,"202610":31},"form_start":{"202605":124,"202603":118,"202606":106,"202604":99,"202609":86,"202607":79,"202608":59,"202610":12},"form_submit":{"202605":87,"202603":80,"202604":61,"202606":57,"202607":50,"202609":47,"202608":33,"202610":5},"video_complete":{"202606":50,"202603":35,"202604":34,"202609":30,"202608":29,"202605":22,"202607":16,"202610":1},"manual_event_OUTBOUND_CLICK":{"202609":43,"202608":23,"202610":7},"file_download":{"202603":25,"202606":15,"202605":11,"202604":10,"202608":8,"202609":7,"202607":6,"202610":1},"order_now_click":{"202608":25,"202609":6,"202610":1},"discussion_guide_download":{"202608":10,"202609":6},"signed_copy_click":{"202608":6,"202609":1},"free_chapter_signup":{"202608":2}},"RETAIL":{"Amazon":{"202603":196,"202604":105,"202605":54,"202606":39,"202608":28,"202609":14,"202607":8,"202610":3},"Signed copies (Shopify)":{"202603":34,"202604":14,"202609":10,"202605":6},"Bookshop.org":{"202604":26,"202603":18,"202605":14,"202606":13,"202608":8,"202607":3,"202609":3},"TalkShopLive":{"202603":25,"202604":6,"202605":6,"202606":5,"202607":2,"202608":1,"202609":1},"Barnes & Noble":{"202603":9,"202604":9,"202605":2,"202606":1,"202607":1,"202609":1}},"TOPOUT":[["workforgood.org",257],["epip.org",239],["drive.google.com",221],["ncg.org",220],["linkedin.com",193],["time.com",141],["hano-hawaii-jobs.careerwebsite.com",103],["idealist.org",98],["trustbasedphilanthropy.org",90],["youtube.com",78]],"CDEV":{"202604":{"mobile":13155,"desktop":1461,"tablet":275},"202603":{"mobile":12963,"desktop":4537,"tablet":1406},"202609":{"desktop":5140,"mobile":184,"tablet":3},"202605":{"mobile":4141,"desktop":1283,"tablet":228},"202606":{"desktop":688,"mobile":191,"tablet":16},"202608":{"desktop":364,"mobile":84,"tablet":3},"202607":{"desktop":242,"mobile":60,"tablet":1},"202610":{"desktop":239,"mobile":30,"tablet":1}},"SDEV":{"202604":{"mobile":14215,"desktop":5166,"tablet":297},"202603":{"mobile":14113,"desktop":9210,"tablet":1428},"202609":{"desktop":8057,"mobile":737,"tablet":8},"202605":{"desktop":5421,"mobile":4924,"tablet":256,"smart tv":1},"202608":{"desktop":4165,"mobile":575,"tablet":9},"202606":{"desktop":3930,"mobile":974,"tablet":23},"202607":{"desktop":2673,"mobile":493,"tablet":17,"smart tv":3},"202610":{"desktop":791,"mobile":135,"tablet":2}},"AI":{"chatgpt.com":{"202609":18,"202607":17,"202606":16,"202608":13,"202605":4,"202610":1},"claude.ai":{"202606":9,"202607":2},"gemini":{"202607":3,"202609":4},"perplexity.ai":{"202608":1,"202609":1}},"RAW":{"li_ed":{"202603":15176,"202604":2776,"202605":2834,"202606":44,"202607":7,"202608":4,"202609":5,"202610":2},"fbclid":{"202604":10121,"202603":46,"202605":1992,"202606":10,"202607":8,"202608":10,"202609":6,"202610":2}},"GSC":{"totals":{"clicks":10524,"impressions":2331758,"ctr":0.45,"position":10.9},"queriesFull":[["stupski foundation",3410,5089,"67%",1.3],["glen galaich",448,1584,"28.3%",1.4],["break fake rules podcast",292,525,"55.6%",1.1],["break fake rules",171,352,"48.6%",1.1],["maida lynn",147,630,"23.3%",1.3],["stupski",134,332,"40.4%",1.6],["control glen galaich",116,318,"36.5%",1.3],["control why big giving falls short",82,555,"14.8%",1.3],["keoni lee",62,279,"22.2%",1.4],["glen galaich book",62,196,"31.6%",1.6],["glen galaich stupski",60,137,"43.8%",1.0],["control: why big giving falls short",55,358,"15.4%",1.8],["glen galaich control",55,128,"43%",1.0],["larry stupski",41,173,"23.7%",1.4],["stupski foundation 990",40,153,"26.1%",2.1],["control book philanthropy",30,103,"29.1%",1.2],["foundation jobs bay area",27,332,"8.1%",5.8],["control book",14,1313,"1.1%",6.8]],"queriesSince":[["stupski foundation",1632,2384,"68.5%",1.5],["glen galaich",182,667,"27.3%",1.9],["break fake rules podcast",158,259,"61%",1.2],["maida lynn",80,339,"23.6%",1.3],["stupski",71,170,"41.8%",1.6],["break fake rules",56,138,"40.6%",1.2],["control glen galaich",47,113,"41.6%",1.6],["keoni lee",37,162,"22.8%",1.4],["glen galaich book",35,87,"40.2%",1.2],["larry stupski",26,101,"25.7%",1.6]],"pagesFull":[["/",3264,15900,"20.5%",4.2],["/break-fake-rules/",1248,2161806,"0.1%",11.1],["/control/",1226,13874,"8.8%",5.5],["/people/glen-galaich-ph-d/",797,6074,"13.1%",4.5],["/about/our-team/",512,9835,"5.2%",3.6],["/our-programs/for-grant-seekers/",306,7090,"4.3%",1.7],["/intern-with-stupski/",295,9067,"3.3%",11.7],["/join-our-team/",287,5789,"5%",3.2],["/about/about-the-stupskis/",256,13369,"1.9%",3.9],["/people/maida-lynn/",216,1818,"11.9%",4.4],["/our-programs/",166,7416,"2.2%",1.7],["/control/book-tour-events/",44,651,"6.8%",8.0],["/philanthropy-confidential/",39,33217,"0.1%",10.9]],"pagesSince":[["/",1594,7434,"21.4%",5.3],["/break-fake-rules/",516,384702,"0.1%",13.2],["/control/",405,6428,"6.3%",7.6],["/people/glen-galaich-ph-d/",322,2557,"12.6%",5.7],["/about/our-team/",247,4670,"5.3%",4.6],["/join-our-team/",173,2715,"6.4%",4.1],["/our-programs/for-grant-seekers/",138,3116,"4.4%",1.5],["/about/about-the-stupskis/",136,4427,"3.1%",3.6]],"devices":[["Desktop",7574,1926922],["Mobile",2887,386092],["Tablet",63,18744]],"countries":[["United States",9498,1798472],["Canada",281,64564],["United Kingdom",147,13580],["Mexico",54,17089],["France",42,6195],["India",32,18521]]},"CLR":{"siteFull":{"label":"Mar 1 to Oct 6","sessions":73338,"bots":6941,"botPct":8.65,"pps":1.43,"scroll":30.43,"active":"44 sec","unique":60474,"newPct":86.68,"rage":[65,0.09],"dead":[3224,4.4],"excess":[5,0.01],"quickback":[3444,4.7],"perf":63,"lcp":"5.5s","inp":"310ms","cls":"0.34","perfPV":1639,"jsErrPct":1.87,"jsErr":1867,"smart":[["Break Fake Rules - Page Visit",4685],["Outbound click",2475],["Contact us",337],["Philanthropy Confidential - Click",302],["Sign up",177],["Submit form",139],["Search",101],["Book",98],["Play",97],["Find a location",69],["Email SignUp-On BFR landing page",50],["Subscribe",37],["Checkout",12],["Download",10],["Begin checkout",6],["Purchase",1]],"referrers":[["www.google.com",11359],["stupski.org (internal)",10178],["m.facebook.com",6854],["facebook.com",5014],["www.linkedin.com",2880],["www.bing.com",554],["lnkd.in",397],["duckduckgo.com",211],["substack.com",176],["whogives.substack.com",121],["search.yahoo.com",112],["com.linkedin.android",76]],"botTypes":[["Suspicious interaction",6881],["Suspicious device",4577],["Suspicious origin",1172],["Web scrapers",791],["Other",9]]},"siteSince":{"label":"Jun 1 to Oct 6","sessions":20738,"bots":4119,"botPct":16.57,"pps":1.61,"scroll":42.51,"active":"1.2 min","unique":16451,"newPct":82.15,"rage":[30,0.14],"dead":[1391,6.71],"excess":[1,0.01],"quickback":[1680,8.1],"perf":68,"lcp":"8.8s","inp":"280ms","cls":"0.13","perfPV":643,"jsErrPct":1.03,"jsErr":418,"smart":[["Break Fake Rules - Page Visit",2523],["Outbound click",1047],["Contact us",180],["Philanthropy Confidential - Click",168],["Sign up",95],["Submit form",81],["Search",62],["Play",42],["Find a location",40],["Email SignUp-On BFR landing page",31],["Book",25],["Subscribe",24],["Begin checkout",3],["Checkout",1]],"referrers":[["stupski.org (internal)",5229],["www.google.com",5110],["www.linkedin.com",700],["www.bing.com",259],["duckduckgo.com",86],["substack.com",57],["com.linkedin.android",56],["search.yahoo.com",54],["whogives.substack.com",47],["ncg.org",46],["www.nonprofitaf.com",44],["chatgpt.com",39]],"browsers":[["Chrome",74.34],["MobileSafari",9.58],["Edge",4.69],["ChromeMobile",4.4],["Safari",4.06]]},"siteSepOct":{"label":"Sep 1 to Oct 6","sessions":9058,"bots":1086,"botPct":10.71,"chromePct":83.13,"ssirReferrals":36},"controlFull":{"sessions":46679,"bots":963,"scroll":14.51,"active":"25 sec","unique":41971,"newPct":92.53,"dead":[821,1.76],"quickback":[591,1.27],"rage":[14,0.03],"perf":58,"lcp":"3.6s","inp":"350ms","cls":"0.48","jsErrPct":2.63,"jsErr":1606,"webkitPct":37.24,"smart":[["Outbound click",723],["Break Fake Rules - Page Visit",198],["Book",78],["Philanthropy Confidential - Click",36],["Contact us",26],["Sign up",16],["Play",13],["Download",10],["Checkout",7],["Begin checkout",6],["Purchase",1]],"referrers":[["m.facebook.com",6841],["facebook.com",5012],["www.linkedin.com",2001],["www.google.com",1887],["stupski.org (internal)",1747],["lnkd.in",368],["www.bing.com",102],["duckduckgo.com",77],["whogives.substack.com",73],["aax.amazon-adsystem.com",61],["substack.com",60],["tpc.googlesyndication.com",56]]},"controlSince":{"sessions":7112,"bots":260,"scroll":25.77,"active":"53 sec","unique":6585,"newPct":93.05,"dead":[165,2.32],"quickback":[246,3.46],"rage":[3,0.04],"perf":64,"lcp":"3.5s","inp":"310ms","cls":"0.35","chromePct":86.25,"jsErrPct":1.95,"smart":[["Outbound click",190],["Break Fake Rules - Page Visit",77],["Book",20],["Philanthropy Confidential - Click",17],["Contact us",12],["Sign up",11],["Begin checkout",3],["Checkout",1]],"referrers":[["stupski.org (internal)",974],["www.google.com",617],["www.linkedin.com",49],["www.bing.com",44],["www.nonprofitaf.com",44],["ssir.org",36],["youtube.com",24],["missionlocal.org",22],["whogives.substack.com",20]],"desktopClicks":{"pv":6834,"clicks":856,"rows":[["Glen bio text block",42],["Nav anchor: The Tour",40],["Nav anchor: The Book",40],["Get a Signed Copy section",31],["Hero video play image",27],["Hero carousel next arrow",23],["Nav anchor: Meet Glen",23],["Order Now CTA",19],["Book description text",18],["Hero video play (figure)",17],["Read a free chapter",16],["Control Discussion Guide",14],["Email input field",13],["View Tour Dates",11],["Form submit button",10],["Book Buzz",7]]},"mobileTaps":{"pv":60,"taps":34}}}};
+const C={}; D.DAILY_COLS.forEach((k,i)=>C[k]=i);
+const FLAG_DUR_PER=23844/2580;
+const fmt=n=>typeof n==='number'?Math.round(n).toLocaleString('en-US'):n;
+const pct=(a,b,d=1)=>b?(a/b*100).toFixed(d)+'%':'0%';
+const sec=(a,b)=>b?(a/b).toFixed(1)+'s':'0s';
+const COL={navy:'#1B2A4A',coral:'#E8604C',coralLt:'#F0816F',orange:'#F4A259',teal:'#3A8F8B',tealLt:'#4DB0AC',warm:'#E8E3DC',mid:'#5A6578',lt:'#8A92A0',grn:'#4CAF50',red:'#E84C4C',purp:'#7B61FF',fb:'#1877F2',pink:'#C2408A',olive:'#6D8B2F',amber:'#B26A00'};
+const MONTHS=[['202603','March'],['202604','April'],['202605','May'],['202606','June'],['202607','July'],['202608','August'],['202609','September'],['202610','Oct 1–6']];
+const PHASES=[
+  {id:'full',label:'Full Period',range:'Mar 1 – Oct 6',a:'20260301',b:'20261006',c:COL.navy,i:'📅'},
+  {id:'launch',label:'Launch',range:'Mar 1 – 31',a:'20260301',b:'20260331',c:COL.coral,i:'🚀'},
+  {id:'paid',label:'Paid Social',range:'Apr 1 – May 13',a:'20260401',b:'20260513',c:COL.fb,i:'📱'},
+  {id:'summer',label:'TIME100 + Summer',range:'May 14 – Aug 31',a:'20260514',b:'20260831',c:COL.purp,i:'⭐'},
+  {id:'fall',label:'Fall Campaign',range:'Sep 1 – Oct 6',a:'20260901',b:'20261006',c:COL.orange,i:'🍂'},
+  {id:'since',label:'Since Last Report',range:'Jun 1 – Oct 6',a:'20260601',b:'20261006',c:COL.teal,i:'🔄'}
+];
+const MARKERS=[['20260317','🚀 Launch',COL.coral],['20260405','📱 FB Ads',COL.fb],['20260514','⭐ Time100',COL.purp],['20260816','🔧 Tracking',COL.mid],['20260902','📰 SSIR',COL.pink]];
+let state={phase:'full',excl:true};
+const charts={}; const rendered={};
+
+function row(r){const o={}; D.DAILY_COLS.forEach((k,i)=>o[k]=r[i]);
+  if(state.excl&&o.flag){o.s-=o.flag;o.e-=o.flagE;o.email-=o.flag;o.tag-=o.flag;o.ctrl-=o.flag;o.ctrlE-=o.flagE;o.ke-=o.flag;const dd=o.flag*FLAG_DUR_PER;o.dur-=dd;o.ctrlDur-=dd;o.u-=o.flag;o.nu-=o.flag;}
+  return o;}
+const rows=(a,b)=>D.DAILY.filter(r=>r[0]>=a&&r[0]<=b).map(row);
+const sum=(arr,k)=>arr.reduce((s,o)=>s+(o[k]||0),0);
+const monthRows=m=>D.DAILY.filter(r=>r[0].startsWith(m)).map(row);
+const card=(l,v,s,c,i,sc)=>`<div class="card"><div class="bar" style="background:${c}"></div><div class="card-label">${l}</div><div class="card-value">${v}</div><div class="card-sub"${sc?` style="color:${sc}"`:''}>${s}</div>${i?`<span class="card-icon" aria-hidden="true">${i}</span>`:''}</div>`;
+
+/* tabs */
+function switchTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+id));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));
+  if(!rendered[id]){(RENDER[id]||(()=>{}))();rendered[id]=true;}
+  setTimeout(()=>Object.values(charts).forEach(c=>c&&c.resize&&c.resize()),60);
+  try{history.replaceState(null,'','#'+id);}catch(e){}
+}
+document.getElementById('tabbar').addEventListener('click',e=>{const b=e.target.closest('.tab-btn'); if(b) switchTab(b.dataset.tab);});
+
+/* chart helpers (same defaults as the spring report) */
+const tip={mode:'index',intersect:false,backgroundColor:COL.navy,titleFont:{family:'DM Sans',size:11},bodyFont:{family:'DM Sans',size:12},cornerRadius:8,padding:10};
+const xScale=(labels,stacked)=>({stacked:!!stacked,grid:{display:false},ticks:Object.assign({font:{family:'DM Sans',size:9},color:COL.lt,maxRotation:0,autoSkip:true,maxTicksLimit:15},labels?{callback:(v,i)=>labels[i]}:{})});
+const yScale=(stacked,extra={})=>Object.assign({stacked:!!stacked,beginAtZero:true,grid:{color:COL.warm},border:{display:false},ticks:{font:{family:'DM Sans',size:10},color:COL.lt}},extra);
+const legendOn={display:true,labels:{font:{family:'DM Sans',size:11},usePointStyle:true,pointStyleWidth:8,padding:10,color:COL.mid}};
+function markerPlugin(dates,showText=true){return{id:'markers',afterDraw(ch){const x=ch.scales.x,y=ch.scales.y,c=ch.ctx;
+  MARKERS.forEach(([d,l,col],mi)=>{const i=dates.indexOf(d); if(i<0)return; const px=x.getPixelForValue(i); c.save(); c.beginPath(); c.setLineDash([4,4]); c.strokeStyle=col; c.lineWidth=1.5; c.moveTo(px,y.top); c.lineTo(px,y.bottom); c.stroke(); c.setLineDash([]);
+    if(showText){c.fillStyle=col; c.font='600 10px DM Sans'; c.textAlign='center'; c.fillText(l,px,y.top+10+(mi%2?13:0));} c.restore();});}};}
+function mk(id,cfg){if(charts[id])charts[id].destroy(); charts[id]=new Chart(document.getElementById(id),cfg); return charts[id];}
+function legendHTML(id,items){document.getElementById(id).innerHTML=items.map(([l,c])=>`<span><i style="background:${c}"></i>${l}</span>`).join('');}
+function barRows(items,max){max=max||Math.max(...items.map(i=>i[1]),1); return items.map(([n,v,c])=>`<div class="bar-row"><div class="bar-label" title="${n}">${n}</div><div class="bar-track"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%;background:${c}"></div></div><div class="bar-val">${fmt(v)}</div></div>`).join('');}
+function btns(id,opts,cur,cb){const el=document.getElementById(id); const draw=k=>{el.innerHTML=opts.map(o=>{const on=o.k===k;return `<button class="month-btn" data-k="${o.k}" aria-pressed="${on}" style="border-color:${o.c};color:${on?'#fff':o.c};background:${on?o.c:'transparent'}">${o.i?o.i+' ':''}${o.l}${o.r?` <small>(${o.r})</small>`:''}</button>`}).join('');}; draw(cur); el.onclick=e=>{const b=e.target.closest('.month-btn'); if(!b)return; draw(b.dataset.k); cb(b.dataset.k);}; cb(cur);}
+function table(id,head,body,opts={}){
+  const strip=s=>String(s).replace(/<[^>]+>/g,'').trim();
+  const isNum=s=>/^[-\u2014\d,.%s:\/ ]*$/.test(strip(s));
+  const left=head.map((h,i)=>i===0||body.some(r=>r[i]!=null&&!isNum(r[i])));
+  const wide=head.map((h,i)=>body.some(r=>strip(r[i]??'').length>38));
+  document.getElementById(id).innerHTML=`<thead><tr>${head.map((h,i)=>`<th class="${left[i]?'l':''}">${h}</th>`).join('')}</tr></thead><tbody>${body.map(r=>`<tr>${r.map((c,i)=>`<td class="${left[i]?'l':''}${wide[i]?' wrap':''}${i===0?' lead':''}${opts.hi===i?' hi':''}">${c}</td>`).join('')}</tr>`).join('')}</tbody>`;}
+const engColor=(t)=>t>20?'var(--grn)':t>8?'var(--orange)':'var(--red)';
+const rateColor=(r)=>r>40?'var(--grn)':r>20?'var(--orange)':'var(--red)';
+
+/* ---------- OVERVIEW ---------- */
+const CHS=[['direct','Direct',COL.navy],['paidSocial','Paid Social (FB)',COL.fb],['organic','Organic Search',COL.teal],['social','Organic Social',COL.coral],['referral','Referral',COL.orange],['email','Email',COL.purp],['display','Display (SSIR)',COL.pink],['paid','Google Ads',COL.olive],['ai','AI Assistant',COL.tealLt],['other','Other',COL.warm]];
+function renderPhases(){btns('phase-buttons',PHASES.map(p=>({k:p.id,l:p.label,r:p.range,c:p.c,i:p.i})),state.phase,k=>{state.phase=k;renderCards();});}
+function renderCards(){
+  const p=PHASES.find(x=>x.id===state.phase), f=rows(p.a,p.b);
+  const s=sum(f,'s'),e=sum(f,'e'),dur=sum(f,'dur'),g=k=>sum(f,k);
+  const cards=[
+    ['Total Sessions',fmt(s),f.length+' days','var(--navy)','👥'],
+    ['Engaged Sessions',fmt(e),pct(e,s)+' engagement rate','var(--coral)','✨','var(--coral)'],
+    ['Direct Traffic',fmt(g('direct')),pct(g('direct'),s)+' of sessions','var(--navy)','🔗'],
+    ['Paid Social',fmt(g('paidSocial')),pct(g('paidSocial'),s)+' of sessions','var(--fb)','📱'],
+    ['Organic Search',fmt(g('organic')),pct(g('organic'),s)+' of sessions','var(--teal)','🔍'],
+    ['Organic Social',fmt(g('social')),pct(g('social'),s)+' of sessions','var(--purp)','💼'],
+    ['/control/ Landings',fmt(g('ctrl')),pct(g('ctrl'),s)+' of sessions','var(--coral)','📖'],
+    ['Campaign-Tagged',fmt(g('tag')),pct(g('tag'),s)+' of sessions','var(--orange)','🏷️'],
+    ['Avg Engagement',sec(dur,s),'Engagement time per session','var(--teal)','⏱️'],
+    ['GSC Clicks',fmt(g('gc')),pct(g('gc'),g('gi'),2)+' CTR','var(--grn)','🔍'],
+    ['GSC Impressions',fmt(g('gi')),'Organic search visibility','var(--orange)','👁️']
+  ];
+  document.getElementById('overview-cards').innerHTML=cards.map(c=>card(...c)).join('');
+}
+function renderDaily(){
+  const f=rows('20260301','20261006'), dates=f.map(o=>o.date), labels=f.map(o=>o.d);
+  mk('chart-daily',{type:'bar',data:{labels,datasets:CHS.map(([k,l,c])=>({label:l,data:f.map(o=>o[k]),backgroundColor:c,borderRadius:2,stack:'s',barPercentage:.9,categoryPercentage:.9}))},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},layout:{padding:{top:6}},plugins:{legend:{display:false},tooltip:Object.assign({},tip,{filter:i=>i.raw>0,callbacks:{title:it=>labels[it[0].dataIndex]+' · '+fmt(f[it[0].dataIndex].s)+' sessions'}})},scales:{x:xScale(null,true),y:yScale(true)}},plugins:[markerPlugin(dates)]});
+  legendHTML('lg-daily',CHS.map(([k,l,c])=>[l,c]));
+}
+function renderMonth(){
+  const ms=MONTHS.map(([m,l])=>{const f=monthRows(m),o={l}; ['s','e','dur','direct','paidSocial','organic','social','referral','email','display','paid','ai','ctrl','tag','ke','gc','gi'].forEach(k=>o[k]=sum(f,k)); return o;});
+  const defs=[['Total Sessions','s'],['Engaged Sessions','e'],['Engagement Rate',o=>pct(o.e,o.s)],['Avg Engagement / Session',o=>sec(o.dur,o.s)],['Direct Traffic','direct'],['Paid Social (Facebook)','paidSocial'],['Organic Search','organic'],['Organic Social (LinkedIn)','social'],['Referral','referral'],['Email','email'],['Display (SSIR)','display'],['Google Ads','paid'],['AI Assistant','ai'],['/control/ Landings','ctrl'],['Campaign-Tagged Sessions','tag'],['Key Events','ke'],['GSC Clicks','gc'],['GSC Impressions','gi']];
+  const a=ms[5], b=ms[6];
+  const delta=(x,y)=>{ if(!x||x<50) return '<span style="color:var(--mid)">—</span>'; const d=Math.round((y-x)/x*100); return `<span style="color:${d>0?'var(--grn)':d<0?'var(--red)':'var(--mid)'};font-weight:600">${d>0?'+':''}${d}%</span>`; };
+  table('month-table',['Metric',...ms.map(o=>o.l),'Aug → Sep Δ'],defs.map(([lab,k])=>[lab,...ms.map(o=>typeof k==='function'?k(o):fmt(o[k])),typeof k==='function'?'<span style="color:var(--mid)">n/a</span>':delta(a[k],b[k])]),{hi:7});
+}
+function renderTakeaways(){
+  const items=[
+    ['note-tip','💡','Traffic settled into a post-launch baseline.','After 54,542 sessions from March through May, the site averaged about 4,300 sessions a month in June, July and August. Organic search held between 1,583 and 1,992 sessions a month, so search now carries a much larger share of a smaller audience.'],
+    ['note-warn','⚠️','September\u2019s spike is mostly campaign traffic that needs verification.','September logged 8,760 sessions in GA4, the most since May (6,180 without the Sept 3 burst). 4,831 of them came from fall_campaign links or the scrambled Sept 3 burst. Both carry automated-traffic signals, so the real fall audience is likely far smaller than the raw count.'],
+    ['note-info','✅','UTM tracking is now in use, and it surfaced real problems.','Paid pushes were tagged: Facebook in April and May, and fall_campaign from Aug 14. The tags let us isolate the Sept 3 burst and judge the SSIR traffic, which untagged links would have hidden inside Direct.'],
+    ['note-crit','🚨','Organic LinkedIn was never tagged.','20,786 /control/ landings carried LinkedIn\u2019s li_ed click ID between March and May, and GA4 filed them as Direct. LinkedIn sharing dropped off after May, but any future posts need UTMs to get credit.'],
+    ['note-warn','⚠️','Book retailer clicks tapered off.','Amazon clicks fell from 196 in March to 14 in September; Bookshop.org, Barnes & Noble and the signed-copy store follow the same curve.'],
+    ['note-info','✅','Search demand for the brand stays strong.','\u201Cstupski foundation\u201D drew 3,410 Google clicks at a 67% CTR over the period, 1,632 of them since June.'],
+    ['note-warn','⚠️','Google Ads traffic appeared after the Sept 9 cancellation.','GA4 shows 67 sessions from \u201CCONTROL Book \u2013 Demand Gen\u201D (Sept 15 to 18) and 39 cross-network sessions on Oct 6. Worth confirming which Google Ads account is still serving.']
+  ];
+  document.getElementById('takeaways').innerHTML=items.map(([c,i,h,t])=>`<div class="note ${c}"><span class="note-icon">${i}</span><div><strong>${h}</strong> ${t}</div></div>`).join('');
+}
+
+/* ---------- UTM ---------- */
+const CGROUPS=[['meta','Facebook / Meta ads',COL.fb],['fall','fall_campaign (SSIR, NCN, Inside Philanthropy)',COL.pink],['flag','Sept 3 scrambled-UTM burst',COL.amber],['gads','Google Ads (auto-tagged)',COL.olive],['other','Email, QR & other tags',COL.purp]];
+function renderUTM(){
+  const camps=D.CAMP.filter(c=>c[0]!=='(cross-network)'&&!(state.excl&&c[0]==='abyy_dbzcbvta'));
+  const tot=camps.reduce((s,c)=>s+c[2],0), all=sum(rows('20260301','20261006'),'s');
+  const fall=camps.filter(c=>c[0]==='fall_campaign').reduce((s,c)=>s+c[2],0), meta=camps.filter(c=>c[0].startsWith('1202414')).reduce((s,c)=>s+c[2],0);
+  document.getElementById('utm-cards').innerHTML=[
+    card('Tagged Sessions',fmt(tot),pct(tot,all)+' of all sessions','var(--navy)','🏷️'),
+    card('Named Campaigns',fmt(new Set(camps.map(c=>c[0])).size),'Distinct utm_campaign values','var(--teal)','📋'),
+    card('Facebook / Meta Ads',fmt(meta),'Apr 1 – May 14, 0.2s avg engagement','var(--fb)','📱'),
+    card('fall_campaign',fmt(fall),'Aug 14 – Oct 6, SSIR banner is 95%','var(--pink)','📰','var(--amber)')].join('');
+  const dates=D.DAILY.map(r=>r[0]), labels=D.DAILY.map(r=>r[1]);
+  const groups=CGROUPS.filter(g=>!(state.excl&&g[0]==='flag'));
+  mk('chart-utm',{type:'bar',data:{labels,datasets:groups.map(([g,l,c])=>({label:l,data:dates.map(d=>(D.DCAMP[d]||{})[g]||0),backgroundColor:c,borderRadius:2,stack:'s',barPercentage:.9,categoryPercentage:.9}))},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:Object.assign({},tip,{filter:i=>i.raw>0})},scales:{x:xScale(null,true),y:yScale(true)}},plugins:[markerPlugin(dates)]});
+  legendHTML('lg-utm',groups.map(([g,l,c])=>[l,c]));
+  const mlab=MONTHS.map(m=>m[1].replace('September','Sept'));
+  mk('chart-utm-cov',{type:'bar',data:{labels:mlab,datasets:[{label:'% of sessions tagged',data:MONTHS.map(([m])=>{const r=monthRows(m);return +(sum(r,'tag')/sum(r,'s')*100).toFixed(1);}),backgroundColor:COL.teal,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:Object.assign({},tip,{callbacks:{label:i=>i.raw+'% of sessions tagged'}})},scales:{x:xScale(),y:yScale(false,{ticks:{font:{family:'DM Sans',size:10},color:COL.lt,callback:v=>v+'%'}})}}});
+  mk('chart-utm-raw',{type:'bar',data:{labels:mlab,datasets:[{label:'LinkedIn li_ed (no UTM)',data:MONTHS.map(([m])=>D.RAW.li_ed[m]||0),backgroundColor:COL.coral,borderRadius:3},{label:'Facebook fbclid',data:MONTHS.map(([m])=>D.RAW.fbclid[m]||0),backgroundColor:COL.fb,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:legendOn,tooltip:tip},scales:{x:xScale(),y:yScale()}}});
+  const read=c=>{ if(c[0]==='abyy_dbzcbvta') return '<span class="pill p-crit">Likely automated</span>'; if(c[1]==='SSIR / banner') return '<span class="pill p-warn">Verify with SSIR</span>'; if(c[0].startsWith('1202414')) return '<span class="pill p-warn">Low engagement</span>'; if(c[2]>=40&&c[4]/c[2]>20) return '<span class="pill p-ok">Engaged</span>'; return ''; };
+  const short=m=>MONTHS.find(x=>x[0]===m)[1].slice(0,3);
+  table('camp-table',['Campaign','Source / Medium','Sessions','Eng. Rate','Avg Eng.','Key Events','Months','Landing Page','Read'],
+    camps.filter(c=>c[2]>=4).slice(0,22).map(c=>[`<span title="${c[0]}">${c[0].length>26?c[0].slice(0,24)+'…':c[0]}</span>`,c[1],fmt(c[2]),`<span style="color:${rateColor(c[3]/c[2]*100)};font-weight:600">${pct(c[3],c[2],0)}</span>`,`<span style="color:${engColor(c[4]/c[2])};font-weight:600">${sec(c[4],c[2])}</span>`,fmt(c[5]),Object.keys(c[6]).sort().map(short).join(', '),((D.CLAND[c[0]]||[])[0]||['—'])[0],read(c)]));
+  table('fall-table',['Source','Sessions','Desktop Chrome','Pages / Session','Avg Session','Bounce Rate','Peak Hour'],[
+    ['FFVE Afjfyfggfe / Email (scrambled)','2,580','100%','1.10','10.5s','0.8%','2,575 on Sept 3, 8–9am PT'],
+    ['SSIR / banner','2,327','99%','1.09','20.5s','1.6%','334 on Sept 2, 10–11am PT'],
+    ['SSIR Newsletter / Email','109','72%','2.07','69.4s','8.3%','Spread out']]);
+  table('hyg-table',['Issue','Example from GA4','Sessions','Fix'],[
+    ['<span class="pill p-crit">High</span> Meta ad IDs used as names','<code>120241471926500178</code> as utm_campaign, utm_content and utm_term','12,157','Use Meta\u2019s name macros: <code>{{campaign.name}}</code>, <code>{{adset.name}}</code>, <code>{{ad.name}}</code>'],
+    ['<span class="pill p-crit">High</span> Scrambled values from a link scanner','<code>abyy_dbzcbvta / FFVE Afjfyfggfe / Email</code>','2,580','Exclude from reporting. Ask SSIR whether their newsletter links pass through a security or click-tracking service'],
+    ['<span class="pill p-crit">High</span> Organic LinkedIn posts untagged','<code>?li_ed=…</code> landings counted as Direct','20,848','Add <code>utm_source=linkedin&amp;utm_medium=social</code> to every shared link'],
+    ['<span class="pill p-warn">Medium</span> Mixed case and spaces','<code>SSIR Newsletter / Email</code>, <code>In person event / QR code</code>, <code>Newsletter</code> vs <code>newsletter</code>','150','Lowercase, hyphenated values from one shared list'],
+    ['<span class="pill p-warn">Medium</span> Two conventions for QR codes','<code>BFR_Live_Events / In person event / QR code</code> and <code>break_fake_rules / qr_code / qr</code>','81','Standardize on <code>utm_medium=qr</code>, source = event or venue'],
+    ['<span class="pill p-warn">Medium</span> Template placeholder left in','<code>control_book_launch / [event_name] / qr</code>','2','Replace the placeholder before printing QR codes'],
+    ['<span class="pill p-warn">Medium</span> Broken encoding in an email','<code>3De8e8= / 3DCatchLight Subscribers</code>','1','Re-check the CatchLight link in Mailchimp; "=3D" is an encoding error'],
+    ['<span class="pill p-tip">Low</span> Per-subscriber IDs in utm_term','<code>0_12364d387a-6d7d207051-123767709</code> (CatchLight Mailchimp send)','98','Turn off Mailchimp\u2019s per-recipient term so rows roll up and recipients stay anonymous']]);
+}
+
+/* ---------- CONTROL ---------- */
+function renderControl(){
+  const f=rows('20260301','20261006'), s=rows('20260601','20261006');
+  const ctrl=sum(f,'ctrl'), cs=sum(s,'ctrl'), all=sum(f,'s');
+  document.getElementById('ctrl-sub').textContent=`stupski.org/control/, ${fmt(ctrl)} landing sessions (${pct(ctrl,all)} of all site traffic across the 220-day period)`;
+  document.getElementById('ctrl-cards').innerHTML=[
+    card('Landing Sessions',fmt(ctrl),pct(ctrl,all)+' of site total','var(--coral)','📖','var(--coral)'),
+    card('Since June 1',fmt(cs),'Over half from fall_campaign links','var(--orange)','📅'),
+    card('Unique Users (Clarity)','41,971','92.5% new visitors','var(--teal)','🧑'),
+    card('Scroll Depth (Clarity)','14.5%','Average; 25.8% since June','var(--purp)','📜')].join('');
+  const sm=D.CSM_FULL.filter(r=>!(state.excl&&r[1].startsWith('FFVE')));
+  const top=sm.slice(0,7), other=sm.slice(7).reduce((t,r)=>t+r[2],0)+Math.max(0,ctrl-sm.reduce((t,r)=>t+r[2],0));
+  const pieData=[...top.map(r=>[r[1]==='(direct) / (none)'?'Direct':r[1],r[2]]),['Other',other]];
+  const pc=[COL.navy,COL.fb,COL.pink,COL.coral,COL.teal,COL.lt,COL.coralLt,COL.warm];
+  mk('chart-pie',{type:'doughnut',data:{labels:pieData.map(d=>d[0]),datasets:[{data:pieData.map(d=>d[1]),backgroundColor:pc,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:true,animation:false,cutout:'55%',plugins:{legend:{display:false},tooltip:{backgroundColor:COL.navy,cornerRadius:8,bodyFont:{family:'DM Sans'}}}}});
+  const pt=pieData.reduce((t,d)=>t+d[1],0);
+  document.getElementById('pie-legend').innerHTML=pieData.slice(0,7).map((d,i)=>`<span class="pie-legend-item"><span class="pie-dot" style="background:${pc[i]}"></span>${d[0]} (${pct(d[1],pt)})</span>`).join('');
+  const eng=sm.filter(r=>r[2]>=40).map(r=>[r[1],r[2],r[4]/r[2]]).sort((a,b)=>b[2]-a[2]).slice(0,10);
+  document.getElementById('eng-rows').innerHTML=eng.map(([n,s2,t])=>`<div class="eng-row"><span style="font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${n}</span><div style="display:flex;gap:12px;align-items:center;flex-shrink:0"><span style="color:var(--mid);font-size:11px">${fmt(s2)} sess</span><span style="font-weight:700;color:${engColor(t)};font-size:11px;min-width:38px;text-align:right">${t.toFixed(1)}s</span></div></div>`).join('');
+  const dates=f.map(o=>o.date), labels=f.map(o=>o.d);
+  mk('chart-control-daily',{type:'bar',data:{labels,datasets:[
+    {label:'Sessions',data:f.map(o=>o.ctrl),backgroundColor:'rgba(232,96,76,.7)',borderRadius:3,order:2,yAxisID:'y'},
+    {label:'Avg Engagement, 7-day (s)',data:f.map((o,i)=>{const w=f.slice(Math.max(0,i-6),i+1),ss=sum(w,'ctrl');return ss?+(sum(w,'ctrlDur')/ss).toFixed(1):null;}),type:'line',borderColor:COL.teal,borderWidth:2,pointRadius:0,tension:.3,order:1,yAxisID:'y1',spanGaps:true}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},plugins:{legend:legendOn,tooltip:tip},scales:{x:xScale(),y:yScale(false,{position:'left',title:{display:true,text:'Sessions',font:{size:10},color:COL.lt}}),y1:{position:'right',beginAtZero:true,grid:{display:false},border:{display:false},ticks:{font:{family:'DM Sans',size:10},color:COL.lt},title:{display:true,text:'Avg Engagement (sec)',font:{size:10},color:COL.lt}}}},plugins:[markerPlugin(dates,false)]});
+  const mlab=MONTHS.map(m=>m[1].slice(0,3)).map((m,i)=>i===7?'Oct 1–6':m);
+  mk('chart-ctrl-dev',{type:'bar',data:{labels:mlab,datasets:[['desktop','Desktop',COL.navy],['mobile','Mobile',COL.coral],['tablet','Tablet',COL.orange]].map(([k,l,c])=>({label:l,data:MONTHS.map(([m])=>((D.CDEV[m]||{})[k]||0)-(state.excl&&m==='202609'&&k==='desktop'?2580:0)),backgroundColor:c,stack:'d',borderRadius:2}))},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:legendOn,tooltip:tip},scales:{x:xScale(null,true),y:yScale(true)}}});
+  mk('chart-retail',{type:'bar',data:{labels:mlab,datasets:[['Amazon',COL.navy],['Bookshop.org',COL.teal],['Signed copies (Shopify)',COL.coral],['Barnes & Noble',COL.orange],['TalkShopLive',COL.purp]].map(([k,c])=>({label:k,data:MONTHS.map(([m])=>(D.RETAIL[k]||{})[m]||0),backgroundColor:c,stack:'r',borderRadius:2}))},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:legendOn,tooltip:tip},scales:{x:xScale(null,true),y:yScale(true)}}});
+  const ev=[['control_page_view','/control/ page view (key event)'],['manual_event_OUTBOUND_CLICK','Outbound click (key event)'],['order_now_click','Order Now click'],['discussion_guide_download','Discussion guide download'],['signed_copy_click','Signed copy click'],['free_chapter_signup','Free chapter signup']];
+  table('bookev-table',['Event','August','September','Oct 1–6','Total'],ev.map(([k,l])=>{const e=D.EV[k]||{},sp=(e['202609']||0)-(state.excl&&k==='control_page_view'?2580:0);return [l,fmt(e['202608']||0),fmt(sp),fmt(e['202610']||0),fmt((e['202608']||0)+sp+(e['202610']||0))];}));
+}
+
+/* ---------- CHANNELS ---------- */
+const CHCOL={'Direct':COL.navy,'Paid Social':COL.fb,'Organic Search':COL.teal,'Organic Social':COL.coral,'Referral':COL.orange,'Email':COL.purp,'Display':COL.pink,'Paid Search':COL.olive,'Cross-network':COL.olive,'AI Assistant':COL.tealLt,'Unassigned':COL.lt,'Organic Video':COL.tealLt,'Organic Shopping':COL.warm,'Paid Other':COL.coralLt};
+const adjCh=data=>data.map(r=>state.excl&&r[0]==='Email'?[r[0],r[1]-2580,r[2]-2556,r[3]-23844]:r).sort((a,b)=>b[1]-a[1]);
+function renderChannels(){
+  btns('ch-switch',[{k:'full',l:'Full Period',r:'Mar 1 – Oct 6',c:COL.navy,i:'📅'},{k:'since',l:'Since Last Report',r:'Jun 1 – Oct 6',c:COL.teal,i:'🔄'}],'full',k=>{
+    const d=adjCh(k==='full'?D.CH_FULL:D.CH_SINCE), tot=d.reduce((t,r)=>t+r[1],0);
+    document.getElementById('channel-rows').innerHTML=d.filter(r=>r[1]>=20).map(r=>{const er=r[2]/r[1]*100,c=CHCOL[r[0]]||COL.lt;return `<div class="ch-row"><div class="ch-bar" style="background:${c}"></div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="ch-name">${r[0]}</span><span class="ch-val" style="color:${c===COL.warm?COL.mid:c}">${fmt(r[1])}</span></div><div class="ch-meta"><span>${pct(r[1],tot)} of sessions</span><span>Eng rate: <strong style="color:${rateColor(er)}">${er.toFixed(1)}%</strong></span><span>Avg time: <strong>${sec(r[3],r[1])}</strong></span></div></div></div>`;}).join('');
+  });
+  const chs=['Direct','Organic Search','Paid Social','Organic Social','Email','Referral','Display','Paid Search','Cross-network','AI Assistant'];
+  table('chmonth-table',['Channel',...MONTHS.map(m=>m[1])],chs.map(c=>[c,...MONTHS.map(([m])=>fmt(((D.MCH[m]||{})[c]||0)-(state.excl&&c==='Email'&&m==='202609'?2580:0)))]));
+  btns('sm-switch',[{k:'full',l:'Full Period',r:'Mar 1 – Oct 6',c:COL.navy,i:'📅'},{k:'since',l:'Since Last Report',r:'Jun 1 – Oct 6',c:COL.teal,i:'🔄'}],'full',k=>{
+    const d=(k==='full'?D.SM_FULL:D.SM_SINCE).filter(r=>!(state.excl&&r[1].startsWith('FFVE')));
+    table('sm-table',['Channel','Source / Medium','Sessions','Eng. Rate','Avg Time'],d.map(r=>[r[0],r[1],fmt(r[2]),`<span style="color:${rateColor(r[3]/r[2]*100)};font-weight:600">${pct(r[3],r[2])}</span>`,sec(r[4],r[2])]));
+  });
+  btns('ref-switch',[{k:'full',l:'Full Period',c:COL.navy,i:'📅'},{k:'since',l:'Since Jun 1',c:COL.teal,i:'🔄'}],'full',k=>{
+    const r=(k==='full'?D.CLR.siteFull:D.CLR.siteSince).referrers;
+    document.getElementById('referrer-bars').innerHTML=barRows(r.map(([n,v])=>[n,v,/facebook/.test(n)?COL.fb:/linkedin|lnkd/.test(n)?'#0A66C2':/google|bing|duckduckgo|yahoo/.test(n)?COL.teal:/stupski/.test(n)?COL.navy:/chatgpt/.test(n)?COL.tealLt:COL.orange]));
+  });
+  const mlab=MONTHS.map(m=>m[1].slice(0,3)).map((m,i)=>i===7?'Oct 1–6':m);
+  mk('chart-ai',{type:'bar',data:{labels:mlab,datasets:[['chatgpt.com','ChatGPT',COL.tealLt],['claude.ai','Claude',COL.orange],['gemini','Gemini',COL.fb],['perplexity.ai','Perplexity',COL.purp]].map(([k,l,c])=>({label:l,data:MONTHS.map(([m])=>(D.AI[k]||{})[m]||0),backgroundColor:c,stack:'a',borderRadius:2}))},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:legendOn,tooltip:tip},scales:{x:xScale(null,true),y:yScale(true,{ticks:{font:{family:'DM Sans',size:10},color:COL.lt,precision:0}})}}});
+}
+
+/* ---------- SEARCH ---------- */
+function renderSearch(){
+  const g=D.GSC, f=rows('20260301','20261006');
+  document.getElementById('gsc-cards').innerHTML=[
+    card('Total Clicks',fmt(g.totals.clicks),'Mar 1 – Oct 6','var(--teal)','🖱️'),
+    card('Total Impressions','2.33M','2.16M on /break-fake-rules/','var(--navy)','👁️'),
+    card('Avg CTR','0.45%','5.5% excluding /break-fake-rules/','var(--orange)','📊'),
+    card('Avg Position','10.9','Branded terms rank 1.0 to 1.9','var(--purp)','📍')].join('');
+  const dates=f.map(o=>o.date), labels=f.map(o=>o.d);
+  mk('chart-gsc',{type:'bar',data:{labels,datasets:[{label:'Impressions',data:f.map(o=>o.gi),backgroundColor:'rgba(232,227,220,.75)',borderRadius:2,order:2,yAxisID:'y1'},{label:'Clicks',data:f.map(o=>o.gc),type:'line',borderColor:COL.teal,borderWidth:2.5,pointRadius:0,tension:.3,order:1,yAxisID:'y'}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},plugins:{legend:legendOn,tooltip:tip},scales:{x:xScale(),y:yScale(false,{position:'left'}),y1:{position:'right',beginAtZero:true,grid:{display:false},border:{display:false},ticks:{font:{family:'DM Sans',size:10},color:COL.lt}}}},plugins:[markerPlugin(dates,false)]});
+  btns('q-switch',[{k:'full',l:'Full Period',r:'Mar 1 – Oct 6',c:COL.navy,i:'📅'},{k:'since',l:'Since Last Report',r:'Jun 1 – Oct 6',c:COL.teal,i:'🔄'}],'full',k=>{
+    const q=k==='full'?g.queriesFull:g.queriesSince, p=k==='full'?g.pagesFull:g.pagesSince;
+    document.getElementById('query-rows').innerHTML=q.map(r=>`<div class="q-row"><span class="q-name" title="${r[0]}">${r[0]}</span><div class="q-meta"><span><strong style="color:var(--teal)">${fmt(r[1])}</strong> clk</span><span>${r[3]}</span><span>pos ${r[4].toFixed(1)}</span></div></div>`).join('');
+    document.getElementById('gsc-page-rows').innerHTML=p.map(r=>`<div class="q-row"><span class="q-name" title="${r[0]}">${r[0]==='/'?'Homepage (/)':r[0]}</span><div class="q-meta"><span><strong style="color:var(--teal)">${fmt(r[1])}</strong> clk</span><span>${r[2]>=1e6?(r[2]/1e6).toFixed(2)+'M':fmt(r[2])} imp</span></div></div>`).join('');
+  });
+  table('gscdev-table',['Segment','Clicks','Impressions','CTR'],[...g.devices.map(r=>[r[0],fmt(r[1]),fmt(r[2]),pct(r[1],r[2],2)]),...g.countries.slice(0,5).map(r=>[r[0],fmt(r[1]),fmt(r[2]),pct(r[1],r[2],2)])]);
+}
+
+/* ---------- CLICKS & UX ---------- */
+function renderClicks(){
+  const scopes=[{k:'siteFull',l:'Site',r:'Mar 1 – Oct 6',c:COL.navy,i:'🌐'},{k:'siteSince',l:'Site',r:'Jun 1 – Oct 6',c:COL.teal,i:'🌐'},{k:'controlFull',l:'/control/',r:'Mar 1 – Oct 6',c:COL.coral,i:'📖'},{k:'controlSince',l:'/control/',r:'Jun 1 – Oct 6',c:COL.orange,i:'📖'}];
+  btns('ux-switch',scopes,'siteFull',k=>{
+    const c=D.CLR[k];
+    document.getElementById('ux-cards').innerHTML=[
+      card('Total Sessions',fmt(c.sessions),fmt(c.bots)+' bot sessions excluded','var(--navy)','👥'),
+      card('Unique Users',fmt(c.unique),c.newPct+'% new visitors','var(--teal)','🧑'),
+      card('Scroll Depth',c.scroll.toFixed(1)+'%','Average per page view','var(--purp)','📜'),
+      card('JS Errors',c.jsErr?fmt(c.jsErr):c.jsErrPct+'%',c.jsErr?c.jsErrPct+'% of sessions':'of sessions','var(--red)','🐞')].join('');
+    const st=(v,g2,p)=>v<=g2?'var(--grn)':v<=p?'var(--orange)':'var(--red)';
+    const lcp=parseFloat(c.lcp),inp=parseFloat(c.inp),cls=parseFloat(c.cls);
+    document.getElementById('cwv-rows').innerHTML=[['Performance Score',c.perf+'/100',c.perf>=90?'var(--grn)':c.perf>=50?'var(--orange)':'var(--red)'],['LCP (Largest Contentful Paint)',c.lcp,st(lcp,2.5,4)],['INP (Interaction to Next Paint)',c.inp,st(inp,200,500)],['CLS (Cumulative Layout Shift)',c.cls,st(cls,.1,.25)]].map(([m,v,col])=>`<div class="eng-row"><span style="font-weight:500">${m}</span><span style="font-weight:700;color:${col}">${v}</span></div>`).join('');
+    document.getElementById('behavior-rows').innerHTML=[['Dead Clicks',c.dead],['Quick Back Clicks',c.quickback],['Rage Clicks',c.rage]].map(([m,v])=>`<div class="eng-row"><span style="font-weight:500">${m}</span><span style="color:var(--mid);font-size:11px">${fmt(v[0])} (${v[1]}%)</span></div>`).join('')+(c.excess?`<div class="eng-row"><span style="font-weight:500">Excessive Scrolling</span><span style="color:var(--mid);font-size:11px">${fmt(c.excess[0])} (&lt;${c.excess[1]}%)</span></div>`:'');
+    document.getElementById('smart-rows').innerHTML=barRows(c.smart.slice(0,10).map(([n,v])=>[n,v,COL.teal]));
+  });
+  const tc={cta:COL.grn,engage:COL.teal,nav:COL.orange};
+  const rowsC=D.CLR.controlSince.desktopClicks.rows.slice(0,12), tot=D.CLR.controlSince.desktopClicks.clicks;
+  document.getElementById('desktop-click-rows').innerHTML=rowsC.map(([n,v])=>{const t=/Order|Signed|free chapter|Discussion/i.test(n)?'cta':/Nav anchor|carousel/i.test(n)?'nav':'engage';return `<div class="click-row"><div class="click-bar" style="background:${tc[t]}"></div><div style="flex:1;display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0"><span class="click-name">${t==='cta'?'🟢 ':''}${n}</span><div style="display:flex;gap:10px;align-items:center"><span class="click-val">${v}</span><span class="click-pct">${pct(v,tot)}</span></div></div></div>`;}).join('');
+  table('spring-table',['Interaction','Mobile Taps','Desktop Clicks'],[['🔴 Promo modal close (X)','1,781 (35.6%)','454 (19.5%)'],['🟢 Promo modal CTA','33 (0.7%)','24 (1.0%)'],['Close-to-CTA ratio','54 : 1','19 : 1'],['🟢 Hero Order Now CTA','34','36']]);
+  const bf=D.CLR.siteFull,bs=D.CLR.siteSince,bo=D.CLR.siteSepOct;
+  table('bot-table',['Period','Human Sessions','Bots Excluded','Bot Share'],[['Mar 1 – Oct 6',fmt(bf.sessions),fmt(bf.bots),bf.botPct+'%'],['Mar 1 – May 31',fmt(bf.sessions-bs.sessions),fmt(bf.bots-bs.bots),pct(bf.bots-bs.bots,bf.sessions-bs.sessions+bf.bots-bs.bots)],['Jun 1 – Oct 6',fmt(bs.sessions),fmt(bs.bots),bs.botPct+'%'],['Sep 1 – Oct 6',fmt(bo.sessions),fmt(bo.bots),bo.botPct+'%']]);
+}
+
+/* ---------- TOUR & PODCAST ---------- */
+function renderTour(){
+  const find=p=>D.LAND.find(l=>l[0]===p)||[p,[0,0,0],[0,0,0],{}];
+  const bfr=find('/break-fake-rules'), tour=find('/control/book-tour-events'), pv=D.PAGES;
+  const tourPV=(pv['/control/book-tour-events/']||{full:[0]}).full[0], bfrPV=(pv['/break-fake-rules/']||{full:[0]}).full[0];
+  const gsc=p=>(D.GSC.pagesFull.find(r=>r[0]===p)||[0,0,0])[1];
+  document.getElementById('page-cards').innerHTML=`
+  <div class="page-card"><div class="page-card-title">🗺️ Book Tour Events Page</div><div class="page-card-sub">stupski.org/control/book-tour-events/</div>
+    <div class="grid grid-4" style="margin-bottom:0">${[card('GA4 Landing Sessions',fmt(tour[1][0]),fmt(tour[2][0])+' since Jun 1','var(--teal)'),card('GA4 Page Views',fmt(tourPV),'Across all sources','var(--navy)'),card('Avg Engagement',sec(tour[1][2],tour[1][0]),'Per landing session','var(--grn)'),card('GSC Clicks',fmt(gsc('/control/book-tour-events/')),'651 impressions','var(--coral)')].join('')}</div>
+    <div class="note note-tip"><span class="note-icon">💡</span><div><strong>The tour page went quiet after May:</strong> most events concluded by May 31, and landings settled at 14 to 28 a month from June through September.</div></div></div>
+  <div class="page-card"><div class="page-card-title">🎙️ Break Fake Rules Podcast</div><div class="page-card-sub">stupski.org/break-fake-rules/</div>
+    <div class="grid grid-4" style="margin-bottom:0">${[card('GA4 Landing Sessions',fmt(bfr[1][0]),fmt(bfr[2][0])+' since Jun 1','var(--orange)'),card('GA4 Page Views',fmt(bfrPV),'Across all sources','var(--navy)'),card('Avg Engagement',sec(bfr[1][2],bfr[1][0]),'Per landing session','var(--grn)'),card('GSC Clicks','1,248','2.16M imp (anomaly)','var(--coral)')].join('')}</div>
+    <div class="note note-info"><span class="note-icon">✅</span><div><strong>The podcast page kept growing its audience:</strong> Clarity recorded 4,685 "Break Fake Rules - Page Visit" smart events over the period, 2,523 of them since June 1, and branded podcast searches drew 463 Google clicks.</div></div></div>`;
+  const gscMap={}; D.GSC.pagesFull.forEach(r=>gscMap[r[0].replace(/\/$/,'')||'/']=r[1]);
+  const nice=p=>p.replace('/changecantwaitblog/philanthropy-confidential-5-on-funding-transformation-not-transaction-with-vu-le','/changecantwaitblog/philanthropy-confidential-5 (Vu Le)').replace('/changecantwaitblog/control-why-big-giving-falls-short','/changecantwaitblog/control-why-big-giving…');
+  btns('lp-switch',[{k:'full',l:'Full Period',r:'Mar 1 – Oct 6',c:COL.navy,i:'📅'},{k:'since',l:'Since Last Report',r:'Jun 1 – Oct 6',c:COL.teal,i:'🔄'}],'full',k=>{
+    const idx=k==='full'?1:2;
+    const list=D.LAND.filter(l=>l[0]!=='(not set)').map(l=>{const v=l[idx].slice(); if(state.excl&&l[0]==='/control'){v[0]-=2580;v[1]-=2556;v[2]-=23844;} return [l[0],v];}).sort((a,b)=>b[1][0]-a[1][0]).slice(0,15);
+    table('pages-table',['Page','GA4 Sessions','Eng. Rate','Avg Engagement','GSC Clicks (full period)'],list.map(([p,v])=>[nice(p),fmt(v[0]),pct(v[1],v[0],0),sec(v[2],v[0]),gscMap[p]!=null?fmt(gscMap[p]):'n/a']));
+  });
+  const keyp=['/control','/','/break-fake-rules','/people/glen-galaich-ph-d','/control/book-tour-events','/philanthropy-confidential','/changecantwaitblog/philanthropy-confidential-5-on-funding-transformation-not-transaction-with-vu-le','/people/jennifer-nguyen'];
+  table('lpmonth-table',['Page',...MONTHS.map(m=>m[1])],keyp.map(p=>{const l=find(p);return [nice(p),...MONTHS.map(([m])=>fmt((l[3][m]||0)-(state.excl&&p==='/control'&&m==='202609'?2580:0)))];}));
+}
+
+/* ---------- RECOMMENDATIONS ---------- */
+function renderRecs(){
+  const groups=[
+    ['⚡','Quick Wins',[
+      ['p-crit','Now','Verify the SSIR campaign numbers before reporting them','Request SSIR\u2019s delivered impressions and clicks for the banner and newsletter, by day, and compare them against GA4\u2019s 2,327 banner and 109 newsletter sessions. If SSIR reports far fewer clicks, the gap is ad-verification or bot traffic and should be excluded from campaign results.'],
+      ['p-crit','Now','Confirm which Google Ads account is still serving','GA4 recorded \u201CCONTROL Book \u2013 Demand Gen\u201D sessions Sept 15 to 18 and cross-network sessions on Oct 6, after the Sept 9 cancellation. Also check the 230 google / cpc sessions in August and September with zero engagement time.'],
+      ['p-warn','This month','Update the /break-fake-rules/ page title and meta description','The page still holds 92.7% of site impressions at a 0.06% CTR. A title such as "Break Fake Rules Podcast | Glen Galaich | Stupski Foundation" signals podcast context right in search results.']]],
+    ['🏷️','Tracking & Data Quality',[
+      ['p-warn','This month','Re-scope the GA4 key events','<code>control_page_view</code> is marked as a key event, so every /control/ visit counts as engaged and as a conversion. Un-mark it and keep key events for real actions: Order Now, signed copy, free chapter signup, discussion guide download and outbound retailer clicks.'],
+      ['p-warn','This month','Adopt one UTM convention and a shared link builder','Use the lowercase vocabulary on the UTM tab for every link Stupski or a partner shares. Fix Meta\u2019s ID-based names with <code>{{campaign.name}}</code> macros, and add UTMs to every LinkedIn post so those visits stop landing in Direct. 4Site can set up the link builder and a short how-to.'],
+      ['p-warn','This month','Build a filtered GA4 view for campaign reporting','Create a GA4 comparison or exploration segment that excludes the <code>abyy_dbzcbvta</code> campaign and the known data-center cities, so campaign reports reflect people.']]],
+    ['🔧','Conversion & Performance',[
+      ['p-tip','Next quarter','Keep working on page speed','Site-wide LCP is 5.5s and CLS 0.34 in Clarity field data. Add explicit width and height to hero media, compress the largest images, and clear the recurring <code>jquery is not defined</code> and <code>wp is not defined</code> errors.'],
+      ['p-tip','Next quarter','Add PodcastSeries schema and internal links','Mark up /break-fake-rules/ as a podcast and cross-link /control/, Glen\u2019s bio and the podcast so search engines and AI assistants connect them.'],
+      ['p-ok','Check','Promo modal friction looks resolved','The spring report flagged a 54:1 close-to-CTA ratio on mobile. Since June the modal no longer shows up among top /control/ interactions in Clarity. Confirm it is switched off or retimed, and keep it that way.']]]
+  ];
+  document.getElementById('recs').innerHTML=groups.map(([i,h,items],gi)=>`<div class="hdr" style="margin-top:${gi?28:8}px"><span class="hdr-icon">${i}</span><h2>${h}</h2></div>`+items.map(([p,w,t,b])=>`<div class="rec"><div class="rec-title"><span class="pill ${p}">${w}</span>${t}</div><div class="rec-body">${b}</div></div>`).join('')).join('');
+}
+
+const RENDER={overview:()=>{},utm:renderUTM,control:renderControl,channels:renderChannels,search:renderSearch,clicks:renderClicks,tour:renderTour,recs:renderRecs};
+document.getElementById('excl').addEventListener('change',e=>{state.excl=e.target.checked; renderCards(); renderDaily(); renderMonth(); Object.keys(rendered).forEach(k=>{if(k!=='overview')rendered[k]=false;}); const cur=document.querySelector('.tab-btn.active').dataset.tab; if(cur!=='overview'){RENDER[cur]();rendered[cur]=true;}});
+renderPhases(); renderDaily(); renderMonth(); renderTakeaways(); rendered.overview=true;
+const h=(location.hash||'').slice(1); if(RENDER[h]&&h!=='overview') switchTab(h);
+</script>
+
+</body></html>
