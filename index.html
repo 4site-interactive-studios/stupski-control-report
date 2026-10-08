@@ -641,10 +641,7 @@ function renderRecs(){
       ['p-warn','This month','Tag every LinkedIn post and newsletter','Use the generator\u2019s <em>LinkedIn organic post</em> and <em>Stupski email list</em> rows for every share, including Glen\u2019s personal posts. Untagged LinkedIn clicks land in Direct, which hid 20,786 /control/ visits in the spring.'],
       ['p-warn','This month','Re-scope the GA4 key events','<code>control_page_view</code> is marked as a key event, so every /control/ visit counts as engaged and as a conversion. Un-mark it and keep key events for real actions: Order Now, signed copy, free chapter signup, discussion guide download and outbound retailer clicks.'],
       ['p-tip','This month','Build a filtered GA4 view for campaign reporting','Create a GA4 exploration segment that excludes the <code>abyy_dbzcbvta</code> campaign and the known data-center cities, and save a campaign report filtered to <code>control_book_launch</code> so Claire can check results by source and content.']]],
-    ['🔧','Conversion & Performance',[
-      ['p-tip','Next quarter','Keep working on page speed','Site-wide LCP is 5.5s and CLS 0.34 in Clarity field data. Add explicit width and height to hero media, compress the largest images, and clear the recurring <code>jquery is not defined</code> and <code>wp is not defined</code> errors.'],
-      ['p-tip','Next quarter','Add PodcastSeries schema and internal links','Mark up /break-fake-rules/ as a podcast and cross-link /control/, Glen\u2019s bio and the podcast so search engines and AI assistants connect them.'],
-      ['p-ok','Check','Promo modal friction looks resolved','The spring report flagged a 54:1 close-to-CTA ratio on mobile. Since June the modal no longer shows up among top /control/ interactions in Clarity. Confirm it is switched off or retimed, and keep it that way.']]]
+    
   ];
   document.getElementById('recs').innerHTML=groups.map(([i,h,items],gi)=>`<div class="hdr" style="margin-top:${gi?28:8}px"><span class="hdr-icon">${i}</span><h2>${h}</h2></div>`+items.map(([p,w,t,b])=>`<div class="rec"><div class="rec-title"><span class="pill ${p}">${w}</span>${t}</div><div class="rec-body">${b}</div></div>`).join('')).join('');
 }
