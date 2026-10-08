@@ -207,16 +207,8 @@ td.hi{font-weight:700;color:var(--coral)}
   <div class="hdr mt"><span class="hdr-icon">🧹</span><h2>UTM Hygiene Check</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Issues found in the raw campaign values, with the fix for each</p></div>
   <div class="white-box tbl-wrap"><table id="hyg-table"></table></div>
 
-  <div class="hdr mt"><span class="hdr-icon">🛠️</span><h2>Fixes Needed in the Link Generator</h2><p class="hdr-sub">Issues in the <a href="https://docs.google.com/spreadsheets/d/1wqhAMKk3ojduCeGUGD4Bh8g_r5N3FoG9LgrCUf354j0/edit" target="_blank" rel="noopener">link generator</a> itself that would lose or split data once the links are used</p></div>
-  <div class="white-box tbl-wrap"><table id="genfix-table"></table></div>
+  
 
-  <div class="hdr mt"><span class="hdr-icon">📐</span><h2>Stupski's UTM Convention</h2><p class="hdr-sub">From the generator's Campaigns and Sources tab. All values lowercase, words joined with underscores, no spaces.</p></div>
-  <div class="conv">
-    <div class="card"><div class="bar" style="background:var(--teal)"></div><div class="card-label">utm_campaign (required)</div><div class="card-sub">One of three: <code>control_book_launch</code>, <code>break_fake_rules</code>, <code>stupski</code></div></div>
-    <div class="card"><div class="bar" style="background:var(--navy)"></div><div class="card-label">utm_source (required)</div><div class="card-sub">Where the link lives: <code>ssir</code>, <code>chronicle_philanthropy</code>, <code>inside_philanthropy</code>, <code>nonprofit_quarterly</code>, <code>linkedin</code>, <code>meta</code>, <code>stupski</code>, <code>qr_code</code></div></div>
-    <div class="card"><div class="bar" style="background:var(--coral)"></div><div class="card-label">utm_medium (required)</div><div class="card-sub">From the Legend: <code>display</code>, <code>email</code>, <code>social</code>, <code>paid_social</code>, <code>print</code>, <code>referral</code>, <code>cpc</code></div></div>
-    <div class="card"><div class="bar" style="background:var(--orange)"></div><div class="card-label">utm_content / utm_term (optional)</div><div class="card-sub">Content: <code>purchase</code>, <code>free_chapter</code>, <code>business_card</code>, <code>flyer</code>. Term: <code>dedicated_blast</code></div></div>
-  </div>
   <div class="note note-tip"><span class="note-icon">💡</span><div><strong>Why the convention matters in GA4:</strong> GA4 treats <code>SSIR</code> and <code>ssir</code>, or <code>Email</code> and <code>email</code>, as different values, and it sorts traffic into channels by medium. <code>display</code>, <code>email</code>, <code>social</code> and <code>paid_social</code> land in the right channel automatically; <code>print</code> traffic shows as Unassigned, so filter QR results by medium.<br><strong>How to fix:</strong> Build every link in the generator rather than by hand, and keep the medium list to the defined values only.</div></div>
 </div>
 
