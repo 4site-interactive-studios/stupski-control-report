@@ -72,6 +72,9 @@ th{padding:8px 12px;border-bottom:2px solid var(--warm);color:var(--mid);font-we
 td{padding:8px 12px;text-align:center}
 th.l,td.l{text-align:left}
 td.wrap{white-space:normal;min-width:190px;max-width:340px}
+table.fixed{table-layout:fixed;min-width:900px}
+table.fixed td{white-space:normal;overflow-wrap:anywhere;min-width:0;max-width:none;vertical-align:top}
+table.fixed th{white-space:normal}
 tbody tr:nth-child(odd) td{background:var(--cream)}
 tbody tr:nth-child(even) td{background:var(--white)}
 td.lead{font-weight:600}
@@ -130,7 +133,7 @@ td.hi{font-weight:700;color:var(--coral)}
   <div class="header-meta">
     <div>Prepared by 4Site Interactive Studios</div>
     <div style="margin-top:2px">Data through October 6, 2026</div>
-    <div style="margin-top:2px"><a href="https://4site-interactive-studios.github.io/stupski-control-report/" target="_blank" rel="noopener">Previous report (Mar 1 – May 31)</a></div>
+    
   </div>
 </div></div>
 
@@ -157,7 +160,7 @@ td.hi{font-weight:700;color:var(--coral)}
     <div style="flex:1;min-width:240px">
       <div class="eyebrow">Sept 2 – Oct 6, 2026, Fall campaign on SSIR</div>
       <div class="title">September traffic needs a closer look before it is reported as audience reach</div>
-      <div class="body">On Sept 3, 2,577 sessions arrived within one hour carrying scrambled UTM values (<code>abyy_dbzcbvta / FFVE Afjfyfggfe / Email</code>), all on /control/, nearly all desktop Chrome, from cloud data-center cities. That pattern fits automated link scanning, not readers. The SSIR banner traffic shows a similar fingerprint. See the UTM &amp; Campaigns tab for the detail.</div>
+      <div class="body">On Sept 3, 2,577 sessions arrived within one hour carrying scrambled UTM values (<code>abyy_dbzcbvta / FFVE Afjfyfggfe / Email</code>), all on /control/, nearly all desktop Chrome, from cloud data-center cities. That pattern fits automated link scanning, not readers. The SSIR banner traffic shows a similar fingerprint. See the UTM &amp; Campaigns tab for the detail.<br><strong>How to fix:</strong> Keep the exclusion switch on when reporting September, ask SSIR for their delivered click counts by day, and have SSIR run the link generator URLs for any remaining placements so real readers can be separated from scanner traffic.</div>
     </div>
   </div>
 
@@ -176,8 +179,12 @@ td.hi{font-weight:700;color:var(--coral)}
 
 <!-- UTM -->
 <div id="tab-utm" class="tab-panel">
-  <div class="hdr"><span class="hdr-icon">🏷️</span><h2>UTM &amp; Campaign Tracking</h2><span class="hdr-src src-ga4">GA4</span><span class="hdr-src src-new">New</span><p class="hdr-sub">Every session GA4 attributed to a named campaign, from UTM parameters or Google Ads auto-tagging. GA4's built-in labels for direct, organic, referral and AI-assistant traffic are excluded.</p></div>
+  <div class="hdr"><span class="hdr-icon">🏷️</span><h2>UTM &amp; Campaign Tracking</h2><span class="hdr-src src-ga4">GA4</span><span class="hdr-src src-new">New</span><p class="hdr-sub">Every session GA4 attributed to a named campaign, checked against Stupski's <a href="https://docs.google.com/spreadsheets/d/1wqhAMKk3ojduCeGUGD4Bh8g_r5N3FoG9LgrCUf354j0/edit" target="_blank" rel="noopener">2026 UTM Campaign Tracking Link Generator</a>. GA4's built-in labels for direct, organic, referral and AI-assistant traffic are excluded.</p></div>
   <div class="grid grid-4" id="utm-cards"></div>
+
+  <div class="hdr"><span class="hdr-icon">📑</span><h2>Link Generator vs. What GA4 Received</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Each planned link from the Tracking Generator tab, matched to the campaign values GA4 actually recorded, Mar 1 – Oct 6</p></div>
+  <div class="white-box tbl-wrap"><table id="gen-table"></table></div>
+  <div class="note note-crit"><span class="note-icon">🚨</span><div><strong>None of the generator links have reached GA4 yet.</strong> No session carries <code>utm_campaign=control_book_launch</code> with an approved source and medium, and no session carries a <code>utm_content</code> value at all. The fall placements went live with a separate tag set (<code>fall_campaign / SSIR / banner</code>, <code>fall_campaign / SSIR Newsletter / Email</code>), so SSIR, Inside Philanthropy and National Council on Nonprofits traffic can't be read against the plan.<br><strong>How to fix:</strong> Send each partner the exact URL from the generator's URL column for every remaining placement and ask them to confirm the swap. For reporting on what already ran, treat <code>fall_campaign</code> as <code>control_book_launch</code>. Before any free-chapter placement runs, correct the anchor links (see Fixes Needed in the Link Generator below).</div></div>
 
   <div class="hdr"><span class="hdr-icon">📈</span><h2>Tagged Sessions Over Time</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Daily sessions carrying a campaign name, grouped by initiative</p></div>
   <div class="chart-box"><div class="legend" id="lg-utm"></div><div style="position:relative;height:280px"><canvas id="chart-utm" aria-label="Daily tagged sessions"></canvas></div></div>
@@ -188,25 +195,29 @@ td.hi{font-weight:700;color:var(--coral)}
     <div><div class="hdr"><span class="hdr-icon">🔗</span><h2>Untagged LinkedIn &amp; Facebook Clicks</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Landings carrying LinkedIn's <code>li_ed</code> or Facebook's <code>fbclid</code> click ID</p></div>
       <div class="chart-box"><div style="position:relative;height:220px"><canvas id="chart-utm-raw" aria-label="li_ed and fbclid landings by month"></canvas></div></div></div>
   </div>
-  <div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>Only paid pushes were tagged.</strong> Facebook ads in April and May and the fall_campaign links from Aug 14 carry UTMs. Organic LinkedIn sharing never did: 20,786 /control/ landings carried LinkedIn's <code>li_ed</code> click ID between March and May, and GA4 filed them all as Direct.</div></div>
+  <div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>Only paid pushes were tagged.</strong> Facebook ads in April and May and the fall_campaign links from Aug 14 carry UTMs. Organic LinkedIn sharing never did: 20,786 /control/ landings carried LinkedIn's <code>li_ed</code> click ID between March and May, and GA4 filed them all as Direct.<br><strong>How to fix:</strong> Use the generator's <em>LinkedIn organic post</em> link (<code>utm_campaign=control_book_launch&amp;utm_source=linkedin&amp;utm_medium=social</code>) on every LinkedIn post, including Glen's personal shares, and the <em>Stupski email list</em> link in every newsletter. Swap the campaign value to <code>break_fake_rules</code> or <code>stupski</code> when the post is about the podcast or the foundation.</div></div>
 
   <div class="hdr mt"><span class="hdr-icon">📋</span><h2>Campaign Performance</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Mar 1 – Oct 6. Key events only exist from Aug 16.</p></div>
   <div class="white-box tbl-wrap"><table id="camp-table"></table></div>
 
   <div class="hdr mt"><span class="hdr-icon">🤖</span><h2>Is the Fall Campaign Traffic Human?</h2><span class="hdr-src src-ga4">GA4</span><span class="hdr-src src-clarity">Clarity</span><p class="hdr-sub">Fingerprint of the three largest fall_campaign sources, Aug 1 – Oct 6</p></div>
   <div class="white-box tbl-wrap"><table id="fall-table"></table></div>
-  <div class="note note-crit"><span class="note-icon">🚨</span><div><strong>Both large sources look automated.</strong> The scrambled-UTM burst and the SSIR banner come from the same cloud data-center cities (Moses Lake WA, San Jose CA, Des Moines IA, Ashburn VA, Phoenix AZ, Toronto, Canberra, Dublin, Amsterdam, Singapore), almost entirely desktop Chrome, with about one page per session. Clarity logged only 36 sessions referred by ssir.org from Sept 1 to Oct 6. The SSIR newsletter traffic (109 sessions, 2.07 pages per session, 69s average) looks human. Ask SSIR for their delivered click count before reporting the banner numbers.</div></div>
+  <div class="note note-crit"><span class="note-icon">🚨</span><div><strong>Both large sources look automated.</strong> The scrambled-UTM burst and the SSIR banner come from the same cloud data-center cities (Moses Lake WA, San Jose CA, Des Moines IA, Ashburn VA, Phoenix AZ, Toronto, Canberra, Dublin, Amsterdam, Singapore), almost entirely desktop Chrome, with about one page per session. Clarity logged only 36 sessions referred by ssir.org from Sept 1 to Oct 6. The SSIR newsletter traffic (109 sessions, 2.07 pages per session, 69s average) looks human. Ask SSIR for their delivered click count before reporting the banner numbers.<br><strong>How to fix:</strong> Request SSIR's daily click report for the banner and newsletter, compare it with GA4 (2,327 banner and 109 newsletter sessions), and report SSIR's count if it is lower. In GA4, build an exploration segment that excludes <code>abyy_dbzcbvta</code> and the data-center cities above so campaign results reflect people.</div></div>
 
   <div class="hdr mt"><span class="hdr-icon">🧹</span><h2>UTM Hygiene Check</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Issues found in the raw campaign values, with the fix for each</p></div>
   <div class="white-box tbl-wrap"><table id="hyg-table"></table></div>
 
-  <div class="hdr mt"><span class="hdr-icon">📐</span><h2>Proposed UTM Convention for Stupski</h2><p class="hdr-sub">GA4 treats <code>Email</code> and <code>email</code> as different values, so one lowercase vocabulary keeps reports clean</p></div>
+  <div class="hdr mt"><span class="hdr-icon">🛠️</span><h2>Fixes Needed in the Link Generator</h2><p class="hdr-sub">Issues in the <a href="https://docs.google.com/spreadsheets/d/1wqhAMKk3ojduCeGUGD4Bh8g_r5N3FoG9LgrCUf354j0/edit" target="_blank" rel="noopener">link generator</a> itself that would lose or split data once the links are used</p></div>
+  <div class="white-box tbl-wrap"><table id="genfix-table"></table></div>
+
+  <div class="hdr mt"><span class="hdr-icon">📐</span><h2>Stupski's UTM Convention</h2><p class="hdr-sub">From the generator's Campaigns and Sources tab. All values lowercase, words joined with underscores, no spaces.</p></div>
   <div class="conv">
-    <div class="card"><div class="bar" style="background:var(--navy)"></div><div class="card-label">utm_source</div><div class="card-sub">Where the link lives: <code>linkedin</code>, <code>ssir</code>, <code>chronicle-of-philanthropy</code>, <code>mailchimp</code>, <code>substack</code></div></div>
-    <div class="card"><div class="bar" style="background:var(--coral)"></div><div class="card-label">utm_medium</div><div class="card-sub">One of: <code>social</code>, <code>paid-social</code>, <code>email</code>, <code>display</code>, <code>cpc</code>, <code>qr</code>, <code>referral</code></div></div>
-    <div class="card"><div class="bar" style="background:var(--teal)"></div><div class="card-label">utm_campaign</div><div class="card-sub">Initiative and season: <code>control-book-fall-2026</code>, <code>bfr-podcast-2026</code></div></div>
-    <div class="card"><div class="bar" style="background:var(--orange)"></div><div class="card-label">utm_content</div><div class="card-sub">Creative or placement: <code>banner-300x250</code>, <code>post-2026-09-15</code></div></div>
+    <div class="card"><div class="bar" style="background:var(--teal)"></div><div class="card-label">utm_campaign (required)</div><div class="card-sub">One of three: <code>control_book_launch</code>, <code>break_fake_rules</code>, <code>stupski</code></div></div>
+    <div class="card"><div class="bar" style="background:var(--navy)"></div><div class="card-label">utm_source (required)</div><div class="card-sub">Where the link lives: <code>ssir</code>, <code>chronicle_philanthropy</code>, <code>inside_philanthropy</code>, <code>nonprofit_quarterly</code>, <code>linkedin</code>, <code>meta</code>, <code>stupski</code>, <code>qr_code</code></div></div>
+    <div class="card"><div class="bar" style="background:var(--coral)"></div><div class="card-label">utm_medium (required)</div><div class="card-sub">From the Legend: <code>display</code>, <code>email</code>, <code>social</code>, <code>paid_social</code>, <code>print</code>, <code>referral</code>, <code>cpc</code></div></div>
+    <div class="card"><div class="bar" style="background:var(--orange)"></div><div class="card-label">utm_content / utm_term (optional)</div><div class="card-sub">Content: <code>purchase</code>, <code>free_chapter</code>, <code>business_card</code>, <code>flyer</code>. Term: <code>dedicated_blast</code></div></div>
   </div>
+  <div class="note note-tip"><span class="note-icon">💡</span><div><strong>Why the convention matters in GA4:</strong> GA4 treats <code>SSIR</code> and <code>ssir</code>, or <code>Email</code> and <code>email</code>, as different values, and it sorts traffic into channels by medium. <code>display</code>, <code>email</code>, <code>social</code> and <code>paid_social</code> land in the right channel automatically; <code>print</code> traffic shows as Unassigned, so filter QR results by medium.<br><strong>How to fix:</strong> Build every link in the generator rather than by hand, and keep the medium list to the defined values only.</div></div>
 </div>
 
 <!-- CONTROL -->
@@ -219,7 +230,7 @@ td.hi{font-weight:700;color:var(--coral)}
     <div class="white-box"><div style="position:relative;height:200px;max-width:200px;margin:0 auto"><canvas id="chart-pie" aria-label="Control sessions by source"></canvas></div><div class="pie-legend" id="pie-legend"></div></div>
     <div class="white-box"><div class="box-title">Engagement by Source/Medium</div><div id="eng-rows"></div></div>
   </div>
-  <div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>Since June, most /control/ landings come from fall_campaign links.</strong> Of the sessions landing on /control/ from June 1 on, the SSIR banner and newsletter account for more than half. Organic search and Direct make up most of the rest, and mobile traffic dropped to a few hundred sessions a month once the Facebook ads ended.</div></div>
+  <div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>Since June, most /control/ landings come from fall_campaign links.</strong> Of the sessions landing on /control/ from June 1 on, the SSIR banner and newsletter account for more than half. Organic search and Direct make up most of the rest, and mobile traffic dropped to a few hundred sessions a month once the Facebook ads ended.<br><strong>How to fix:</strong> Verify the SSIR counts before treating fall landings as reach, and pair future placements with generator-tagged LinkedIn and email links so we can see which channels bring engaged readers to /control/.</div></div>
 
   <div class="hdr mt"><span class="hdr-icon">📈</span><h2>Daily /control/ Session Trend</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Daily landing sessions with a 7-day average engagement time overlay</p></div>
   <div class="chart-box"><div style="position:relative;height:290px"><canvas id="chart-control-daily" aria-label="Daily control sessions"></canvas></div></div>
@@ -230,7 +241,7 @@ td.hi{font-weight:700;color:var(--coral)}
     <div><div class="hdr"><span class="hdr-icon">🛒</span><h2>Book Retailer Clicks</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Outbound clicks to book retailers, all pages</p></div>
       <div class="chart-box"><div style="position:relative;height:240px"><canvas id="chart-retail" aria-label="Retailer clicks by month"></canvas></div></div></div>
   </div>
-  <div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>Buy clicks tapered off with traffic.</strong> Amazon clicks fell from 196 in March to 14 in September, and Bookshop.org, Barnes &amp; Noble and the signed-copy store follow the same curve. The fall campaign has not produced a visible lift in buy clicks yet.</div></div>
+  <div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>Buy clicks tapered off with traffic.</strong> Amazon clicks fell from 196 in March to 14 in September, and Bookshop.org, Barnes &amp; Noble and the signed-copy store follow the same curve. The fall campaign has not produced a visible lift in buy clicks yet.<br><strong>How to fix:</strong> Point more campaign links at the purchase and free-chapter versions in the link generator (<code>utm_content=purchase</code> and <code>free_chapter</code>), keep Order Now visible on mobile, and watch <code>order_now_click</code> and retailer clicks by campaign each month.</div></div>
 
   <div class="hdr mt"><span class="hdr-icon">📚</span><h2>Book Events Added Aug 16</h2><span class="hdr-src src-ga4">GA4</span><p class="hdr-sub">Custom events from the August tracking update</p></div>
   <div class="white-box tbl-wrap"><table id="bookev-table"></table></div>
@@ -271,7 +282,7 @@ td.hi{font-weight:700;color:var(--coral)}
     <div><div class="hdr"><span class="hdr-icon">📄</span><h2>Top Pages (Organic)</h2><span class="hdr-src src-gsc">GSC</span><p class="hdr-sub">Which pages earn organic clicks</p></div><div class="white-box" id="gsc-page-rows"></div></div>
   </div>
   <div class="note note-tip"><span class="note-icon">💡</span><div><strong>Brand search held up after the launch window:</strong> "stupski foundation" drew 3,410 Google clicks at a 67% CTR across the period, 1,632 of them since June 1. "glen galaich" and the Break Fake Rules podcast remain the next largest branded queries, all ranking between positions 1.0 and 1.9.</div></div>
-  <div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>The Break Fake Rules anomaly continues:</strong> /break-fake-rules/ collected 2,161,806 impressions, 92.7% of every impression stupski.org earned, at a 0.06% CTR. It is still matching generic searches that have nothing to do with the podcast. Excluding that page, site CTR is 5.5% rather than 0.45%. Impressions have eased since spring (384,702 since June 1), but the fix in Recommendations still applies.</div></div>
+  <div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>The Break Fake Rules anomaly continues:</strong> /break-fake-rules/ collected 2,161,806 impressions, 92.7% of every impression stupski.org earned, at a 0.06% CTR. It is still matching generic searches that have nothing to do with the podcast. Excluding that page, site CTR is 5.5% rather than 0.45%. Impressions have eased since spring (384,702 since June 1), so the fix still applies.<br><strong>How to fix:</strong> Change the page title to "Break Fake Rules Podcast | Glen Galaich | Stupski Foundation", write a meta description that names the podcast and its guests, and add PodcastSeries schema so Google matches the page to podcast searches.</div></div>
 
   <div class="hdr mt"><span class="hdr-icon">🌎</span><h2>Clicks by Device &amp; Country</h2><span class="hdr-src src-gsc">GSC</span></div>
   <div class="white-box tbl-wrap"><table id="gscdev-table"></table></div>
@@ -301,7 +312,7 @@ td.hi{font-weight:700;color:var(--coral)}
     <div><div class="hdr"><span class="hdr-icon">✨</span><h2>Smart Events</h2><span class="hdr-src src-clarity">Clarity</span></div><div class="white-box" id="smart-rows"></div></div>
     <div><div class="hdr"><span class="hdr-icon">🛡️</span><h2>Bot Traffic Excluded</h2><span class="hdr-src src-clarity">Clarity</span></div><div class="white-box tbl-wrap"><table id="bot-table"></table></div></div>
   </div>
-  <div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>Bot traffic more than tripled after May:</strong> Clarity excluded 5.1% of sessions as bots from March through May and 16.6% from June 1 on. It still did not catch the Sept 3 burst or the SSIR banner pattern, which is why the GA4 figures here offer an exclusion switch.</div></div>
+  <div class="note note-warn"><span class="note-icon">⚠️</span><div><strong>Bot traffic more than tripled after May:</strong> Clarity excluded 5.1% of sessions as bots from March through May and 16.6% from June 1 on. It still did not catch the Sept 3 burst or the SSIR banner pattern, which is why the GA4 figures here offer an exclusion switch.<br><strong>How to fix:</strong> Build a GA4 exploration segment that excludes the scrambled campaign and the data-center cities, and ask SSIR which ad-verification vendor scans their creative so that traffic can be filtered.</div></div>
 </div>
 
 <!-- TOUR & PODCAST -->
@@ -321,7 +332,7 @@ td.hi{font-weight:700;color:var(--coral)}
 <!-- RECOMMENDATIONS -->
 <div id="tab-recs" class="tab-panel">
   <div class="hdr"><span class="hdr-icon">💡</span><h2>Recommendations</h2><p class="hdr-sub">Ordered by how much each one improves the accuracy of reporting, then by effort</p></div>
-  <div class="note note-info" style="margin-bottom:20px"><span class="note-icon">📌</span><div>These build on the spring recommendations and on what the UTM review surfaced this period.</div></div>
+  <div class="note note-info" style="margin-bottom:20px"><span class="note-icon">📌</span><div>These build on the spring recommendations and on a review of the <a href="https://docs.google.com/spreadsheets/d/1wqhAMKk3ojduCeGUGD4Bh8g_r5N3FoG9LgrCUf354j0/edit" target="_blank" rel="noopener">2026 UTM Campaign Tracking Link Generator</a> against what GA4 recorded.</div></div>
   <div id="recs"></div>
 </div>
 
@@ -388,7 +399,8 @@ function table(id,head,body,opts={}){
   const isNum=s=>/^[-\u2014\d,.%s:\/ ]*$/.test(strip(s));
   const left=head.map((h,i)=>i===0||body.some(r=>r[i]!=null&&!isNum(r[i])));
   const wide=head.map((h,i)=>body.some(r=>strip(r[i]??'').length>38));
-  document.getElementById(id).innerHTML=`<thead><tr>${head.map((h,i)=>`<th class="${left[i]?'l':''}">${h}</th>`).join('')}</tr></thead><tbody>${body.map(r=>`<tr>${r.map((c,i)=>`<td class="${left[i]?'l':''}${wide[i]?' wrap':''}${i===0?' lead':''}${opts.hi===i?' hi':''}">${c}</td>`).join('')}</tr>`).join('')}</tbody>`;}
+  const tb=document.getElementById(id); tb.classList.toggle('fixed',!!opts.w);
+  tb.innerHTML=`<thead><tr>${head.map((h,i)=>`<th class="${left[i]?'l':''}"${opts.w?` style="width:${opts.w[i]}%"`:''}>${h}</th>`).join('')}</tr></thead><tbody>${body.map(r=>`<tr>${r.map((c,i)=>`<td class="${left[i]?'l':''}${wide[i]?' wrap':''}${i===0?' lead':''}${opts.hi===i?' hi':''}">${c}</td>`).join('')}</tr>`).join('')}</tbody>`;}
 const engColor=(t)=>t>20?'var(--grn)':t>8?'var(--orange)':'var(--red)';
 const rateColor=(r)=>r>40?'var(--grn)':r>20?'var(--orange)':'var(--red)';
 
@@ -428,15 +440,14 @@ function renderMonth(){
 }
 function renderTakeaways(){
   const items=[
-    ['note-tip','💡','Traffic settled into a post-launch baseline.','After 54,542 sessions from March through May, the site averaged about 4,300 sessions a month in June, July and August. Organic search held between 1,583 and 1,992 sessions a month, so search now carries a much larger share of a smaller audience.'],
-    ['note-warn','⚠️','September\u2019s spike is mostly campaign traffic that needs verification.','September logged 8,760 sessions in GA4, the most since May (6,180 without the Sept 3 burst). 4,831 of them came from fall_campaign links or the scrambled Sept 3 burst. Both carry automated-traffic signals, so the real fall audience is likely far smaller than the raw count.'],
-    ['note-info','✅','UTM tracking is now in use, and it surfaced real problems.','Paid pushes were tagged: Facebook in April and May, and fall_campaign from Aug 14. The tags let us isolate the Sept 3 burst and judge the SSIR traffic, which untagged links would have hidden inside Direct.'],
-    ['note-crit','🚨','Organic LinkedIn was never tagged.','20,786 /control/ landings carried LinkedIn\u2019s li_ed click ID between March and May, and GA4 filed them as Direct. LinkedIn sharing dropped off after May, but any future posts need UTMs to get credit.'],
-    ['note-warn','⚠️','Book retailer clicks tapered off.','Amazon clicks fell from 196 in March to 14 in September; Bookshop.org, Barnes & Noble and the signed-copy store follow the same curve.'],
-    ['note-info','✅','Search demand for the brand stays strong.','\u201Cstupski foundation\u201D drew 3,410 Google clicks at a 67% CTR over the period, 1,632 of them since June.'],
-    ['note-warn','⚠️','Google Ads traffic appeared after the Sept 9 cancellation.','GA4 shows 67 sessions from \u201CCONTROL Book \u2013 Demand Gen\u201D (Sept 15 to 18) and 39 cross-network sessions on Oct 6. Worth confirming which Google Ads account is still serving.']
+    ['note-tip','💡','Traffic settled into a post-launch baseline.','After 54,542 sessions from March through May, the site averaged about 4,300 sessions a month in June, July and August. Organic search held between 1,583 and 1,992 sessions a month, so search now carries a much larger share of a smaller audience.','Keep the branded pages (homepage, Glen\u2019s bio, /control/, Break Fake Rules) current, since search is now the steadiest source of visits.'],
+    ['note-warn','⚠️','September\u2019s spike is mostly campaign traffic that needs verification.','September logged 8,760 sessions in GA4, the most since May (6,180 without the Sept 3 burst). 4,831 of them came from fall_campaign links or the scrambled Sept 3 burst. Both carry automated-traffic signals, so the real fall audience is likely far smaller than the raw count.','Ask SSIR for delivered clicks by day and placement, report the lower of the two counts, and keep the Sept 3 burst excluded.'],
+    ['note-crit','🚨','The fall placements did not use the link generator.','The generator plans <code>control_book_launch</code> links for SSIR, Chronicle, Inside Philanthropy, Nonprofit Quarterly, LinkedIn and the Stupski list. GA4 received <code>fall_campaign</code> tags with mixed-case sources and non-standard mediums instead, and none of the generator links has appeared yet.','Send partners the exact generator URLs for every remaining placement, fix the free-chapter anchor links first, and map <code>fall_campaign</code> to <code>control_book_launch</code> when reporting.'],
+    ['note-crit','🚨','Organic LinkedIn was never tagged.','20,786 /control/ landings carried LinkedIn\u2019s li_ed click ID between March and May, and GA4 filed them as Direct.','Use the generator\u2019s LinkedIn organic post link on every post, including Glen\u2019s personal shares.'],
+    ['note-warn','⚠️','Book retailer clicks tapered off.','Amazon clicks fell from 196 in March to 14 in September; Bookshop.org, Barnes & Noble and the signed-copy store follow the same curve.','Drive campaign links to the purchase and free-chapter versions in the generator and track Order Now and retailer clicks by campaign.'],
+    ['note-info','✅','Search demand for the brand stays strong.','\u201Cstupski foundation\u201D drew 3,410 Google clicks at a 67% CTR over the period, 1,632 of them since June.','Fix the Break Fake Rules title and meta so the podcast page earns the same kind of clean branded traffic.']
   ];
-  document.getElementById('takeaways').innerHTML=items.map(([c,i,h,t])=>`<div class="note ${c}"><span class="note-icon">${i}</span><div><strong>${h}</strong> ${t}</div></div>`).join('');
+  document.getElementById('takeaways').innerHTML=items.map(([c,i,h,t,f])=>`<div class="note ${c}"><span class="note-icon">${i}</span><div><strong>${h}</strong> ${t}<br><strong>${c==='note-info'||c==='note-tip'?'Next step':'How to fix'}:</strong> ${f}</div></div>`).join('');
 }
 
 /* ---------- UTM ---------- */
@@ -447,9 +458,9 @@ function renderUTM(){
   const fall=camps.filter(c=>c[0]==='fall_campaign').reduce((s,c)=>s+c[2],0), meta=camps.filter(c=>c[0].startsWith('1202414')).reduce((s,c)=>s+c[2],0);
   document.getElementById('utm-cards').innerHTML=[
     card('Tagged Sessions',fmt(tot),pct(tot,all)+' of all sessions','var(--navy)','🏷️'),
-    card('Named Campaigns',fmt(new Set(camps.map(c=>c[0])).size),'Distinct utm_campaign values','var(--teal)','📋'),
+    card('Generator Links Seen','0 of 18','Planned links found in GA4','var(--red)','📑','var(--red)'),
     card('Facebook / Meta Ads',fmt(meta),'Apr 1 – May 14, 0.2s avg engagement','var(--fb)','📱'),
-    card('fall_campaign',fmt(fall),'Aug 14 – Oct 6, SSIR banner is 95%','var(--pink)','📰','var(--amber)')].join('');
+    card('fall_campaign',fmt(fall),'Not in the generator; maps to control_book_launch','var(--pink)','📰','var(--amber)')].join('');
   const dates=D.DAILY.map(r=>r[0]), labels=D.DAILY.map(r=>r[1]);
   const groups=CGROUPS.filter(g=>!(state.excl&&g[0]==='flag'));
   mk('chart-utm',{type:'bar',data:{labels,datasets:groups.map(([g,l,c])=>({label:l,data:dates.map(d=>(D.DCAMP[d]||{})[g]||0),backgroundColor:c,borderRadius:2,stack:'s',barPercentage:.9,categoryPercentage:.9}))},
@@ -463,20 +474,48 @@ function renderUTM(){
   const read=c=>{ if(c[0]==='abyy_dbzcbvta') return '<span class="pill p-crit">Likely automated</span>'; if(c[1]==='SSIR / banner') return '<span class="pill p-warn">Verify with SSIR</span>'; if(c[0].startsWith('1202414')) return '<span class="pill p-warn">Low engagement</span>'; if(c[2]>=40&&c[4]/c[2]>20) return '<span class="pill p-ok">Engaged</span>'; return ''; };
   const short=m=>MONTHS.find(x=>x[0]===m)[1].slice(0,3);
   table('camp-table',['Campaign','Source / Medium','Sessions','Eng. Rate','Avg Eng.','Key Events','Months','Landing Page','Read'],
-    camps.filter(c=>c[2]>=4).slice(0,22).map(c=>[`<span title="${c[0]}">${c[0].length>26?c[0].slice(0,24)+'…':c[0]}</span>`,c[1],fmt(c[2]),`<span style="color:${rateColor(c[3]/c[2]*100)};font-weight:600">${pct(c[3],c[2],0)}</span>`,`<span style="color:${engColor(c[4]/c[2])};font-weight:600">${sec(c[4],c[2])}</span>`,fmt(c[5]),Object.keys(c[6]).sort().map(short).join(', '),((D.CLAND[c[0]]||[])[0]||['—'])[0],read(c)]));
+    camps.filter(c=>c[2]>=4).slice(0,22).map(c=>[`<span title="${c[0]}">${c[0].length>26?c[0].slice(0,24)+'…':c[0]}</span>`,c[1],fmt(c[2]),`<span style="color:${rateColor(c[3]/c[2]*100)};font-weight:600">${pct(c[3],c[2],0)}</span>`,`<span style="color:${engColor(c[4]/c[2])};font-weight:600">${sec(c[4],c[2])}</span>`,fmt(c[5]),Object.keys(c[6]).sort().map(short).join(', '),((D.CLAND[c[0]]||[])[0]||['—'])[0],read(c)]),{w:[15,17,8,7,7,7,10,12,13]});
   table('fall-table',['Source','Sessions','Desktop Chrome','Pages / Session','Avg Session','Bounce Rate','Peak Hour'],[
     ['FFVE Afjfyfggfe / Email (scrambled)','2,580','100%','1.10','10.5s','0.8%','2,575 on Sept 3, 8–9am PT'],
     ['SSIR / banner','2,327','99%','1.09','20.5s','1.6%','334 on Sept 2, 10–11am PT'],
     ['SSIR Newsletter / Email','109','72%','2.07','69.4s','8.3%','Spread out']]);
-  table('hyg-table',['Issue','Example from GA4','Sessions','Fix'],[
-    ['<span class="pill p-crit">High</span> Meta ad IDs used as names','<code>120241471926500178</code> as utm_campaign, utm_content and utm_term','12,157','Use Meta\u2019s name macros: <code>{{campaign.name}}</code>, <code>{{adset.name}}</code>, <code>{{ad.name}}</code>'],
-    ['<span class="pill p-crit">High</span> Scrambled values from a link scanner','<code>abyy_dbzcbvta / FFVE Afjfyfggfe / Email</code>','2,580','Exclude from reporting. Ask SSIR whether their newsletter links pass through a security or click-tracking service'],
-    ['<span class="pill p-crit">High</span> Organic LinkedIn posts untagged','<code>?li_ed=…</code> landings counted as Direct','20,848','Add <code>utm_source=linkedin&amp;utm_medium=social</code> to every shared link'],
-    ['<span class="pill p-warn">Medium</span> Mixed case and spaces','<code>SSIR Newsletter / Email</code>, <code>In person event / QR code</code>, <code>Newsletter</code> vs <code>newsletter</code>','150','Lowercase, hyphenated values from one shared list'],
-    ['<span class="pill p-warn">Medium</span> Two conventions for QR codes','<code>BFR_Live_Events / In person event / QR code</code> and <code>break_fake_rules / qr_code / qr</code>','81','Standardize on <code>utm_medium=qr</code>, source = event or venue'],
-    ['<span class="pill p-warn">Medium</span> Template placeholder left in','<code>control_book_launch / [event_name] / qr</code>','2','Replace the placeholder before printing QR codes'],
-    ['<span class="pill p-warn">Medium</span> Broken encoding in an email','<code>3De8e8= / 3DCatchLight Subscribers</code>','1','Re-check the CatchLight link in Mailchimp; "=3D" is an encoding error'],
-    ['<span class="pill p-tip">Low</span> Per-subscriber IDs in utm_term','<code>0_12364d387a-6d7d207051-123767709</code> (CatchLight Mailchimp send)','98','Turn off Mailchimp\u2019s per-recipient term so rows roll up and recipients stay anonymous']]);
+  table('hyg-table',['Issue','What GA4 received','Sessions','How to fix (per the link generator)'],[
+    ['<span class="pill p-crit">High</span> Campaign name not on the approved list','<code>fall_campaign</code>','2,442','Use <code>control_book_launch</code> for all CONTROL placements; map fall_campaign to it in reporting'],
+    ['<span class="pill p-crit">High</span> Scrambled values from a link scanner','<code>abyy_dbzcbvta / FFVE Afjfyfggfe / Email</code>','2,580','Exclude from reporting and ask SSIR whether newsletter links pass through a security or click-tracking service'],
+    ['<span class="pill p-crit">High</span> Organic LinkedIn posts untagged','<code>?li_ed=…</code> landings counted as Direct','20,848','Use the generator row <em>LinkedIn organic post</em>: <code>linkedin / social</code>'],
+    ['<span class="pill p-crit">High</span> Meta ad IDs used as names','<code>120241471926500178</code> as utm_campaign, utm_content and utm_term','12,157','For future Meta ads use <code>control_book_launch / meta / paid_social</code> and put <code>{{ad.name}}</code> in utm_content'],
+    ['<span class="pill p-warn">Medium</span> Mixed case and spaces in sources','<code>SSIR</code>, <code>SSIR Newsletter</code>, <code>Inside Philanthropy</code>, <code>National Council on Nonprofits</code>','2,442','Lowercase with underscores: <code>ssir</code>, <code>inside_philanthropy</code>, <code>national_council_nonprofits</code>'],
+    ['<span class="pill p-warn">Medium</span> Mediums not in the Legend','<code>banner</code>, <code>Email</code>, <code>Newsletter</code>, <code>qr</code>, <code>QR code</code>','2,525','Banners use <code>display</code>, newsletters use <code>email</code>, QR codes and flyers use <code>print</code>'],
+    ['<span class="pill p-warn">Medium</span> Two QR code conventions','<code>BFR_Live_Events / In person event / QR code</code> and <code>break_fake_rules / qr_code / qr</code>','81','Use <code>break_fake_rules / qr_code / print</code> and add the row to the generator'],
+    ['<span class="pill p-warn">Medium</span> Template placeholder left in','<code>control_book_launch / [event_name] / qr</code>','2','Regenerate the QR from the generator\u2019s business card row: <code>qr_code / print / business_card</code>'],
+    ['<span class="pill p-tip">Low</span> Broken encoding in an email','<code>3De8e8= / 3DCatchLight Subscribers</code>','1','Re-check the CatchLight link in Mailchimp; "=3D" is an encoding error'],
+    ['<span class="pill p-tip">Low</span> Per-subscriber IDs in utm_term','<code>0_12364d387a-6d7d207051-123767709</code> (CatchLight Mailchimp send)','98','Turn off Mailchimp\u2019s per-recipient term so rows roll up and recipients stay anonymous']],{w:[24,30,9,37]});
+  const st=(k)=>({mis:'<span class="pill p-warn">Mismatch</span>',bad:'<span class="pill p-crit">Broken link</span>',none:'<span class="pill p-tip">Not seen</span>',add:'<span class="pill p-warn">Not in generator</span>',ok:'<span class="pill p-ok">Match</span>'})[k];
+  table('gen-table',['Planned link','Generator tags (campaign / source / medium / content)','What GA4 recorded','Sessions','Status','How to fix'],[
+    ['SSIR site banner','<code>control_book_launch / ssir / display / purchase</code>','<code>fall_campaign / SSIR / banner</code>','2,325',st('mis'),'Replace the live banner URL with the generator URL'],
+    ['SSIR site banner, free chapter','<code>… / ssir / display / free_chapter</code>, tags placed after <code>#download</code>','Nothing recorded','0',st('bad'),'Move the tags before the anchor: <code>/control/?utm_…&amp;utm_content=free_chapter#download</code>'],
+    ['SSIR newsletter ad','<code>control_book_launch / ssir / email / purchase</code>, term <code>-</code>','<code>fall_campaign / SSIR Newsletter / Email</code> plus 2,580 scrambled copies','109',st('mis'),'Use the generator URL and remove <code>utm_term=-</code>'],
+    ['SSIR newsletter ad, free chapter','<code>… / ssir / email / free_chapter</code>, tags after <code>#download</code>','Nothing recorded','0',st('bad'),'Same anchor fix as the banner'],
+    ['Chronicle banner, newsletter, dedicated blast','<code>control_book_launch / chronicle_philanthropy / display or email</code>','Nothing recorded','0',st('none'),'Confirm whether these ran. If they did, the live links went out without the planned tags'],
+    ['Inside Philanthropy banner, newsletter, blast','<code>control_book_launch / inside_philanthropy / display or email</code>','<code>fall_campaign / Inside Philanthropy / Newsletter</code>','2',st('mis'),'Swap to the generator URLs for any placements still running'],
+    ['Nonprofit Quarterly banner, newsletter','<code>control_book_launch / nonprofit_quarterly / display or email</code>','Nothing recorded','0',st('none'),'Confirm whether these ran'],
+    ['National Council on Nonprofits banner','Not in the generator','<code>fall_campaign / National Council on Nonprofits / banner</code>','6',st('add'),'Add a row: <code>control_book_launch / national_council_nonprofits / display</code>'],
+    ['LinkedIn paid ad (and free chapter version)','<code>control_book_launch / linkedin / paid_social</code>','Nothing recorded','0',st('none'),'Confirm whether ads ran; the free chapter version needs the anchor fix'],
+    ['LinkedIn organic post','<code>control_book_launch / linkedin / social</code>','Untagged <code>li_ed</code> landings counted as Direct','62 since Jun 1',st('none'),'Use this link on every post'],
+    ['Stupski email list','<code>control_book_launch / stupski / email</code>','Nothing recorded','0',st('none'),'Use this link in the next newsletter'],
+    ['QR code business cards','<code>control_book_launch / qr_code / print / buisness_card</code>','<code>control_book_launch / [event_name] / qr</code>','2',st('mis'),'Regenerate the QR from the generator row and correct the spelling to <code>business_card</code>'],
+    ['QR code flyers','<code>qr_code / print / flyer</code>, URL is missing utm_campaign','Nothing recorded','0',st('bad'),'Add <code>utm_campaign=control_book_launch</code> to the flyer URL before printing'],
+    ['Break Fake Rules QR codes','Not in the generator','<code>break_fake_rules / qr_code / qr</code>','42',st('add'),'Add a row: <code>break_fake_rules / qr_code / print</code>']],{w:[16,24,20,8,11,21]});
+  table('genfix-table',['Where in the generator','Issue','Effect in GA4','How to fix'],[
+    ['Tracking Generator, three free-chapter rows','UTM tags come after <code>#download</code> in the URL','GA4 only reads tags before the <code>#</code>, so these visits lose their campaign and show as Direct or Referral','Build these as <code>https://stupski.org/control/?utm_campaign=…&amp;utm_content=free_chapter#download</code>'],
+    ['Tracking Generator, QR flyers row','The URL has no <code>utm_campaign</code> (it starts <code>?&amp;utm_source=</code>)','Flyer scans arrive with campaign (not set)','Fix the URL formula so the CAMPAIGN cell is included'],
+    ['Tracking Generator, SSIR newsletter ad row','TERM cell holds a stray value, producing <code>utm_term=-</code>','Adds a meaningless term value to every newsletter click','Clear the TERM cell'],
+    ['Tracking Generator, business card row','Content value spelled <code>buisness_card</code>','Splits results if the spelling is ever corrected later','Use <code>business_card</code> before the cards are reprinted'],
+    ['Instructions tab, example link','Example uses <code>utm_keyword</code> and the medium <code>stillorg</code>','GA4 does not read <code>utm_keyword</code>','Change the example to <code>utm_term</code> and a medium from the Legend'],
+    ['Campaigns and Sources tab, medium list','<code>cpc</code>, <code>video</code>, <code>sms</code> and <code>audio</code> appear twice; <code>ppc</code>, <code>direct</code>, <code>offline</code> and <code>link</code> are listed','<code>direct</code>, <code>offline</code> and <code>link</code> send traffic to Unassigned, and <code>direct</code> overwrites real attribution','Keep one entry per medium and remove <code>ppc</code>, <code>direct</code>, <code>offline</code> and <code>link</code>'],
+    ['Campaigns and Sources tab, source list','Includes <code>direct</code>, <code>other</code> and <code>website</code>','These sources can\u2019t be traced back to a partner or placement','Remove them; add <code>ssir</code>, <code>chronicle_philanthropy</code>, <code>inside_philanthropy</code>, <code>nonprofit_quarterly</code> and <code>national_council_nonprofits</code> to the source list'],
+    ['Page URLs tab','CONTROL is listed as <code>/control</code> without the trailing slash; \u201CBrake Fake Rules\u201D typo','The site redirects <code>/control</code> to <code>/control/</code>, adding a hop before the page loads','Use <code>https://stupski.org/control/</code> as the base URL and fix the label']],{w:[20,27,26,27]});
+
 }
 
 /* ---------- CONTROL ---------- */
@@ -603,13 +642,15 @@ function renderTour(){
 function renderRecs(){
   const groups=[
     ['⚡','Quick Wins',[
-      ['p-crit','Now','Verify the SSIR campaign numbers before reporting them','Request SSIR\u2019s delivered impressions and clicks for the banner and newsletter, by day, and compare them against GA4\u2019s 2,327 banner and 109 newsletter sessions. If SSIR reports far fewer clicks, the gap is ad-verification or bot traffic and should be excluded from campaign results.'],
-      ['p-crit','Now','Confirm which Google Ads account is still serving','GA4 recorded \u201CCONTROL Book \u2013 Demand Gen\u201D sessions Sept 15 to 18 and cross-network sessions on Oct 6, after the Sept 9 cancellation. Also check the 230 google / cpc sessions in August and September with zero engagement time.'],
+      ['p-crit','Now','Fix the free-chapter anchor links in the link generator','The three free-chapter rows place the UTM tags after <code>#download</code>, where GA4 can\u2019t read them. Rebuild them as <code>https://stupski.org/control/?utm_campaign=control_book_launch&amp;utm_source=…&amp;utm_medium=…&amp;utm_content=free_chapter#download</code> before any free-chapter placement runs.'],
+      ['p-crit','Now','Verify the SSIR campaign numbers before reporting them','Request SSIR\u2019s delivered impressions and clicks for the banner and newsletter, by day, and compare them against GA4\u2019s 2,327 banner and 109 newsletter sessions. If SSIR reports far fewer clicks, report SSIR\u2019s count and treat the gap as ad-verification or bot traffic.'],
       ['p-warn','This month','Update the /break-fake-rules/ page title and meta description','The page still holds 92.7% of site impressions at a 0.06% CTR. A title such as "Break Fake Rules Podcast | Glen Galaich | Stupski Foundation" signals podcast context right in search results.']]],
     ['🏷️','Tracking & Data Quality',[
+      ['p-crit','Now','Swap every live campaign link for its generator URL','The fall placements went live as <code>fall_campaign</code> with sources like <code>SSIR</code> and mediums like <code>banner</code>. Send SSIR, Inside Philanthropy, National Council on Nonprofits and any Chronicle or Nonprofit Quarterly placements the exact URL from the generator\u2019s URL column, and ask each partner to confirm the swap. Add rows for National Council on Nonprofits and the Break Fake Rules QR codes.'],
+      ['p-warn','This month','Clean up the link generator','Add <code>utm_campaign</code> to the QR flyer URL, clear the <code>-</code> in the SSIR newsletter TERM cell, correct <code>buisness_card</code>, change <code>utm_keyword</code> to <code>utm_term</code> on the Instructions tab, and trim the medium list to one entry per defined medium (drop <code>ppc</code>, <code>direct</code>, <code>offline</code> and <code>link</code>).'],
+      ['p-warn','This month','Tag every LinkedIn post and newsletter','Use the generator\u2019s <em>LinkedIn organic post</em> and <em>Stupski email list</em> rows for every share, including Glen\u2019s personal posts. Untagged LinkedIn clicks land in Direct, which hid 20,786 /control/ visits in the spring.'],
       ['p-warn','This month','Re-scope the GA4 key events','<code>control_page_view</code> is marked as a key event, so every /control/ visit counts as engaged and as a conversion. Un-mark it and keep key events for real actions: Order Now, signed copy, free chapter signup, discussion guide download and outbound retailer clicks.'],
-      ['p-warn','This month','Adopt one UTM convention and a shared link builder','Use the lowercase vocabulary on the UTM tab for every link Stupski or a partner shares. Fix Meta\u2019s ID-based names with <code>{{campaign.name}}</code> macros, and add UTMs to every LinkedIn post so those visits stop landing in Direct. 4Site can set up the link builder and a short how-to.'],
-      ['p-warn','This month','Build a filtered GA4 view for campaign reporting','Create a GA4 comparison or exploration segment that excludes the <code>abyy_dbzcbvta</code> campaign and the known data-center cities, so campaign reports reflect people.']]],
+      ['p-tip','This month','Build a filtered GA4 view for campaign reporting','Create a GA4 exploration segment that excludes the <code>abyy_dbzcbvta</code> campaign and the known data-center cities, and save a campaign report filtered to <code>control_book_launch</code> so Claire can check results by source and content.']]],
     ['🔧','Conversion & Performance',[
       ['p-tip','Next quarter','Keep working on page speed','Site-wide LCP is 5.5s and CLS 0.34 in Clarity field data. Add explicit width and height to hero media, compress the largest images, and clear the recurring <code>jquery is not defined</code> and <code>wp is not defined</code> errors.'],
       ['p-tip','Next quarter','Add PodcastSeries schema and internal links','Mark up /break-fake-rules/ as a podcast and cross-link /control/, Glen\u2019s bio and the podcast so search engines and AI assistants connect them.'],
